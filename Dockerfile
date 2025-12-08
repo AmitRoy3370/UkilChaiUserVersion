@@ -1,20 +1,30 @@
-# ---------- Stage 1: Build with Java 25 ----------
-FROM eclipse-temurin:25-jdk AS build
+# ---------- BUILD STAGE ----------
+FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 
-# Install Maven manually since maven:*-25 doesn't exist
-RUN apt-get update && apt-get install -y maven
+# Copy Maven wrapper and config first
+COPY .mvn .mvn
+COPY mvnw pom.xml ./
 
-# Copy and build
-COPY pom.xml .
-RUN mvn dependency:go-offline -B
+# ✅ Fix permission for Linux
+RUN chmod +x mvnw
+
+# Download dependencies (cache layer)
+RUN ./mvnw dependency:go-offline
+
+# Copy source code
 COPY src ./src
-RUN mvn clean package -DskipTests
 
-# ---------- Stage 2: Run ----------
-FROM eclipse-temurin:25-jdk-alpine
+# Build the JAR
+RUN ./mvnw clean package -DskipTests
+
+
+# ---------- RUN STAGE ----------
+FROM eclipse-temurin:21-jre
 WORKDIR /app
+
 COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
+
 ENTRYPOINT ["java", "-jar", "app.jar"]
