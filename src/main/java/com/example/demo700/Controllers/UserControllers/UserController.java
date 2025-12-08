@@ -8,6 +8,9 @@ import java.util.Map;
 
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,19 +58,16 @@ public class UserController {
 				return ResponseEntity.status(500).body("Data is not updated...");
 			}
 			ResponseEntity<?> responseEntity = ResponseEntity.status(200).body(updated);
-			/*try {
-				GridFSFile file1 = imageService.getFile(updated.getProfileImageId());
-				if (file1 == null) {
-				} else {
-					((Object) responseEntity).setContentType(file1.getMetadata().getString("type"));
-					((Object) responseEntity).setHeader("Content-Disposition",
-							"inline; filename=\"" + file1.getFilename() + "\"");
-					InputStream stream = imageService.getStream(file1);
-					IOUtils.copy(stream, responseEntity.getOutputStream());
-					((Object) responseEntity).flushBuffer();
-				}
-			} catch (Exception e) {
-			}*/
+			/*
+			 * try { GridFSFile file1 = imageService.getFile(updated.getProfileImageId());
+			 * if (file1 == null) { } else { ((Object)
+			 * responseEntity).setContentType(file1.getMetadata().getString("type"));
+			 * ((Object) responseEntity).setHeader("Content-Disposition",
+			 * "inline; filename=\"" + file1.getFilename() + "\""); InputStream stream =
+			 * imageService.getStream(file1); IOUtils.copy(stream,
+			 * responseEntity.getOutputStream()); ((Object) responseEntity).flushBuffer(); }
+			 * } catch (Exception e) { }
+			 */
 			return responseEntity;
 		} catch (Exception e) {
 			return ResponseEntity.status(400).body(e.getMessage());
@@ -112,6 +112,33 @@ public class UserController {
 			return ResponseEntity.ok(userService.findByProfileImageId(profileImageId));
 		} catch (Exception e) {
 			return ResponseEntity.status(404).body(e.getMessage());
+		}
+	}
+
+	// ✅ DOWNLOAD PROFILE IMAGE
+	@GetMapping("/download/{imageId}")
+	public ResponseEntity<?> downloadImage(@PathVariable String imageId) {
+		try {
+			GridFSFile file = imageService.getFile(imageId);
+
+			if (file == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Image not found");
+			}
+
+			InputStream stream = imageService.getStream(file);
+
+			return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().get("type").toString()))
+					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
+					.body(new InputStreamResource(stream));
+
+		} catch (IOException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
+		} catch (java.io.IOException e) {
+			// TODO Auto-generated catch block
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
 		}
 	}
 }
