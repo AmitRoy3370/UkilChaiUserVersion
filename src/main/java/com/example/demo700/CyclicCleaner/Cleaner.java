@@ -4,12 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.Model.AdminModels.Admin;
+import com.example.demo700.Model.AdminModels.AdminJoinRequest;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Model.UserModels.UserContactInfo;
 import com.example.demo700.Model.UserModels.UserLocation;
+import com.example.demo700.Repositories.AdminRepositories.AdminJoinRequestRepository;
 import com.example.demo700.Repositories.AdminRepositories.AdminRepository;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateJoinRequestRepository;
@@ -45,6 +47,9 @@ public class Cleaner {
 
 	@Autowired
 	private AdvocateRepositories advocateRepository;
+
+	@Autowired
+	private AdminJoinRequestRepository adminJoinRequestRepository;
 
 	public void removeUser(String userId) {
 
@@ -150,6 +155,20 @@ public class Cleaner {
 
 				} catch (Exception e) {
 
+				}
+				
+				try {
+					
+					AdminJoinRequest adminJoinRequest = adminJoinRequestRepository.findByUserId(user.getId());
+					
+					if(adminJoinRequest != null) {
+						
+						removeAdminJoinRequest(adminJoinRequest.getId());
+						
+					}
+					
+				} catch(Exception e) {
+					
 				}
 
 			}
@@ -307,6 +326,30 @@ public class Cleaner {
 						removeAdvocate(i);
 
 					}
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeAdminJoinRequest(String adminJoinRequestId) {
+
+		try {
+
+			AdminJoinRequest adminJoinRequest = adminJoinRequestRepository.findById(adminJoinRequestId).get();
+
+			if (adminJoinRequest != null) {
+
+				long count = adminJoinRequestRepository.count();
+
+				adminJoinRequestRepository.deleteById(adminJoinRequestId);
+
+				if (count != adminJoinRequestRepository.count()) {
 
 				}
 
