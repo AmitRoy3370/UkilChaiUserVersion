@@ -383,7 +383,7 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 
 			}
 
-			if (!adminJoinRequest.getUserId().equals(userId)) {
+			if (adminJoinRequest.getUserId().equals(userId)) {
 
 				throw new ArithmeticException();
 
