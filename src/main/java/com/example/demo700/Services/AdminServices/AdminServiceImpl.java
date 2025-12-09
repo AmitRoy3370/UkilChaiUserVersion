@@ -261,6 +261,8 @@ public class AdminServiceImpl implements AdminService {
 
 		}
 
+		admin.setId(adminId);
+		
 		admin = adminRepository.save(admin);
 
 		return admin;
