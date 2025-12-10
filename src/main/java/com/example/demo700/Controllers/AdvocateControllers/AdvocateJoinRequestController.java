@@ -1,6 +1,7 @@
 package com.example.demo700.Controllers.AdvocateControllers;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
 import com.example.demo700.Services.AdvocateServices.AdvocateJoinRequestService;
 import com.example.demo700.Utils.FileHexConverter;
@@ -29,7 +31,7 @@ public class AdvocateJoinRequestController {
 	// ------------------------ ADD REQUEST ---------------------------------------
 	@PostMapping(consumes = { "multipart/form-data" })
 	public ResponseEntity<?> addAdvocate(@RequestPart("userId") String userId,
-			@RequestPart("advocateSpeciality") String advocateSpeciality, @RequestPart("experience") String experience,
+			@RequestPart("advocateSpeciality") Set<AdvocateSpeciality> advocateSpeciality, @RequestPart("experience") String experience,
 			@RequestPart("licenseKey") String licenseKey, @RequestPart("degrees") String degreesJson,
 			@RequestPart("workingExperiences") String workJson,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
@@ -43,7 +45,7 @@ public class AdvocateJoinRequestController {
 
 		try {
 
-			request.setAdvocateSpeciality(com.example.demo700.ENums.AdvocateSpeciality.valueOf(advocateSpeciality).toString());
+			request.setAdvocateSpeciality(advocateSpeciality);
 
 		} catch (Exception e) {
 
@@ -92,7 +94,7 @@ public class AdvocateJoinRequestController {
 	// ------------------------ UPDATE REQUEST -------------------------------------
 	@PutMapping(value = "/{advocateId}", consumes = { "multipart/form-data" })
 	public ResponseEntity<?> updateAdvocate(@PathVariable("advocateId") String advocateId,
-			@RequestPart("userId") String userId, @RequestPart("advocateSpeciality") String advocateSpeciality,
+			@RequestPart("userId") String userId, @RequestPart("advocateSpeciality") Set<AdvocateSpeciality> advocateSpeciality,
 			@RequestPart("experience") String experience, @RequestPart("licenseKey") String licenseKey,
 			@RequestPart("degrees") String degreesJson, @RequestPart("workingExperiences") String workJson,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
@@ -106,7 +108,7 @@ public class AdvocateJoinRequestController {
 
 		try {
 
-			request.setAdvocateSpeciality(com.example.demo700.ENums.AdvocateSpeciality.valueOf(advocateSpeciality).toString());
+			request.setAdvocateSpeciality(advocateSpeciality);
 
 		} catch (Exception e) {
 
