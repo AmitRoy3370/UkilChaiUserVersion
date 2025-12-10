@@ -32,7 +32,7 @@ public class AdvocateJoinRequestController {
 	// ------------------------ ADD REQUEST ---------------------------------------
 	@PostMapping(consumes = { "multipart/form-data" })
 	public ResponseEntity<?> addAdvocate(@RequestPart("userId") String userId,
-			@RequestPart("advocateSpeciality") Set<AdvocateSpeciality> advocateSpeciality,
+			@RequestPart("advocateSpeciality") String advocateSpeciality,
 			@RequestPart("experience") String experience, @RequestPart("licenseKey") String licenseKey,
 			@RequestPart("degrees") String degreesJson, @RequestPart("workingExperiences") String workJson,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
@@ -44,9 +44,19 @@ public class AdvocateJoinRequestController {
 		String[] degrees = mapper.readValue(degreesJson, String[].class);
 		String[] workingExperiences = mapper.readValue(workJson, String[].class);
 
+		String _advocateSpeciality[] = mapper.readValue(advocateSpeciality, String[].class);
+		
 		try {
 
-			request.setAdvocateSpeciality(advocateSpeciality);
+			Set<AdvocateSpeciality> set = new HashSet<>(); 
+			
+			for(String i : _advocateSpeciality) {
+				
+				set.add(AdvocateSpeciality.valueOf(i));
+				
+			}
+			
+			request.setAdvocateSpeciality(set);
 
 		} catch (Exception e) {
 
