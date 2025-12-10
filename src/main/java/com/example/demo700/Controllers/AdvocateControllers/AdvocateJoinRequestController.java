@@ -1,5 +1,6 @@
 package com.example.demo700.Controllers.AdvocateControllers;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -31,9 +32,9 @@ public class AdvocateJoinRequestController {
 	// ------------------------ ADD REQUEST ---------------------------------------
 	@PostMapping(consumes = { "multipart/form-data" })
 	public ResponseEntity<?> addAdvocate(@RequestPart("userId") String userId,
-			@RequestPart("advocateSpeciality") Set<AdvocateSpeciality> advocateSpeciality, @RequestPart("experience") String experience,
-			@RequestPart("licenseKey") String licenseKey, @RequestPart("degrees") String degreesJson,
-			@RequestPart("workingExperiences") String workJson,
+			@RequestPart("advocateSpeciality") Set<AdvocateSpeciality> advocateSpeciality,
+			@RequestPart("experience") String experience, @RequestPart("licenseKey") String licenseKey,
+			@RequestPart("degrees") String degreesJson, @RequestPart("workingExperiences") String workJson,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 
 		AdvocateJoinRequest request = new AdvocateJoinRequest();
@@ -94,7 +95,7 @@ public class AdvocateJoinRequestController {
 	// ------------------------ UPDATE REQUEST -------------------------------------
 	@PutMapping(value = "/{advocateId}", consumes = { "multipart/form-data" })
 	public ResponseEntity<?> updateAdvocate(@PathVariable("advocateId") String advocateId,
-			@RequestPart("userId") String userId, @RequestPart("advocateSpeciality") Set<AdvocateSpeciality> advocateSpeciality,
+			@RequestPart("userId") String userId, @RequestPart("advocateSpeciality") String[] advocateSpeciality,
 			@RequestPart("experience") String experience, @RequestPart("licenseKey") String licenseKey,
 			@RequestPart("degrees") String degreesJson, @RequestPart("workingExperiences") String workJson,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
@@ -108,7 +109,15 @@ public class AdvocateJoinRequestController {
 
 		try {
 
-			request.setAdvocateSpeciality(advocateSpeciality);
+			Set<AdvocateSpeciality> set = new HashSet<>();
+
+			for (String i : advocateSpeciality) {
+
+				set.add(AdvocateSpeciality.valueOf(i));
+
+			}
+
+			request.setAdvocateSpeciality(set);
 
 		} catch (Exception e) {
 
