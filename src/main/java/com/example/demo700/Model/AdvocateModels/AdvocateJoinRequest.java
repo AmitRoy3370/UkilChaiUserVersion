@@ -1,10 +1,12 @@
 package com.example.demo700.Model.AdvocateModels;
 
 import java.util.Arrays;
+import java.util.Set;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.example.demo700.ENums.AdvocateSpeciality;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.lang.NonNull;
 
@@ -18,7 +20,7 @@ public class AdvocateJoinRequest {
 	private String userId;
 
 	@NonNull
-	private String advocateSpeciality;
+	private Set<AdvocateSpeciality> advocateSpeciality;
 
 	private int experience;
 
@@ -32,11 +34,11 @@ public class AdvocateJoinRequest {
 
 	private String workingExperiences[];
 
-	public AdvocateJoinRequest(String userId, String advocateSpeciality, int experience, String licenseKey,
+	public AdvocateJoinRequest(String userId, Set<AdvocateSpeciality> advocateSpeciality, int experience, String licenseKey,
 			String cvHexKey, String[] degrees, String[] workingExperiences) {
 		super();
 		this.userId = userId;
-		this.advocateSpeciality = com.example.demo700.ENums.AdvocateSpeciality.valueOf(advocateSpeciality).toString();
+		this.advocateSpeciality = advocateSpeciality;
 		this.experience = experience;
 		this.licenseKey = licenseKey;
 		this.cvHexKey = cvHexKey;
@@ -64,11 +66,11 @@ public class AdvocateJoinRequest {
 		this.userId = userId;
 	}
 
-	public String getAdvocateSpeciality() {
+	public Set<AdvocateSpeciality> getAdvocateSpeciality() {
 		return advocateSpeciality;
 	}
 
-	public void setAdvocateSpeciality(String advocateSpeciality) {
+	public void setAdvocateSpeciality(Set<AdvocateSpeciality> advocateSpeciality) {
 		this.advocateSpeciality = advocateSpeciality;
 	}
 

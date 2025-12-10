@@ -1,10 +1,11 @@
 package com.example.demo700.Model.AdvocateModels;
 
 import java.util.Arrays;
+import java.util.Set;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
+import com.example.demo700.ENums.AdvocateSpeciality;
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "Advocate")
@@ -17,7 +18,7 @@ public class Advocate {
 	private String userId;
 
 	@NonNull
-	private com.example.demo700.ENums.AdvocateSpeciality advocateSpeciality;
+	private Set<AdvocateSpeciality> advocateSpeciality;
 
 	private int experience;
 
@@ -30,11 +31,11 @@ public class Advocate {
 
 	private String workingExperiences[];
 
-	public Advocate(String userId, String advocateSpeciality, int experience, String licenseKey, String cvHexKey,
+	public Advocate(String userId, Set<AdvocateSpeciality> advocateSpeciality, int experience, String licenseKey, String cvHexKey,
 			String[] degrees, String[] workingExperiences) {
 		super();
 		this.userId = userId;
-		this.advocateSpeciality = com.example.demo700.ENums.AdvocateSpeciality.valueOf(advocateSpeciality);
+		this.advocateSpeciality = advocateSpeciality;
 		this.experience = experience;
 		this.licenseKey = licenseKey;
 		this.cvHexKey = cvHexKey;
@@ -62,11 +63,11 @@ public class Advocate {
 		this.userId = userId;
 	}
 
-	public com.example.demo700.ENums.AdvocateSpeciality getAdvocateSpeciality() {
+	public Set<AdvocateSpeciality> getAdvocateSpeciality() {
 		return this.advocateSpeciality;
 	}
 
-	public void setAdvocateSpeciality(com.example.demo700.ENums.AdvocateSpeciality advocateSpeciality) {
+	public void setAdvocateSpeciality(Set<AdvocateSpeciality> advocateSpeciality) {
 		this.advocateSpeciality = advocateSpeciality;
 	}
 
