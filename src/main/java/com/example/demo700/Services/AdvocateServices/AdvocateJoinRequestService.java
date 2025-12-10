@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
 
 public interface AdvocateJoinRequestService {
@@ -26,6 +27,8 @@ public interface AdvocateJoinRequestService {
 
 	public AdvocateJoinRequest updateAdvocate(AdvocateJoinRequest advocate, String userId, String advocateId, MultipartFile file);
 
+	public Advocate handleJoinRequest(String userId, String advocateJoinRequestId);
+	
 	public boolean deleteAdvocate(String userId, String advocateId);
 
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.ENums.AdvocateSpeciality;
+import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
 import com.example.demo700.Services.AdvocateServices.AdvocateJoinRequestService;
 import com.example.demo700.Utils.FileHexConverter;
@@ -32,9 +33,9 @@ public class AdvocateJoinRequestController {
 	// ------------------------ ADD REQUEST ---------------------------------------
 	@PostMapping(consumes = { "multipart/form-data" })
 	public ResponseEntity<?> addAdvocate(@RequestPart("userId") String userId,
-			@RequestPart("advocateSpeciality") String advocateSpeciality,
-			@RequestPart("experience") String experience, @RequestPart("licenseKey") String licenseKey,
-			@RequestPart("degrees") String degreesJson, @RequestPart("workingExperiences") String workJson,
+			@RequestPart("advocateSpeciality") String advocateSpeciality, @RequestPart("experience") String experience,
+			@RequestPart("licenseKey") String licenseKey, @RequestPart("degrees") String degreesJson,
+			@RequestPart("workingExperiences") String workJson,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 
 		AdvocateJoinRequest request = new AdvocateJoinRequest();
@@ -45,17 +46,17 @@ public class AdvocateJoinRequestController {
 		String[] workingExperiences = mapper.readValue(workJson, String[].class);
 
 		String _advocateSpeciality[] = mapper.readValue(advocateSpeciality, String[].class);
-		
+
 		try {
 
-			Set<AdvocateSpeciality> set = new HashSet<>(); 
-			
-			for(String i : _advocateSpeciality) {
-				
+			Set<AdvocateSpeciality> set = new HashSet<>();
+
+			for (String i : _advocateSpeciality) {
+
 				set.add(AdvocateSpeciality.valueOf(i));
-				
+
 			}
-			
+
 			request.setAdvocateSpeciality(set);
 
 		} catch (Exception e) {
@@ -117,8 +118,8 @@ public class AdvocateJoinRequestController {
 		String[] degrees = mapper.readValue(degreesJson, String[].class);
 		String[] workingExperiences = mapper.readValue(workJson, String[].class);
 
-		String [] specialities = mapper.readValue(advocateSpeciality, String[].class);
-		
+		String[] specialities = mapper.readValue(advocateSpeciality, String[].class);
+
 		try {
 
 			Set<AdvocateSpeciality> set = new HashSet<>();
@@ -163,13 +164,48 @@ public class AdvocateJoinRequestController {
 
 	}
 
+	// ----------------------- handle advocate join request-------------------------
+
+	@PutMapping("/handleJoinRequest")
+	public ResponseEntity<?> handleAdvocateJoinRequest(@RequestParam String userId,
+			@RequestParam String advocateJoinRequestId) {
+
+		try {
+
+			Advocate advocate = advocateJoinRequestService.handleJoinRequest(userId, advocateJoinRequestId);
+
+			if (advocate == null) {
+
+				return ResponseEntity.status(500).body("request is not accepted...");
+
+			}
+
+			return ResponseEntity.status(200).body(advocate);
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(400).body(e.getMessage());
+
+		}
+
+	}
+
 	// ------------------------ DELETE REQUEST -------------------------------------
 	@DeleteMapping("/delete/{advocateId}")
 	public ResponseEntity<?> deleteRequest(@PathVariable String advocateId, @RequestParam("userId") String userId) {
 
-		boolean deleted = advocateJoinRequestService.deleteAdvocate(userId, advocateId);
+		try {
 
-		return ResponseEntity.ok("Deleted = " + deleted);
+			boolean deleted = advocateJoinRequestService.deleteAdvocate(userId, advocateId);
+
+			return ResponseEntity.ok("Deleted = " + deleted);
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(400).body(e.getMessage());
+
+		}
+
 	}
 
 	// ----------------------- GET ALL REQUESTS

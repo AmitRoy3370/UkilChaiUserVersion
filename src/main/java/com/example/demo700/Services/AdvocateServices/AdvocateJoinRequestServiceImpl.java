@@ -1,7 +1,10 @@
 package com.example.demo700.Services.AdvocateServices;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,9 +12,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
 import com.example.demo700.ENums.AdvocateSpeciality;
+import com.example.demo700.Model.AdminModels.Admin;
+import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
 import com.example.demo700.Model.UserModels.User;
+import com.example.demo700.Repositories.AdminRepositories.AdminRepository;
+import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateJoinRequestRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
@@ -26,10 +33,19 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	private AdvocateRepositories advocateRepository;
 
 	@Autowired
+	private AdvocateService advocateService;
+
+	@Autowired
 	private UserRepository userRepository;
 
 	@Autowired
 	private CVUploadService cvUpload;
+
+	@Autowired
+	private CenterAdminRepository centerAdminRepositroy;
+
+	@Autowired
+	private AdminRepository adminRepository;
 
 	@Autowired
 	private Cleaner cleaner;
@@ -230,15 +246,15 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 		}
 
 		try {
-			
+
 			System.out.println("advocate scpeciality at service :- " + advocateSpeciality);
-			
-			com.example.demo700.ENums.AdvocateSpeciality speciality = com.example.demo700.ENums.AdvocateSpeciality.valueOf(advocateSpeciality);
+
+			com.example.demo700.ENums.AdvocateSpeciality speciality = com.example.demo700.ENums.AdvocateSpeciality
+					.valueOf(advocateSpeciality);
 
 			System.out.println("find at :- " + speciality.toString());
 
-			List<AdvocateJoinRequest> list = advocateJoinRequestRepository
-					.findByAdvocateSpeciality(speciality);
+			List<AdvocateJoinRequest> list = advocateJoinRequestRepository.findByAdvocateSpeciality(speciality);
 
 			if (list.isEmpty()) {
 
@@ -525,6 +541,32 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 			}
 
+			User user = userRepository.findById(userId).get();
+
+			if (user == null) {
+
+				throw new Exception();
+
+			}
+
+			try {
+
+				CenterAdmin centerAdmin = centerAdminRepositroy.findByUserId(user.getId());
+
+				if (centerAdmin != null) {
+
+					long count = advocateJoinRequestRepository.count();
+
+					cleaner.removeAdvocateJoinRequest(advocateId);
+
+					return count != advocateJoinRequestRepository.count();
+
+				}
+
+			} catch (Exception e) {
+
+			}
+
 			if (!advocate.getUserId().equals(userId)) {
 
 				throw new Exception();
@@ -542,6 +584,116 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 		cleaner.removeAdvocateJoinRequest(advocateId);
 
 		return count != advocateJoinRequestRepository.count();
+	}
+
+	@Override
+	public Advocate handleJoinRequest(String userId, String advocateJoinRequestId) {
+
+		if (userId == null || advocateJoinRequestId == null) {
+
+			throw new NullPointerException("False request...");
+
+		}
+
+		try {
+
+			AdvocateJoinRequest advocate = advocateJoinRequestRepository.findById(advocateJoinRequestId).get();
+
+			if (advocate == null) {
+
+				throw new Exception();
+
+			}
+
+			User user = userRepository.findById(userId).get();
+
+			if (user == null) {
+
+				throw new Exception();
+
+			}
+
+			Admin admin = adminRepository.findByUserId(user.getId());
+
+			if (admin == null) {
+
+				throw new Exception();
+
+			}
+
+			for (AdvocateSpeciality i : advocate.getAdvocateSpeciality()) {
+
+				if (!admin.getAdvocateSpeciality().contains(i)) {
+
+					throw new Exception();
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+			throw new ArithmeticException("Invalid credential...");
+
+		}
+
+		Advocate advocate = new Advocate();
+
+		AdvocateJoinRequest advocateJoinRequest = advocateJoinRequestRepository.findById(advocateJoinRequestId).get();
+
+		advocate.setAdvocateSpeciality(advocateJoinRequest.getAdvocateSpeciality());
+		advocate.setCvHexKey(advocateJoinRequest.getCvHexKey());
+		advocate.setDegrees(advocateJoinRequest.getDegrees());
+		advocate.setExperience(advocateJoinRequest.getExperience());
+		advocate.setLicenseKey(advocateJoinRequest.getLicenseKey());
+		advocate.setUserId(advocateJoinRequest.getUserId());
+		advocate.setWorkingExperiences(advocateJoinRequest.getWorkingExperiences());
+		advocate.setId(advocateJoinRequest.getId());
+
+		try {
+
+			advocate = advocateService.addVocate(advocate, advocate.getUserId());
+
+			if (advocate != null) {
+
+				Admin admin = adminRepository.findByUserId(userId);
+
+				CenterAdmin centerAdmin = centerAdminRepositroy.findByAdminsContainingIgnoreCase(admin.getId());
+
+				if (centerAdmin != null) {
+
+					if (centerAdmin.getAdvocates().isEmpty()) {
+
+						List<String> set = new ArrayList<>();
+
+						set.add(advocate.getId());
+
+						centerAdmin.setAdvocates(set);
+
+						centerAdminRepositroy.save(centerAdmin);
+
+					} else {
+
+						centerAdmin.getAdvocates().add(advocate.getId());
+
+						centerAdminRepositroy.save(centerAdmin);
+
+					}
+
+				}
+
+				cleaner.removeAdvocateJoinRequest(advocateJoinRequestId);
+
+			}
+
+			return advocate;
+
+		} catch (Exception e) {
+
+			throw new ArithmeticException(e.getMessage());
+
+		}
+
 	}
 
 }
