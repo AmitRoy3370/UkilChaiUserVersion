@@ -30,7 +30,7 @@ public class AdvocateJoinRequestController {
 	// --------------------------------------------------------
 
 	// ------------------------ ADD REQUEST ---------------------------------------
-	@PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_OCTET_STREAM_VALUE })
+	@PostMapping(consumes = { "multipart/form-data" })
 	public ResponseEntity<?> addAdvocate(@RequestPart("userId") String userId,
 			@RequestPart("advocateSpeciality") Set<AdvocateSpeciality> advocateSpeciality,
 			@RequestPart("experience") String experience, @RequestPart("licenseKey") String licenseKey,
@@ -93,9 +93,9 @@ public class AdvocateJoinRequestController {
 	// --------------------------------------------------------
 
 	// ------------------------ UPDATE REQUEST -------------------------------------
-	@PutMapping(value = "/{advocateId}", consumes =  { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_OCTET_STREAM_VALUE })
+	@PutMapping(value = "/{advocateId}", consumes = { "multipart/form-data" })
 	public ResponseEntity<?> updateAdvocate(@PathVariable("advocateId") String advocateId,
-			@RequestPart("userId") String userId, @RequestPart("advocateSpeciality") String[] advocateSpeciality,
+			@RequestPart("userId") String userId, @RequestPart("advocateSpeciality") String advocateSpeciality,
 			@RequestPart("experience") String experience, @RequestPart("licenseKey") String licenseKey,
 			@RequestPart("degrees") String degreesJson, @RequestPart("workingExperiences") String workJson,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
@@ -107,11 +107,13 @@ public class AdvocateJoinRequestController {
 		String[] degrees = mapper.readValue(degreesJson, String[].class);
 		String[] workingExperiences = mapper.readValue(workJson, String[].class);
 
+		String [] specialities = mapper.readValue(advocateSpeciality, String[].class);
+		
 		try {
 
 			Set<AdvocateSpeciality> set = new HashSet<>();
 
-			for (String i : advocateSpeciality) {
+			for (String i : specialities) {
 
 				set.add(AdvocateSpeciality.valueOf(i));
 
