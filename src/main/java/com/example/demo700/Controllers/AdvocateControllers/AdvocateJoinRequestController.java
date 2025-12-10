@@ -30,7 +30,7 @@ public class AdvocateJoinRequestController {
 	// --------------------------------------------------------
 
 	// ------------------------ ADD REQUEST ---------------------------------------
-	@PostMapping(consumes = { "multipart/form-data" })
+	@PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.ALL_VALUE })
 	public ResponseEntity<?> addAdvocate(@RequestPart("userId") String userId,
 			@RequestPart("advocateSpeciality") Set<AdvocateSpeciality> advocateSpeciality,
 			@RequestPart("experience") String experience, @RequestPart("licenseKey") String licenseKey,
@@ -93,7 +93,7 @@ public class AdvocateJoinRequestController {
 	// --------------------------------------------------------
 
 	// ------------------------ UPDATE REQUEST -------------------------------------
-	@PutMapping(value = "/{advocateId}", consumes = { "multipart/form-data" })
+	@PutMapping(value = "/{advocateId}", consumes =  { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.ALL_VALUE })
 	public ResponseEntity<?> updateAdvocate(@PathVariable("advocateId") String advocateId,
 			@RequestPart("userId") String userId, @RequestPart("advocateSpeciality") String[] advocateSpeciality,
 			@RequestPart("experience") String experience, @RequestPart("licenseKey") String licenseKey,
