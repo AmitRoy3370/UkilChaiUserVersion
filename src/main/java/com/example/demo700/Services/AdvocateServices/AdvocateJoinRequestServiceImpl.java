@@ -652,14 +652,20 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 		try {
 
-			advocate = advocateService.addVocate(advocate, advocate.getUserId());
+			advocate = advocateRepository.save(advocate);
 
 			if (advocate != null) {
 
+				System.out.println("advocate :- " + advocate.toString());
+				
 				Admin admin = adminRepository.findByUserId(userId);
 
+				System.out.println("admin :- " + admin.toString());
+				
 				CenterAdmin centerAdmin = centerAdminRepositroy.findByAdminsContainingIgnoreCase(admin.getId());
 
+				System.out.println(centerAdmin.toString());
+				
 				if (centerAdmin != null) {
 
 					if (centerAdmin.getAdvocates().isEmpty()) {
