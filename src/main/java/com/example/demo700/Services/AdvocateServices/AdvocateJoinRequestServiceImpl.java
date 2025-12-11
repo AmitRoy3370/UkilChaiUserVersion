@@ -656,16 +656,18 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 			if (advocate != null) {
 
+				cleaner.removeAdvocateJoinRequest(advocateJoinRequestId);
+
 				System.out.println("advocate :- " + advocate.toString());
-				
+
 				Admin admin = adminRepository.findByUserId(userId);
 
 				System.out.println("admin :- " + admin.toString());
-				
+
 				CenterAdmin centerAdmin = centerAdminRepositroy.findByAdminsContainingIgnoreCase(admin.getId());
 
-				System.out.println(centerAdmin.toString());
-				
+				System.out.println("hosting center admin :- " + centerAdmin.toString());
+
 				if (centerAdmin != null) {
 
 					if (centerAdmin.getAdvocates().isEmpty()) {
@@ -676,19 +678,21 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 						centerAdmin.setAdvocates(set);
 
-						centerAdminRepositroy.save(centerAdmin);
+						centerAdmin = centerAdminRepositroy.save(centerAdmin);
 
+						System.out.println("updated center admin :- " + centerAdmin.toString());
+						
 					} else {
 
 						centerAdmin.getAdvocates().add(advocate.getId());
 
-						centerAdminRepositroy.save(centerAdmin);
+						centerAdmin = centerAdminRepositroy.save(centerAdmin);
+						
+						System.out.println("udated center admin :- " + centerAdmin.toString());;
 
 					}
 
 				}
-
-				cleaner.removeAdvocateJoinRequest(advocateJoinRequestId);
 
 			}
 
