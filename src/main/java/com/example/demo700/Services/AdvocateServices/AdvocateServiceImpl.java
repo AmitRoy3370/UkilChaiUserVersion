@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -16,6 +18,7 @@ import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
+import com.example.demo700.Utils.FileHexConverter;
 
 @Service
 public class AdvocateServiceImpl implements AdvocateService {
@@ -492,5 +495,5 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 		return count != advocateRepository.count();
 	}
-
+	
 }

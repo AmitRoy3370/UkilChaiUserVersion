@@ -5,7 +5,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +17,7 @@ import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 
 import com.example.demo700.Services.AdvocateServices.AdvocateService;
+import com.example.demo700.Utils.FileHexConverter;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -157,10 +160,9 @@ public class AdvocateController {
 	// --------------------- UPDATE ---------------------
 	@PutMapping("/update/{advocateId}/{usersId}")
 	public ResponseEntity<?> updateAdvocate(@PathVariable String advocateId, @PathVariable String usersId,
-			@RequestPart("userId") String userId,
-			@RequestPart("advocateSpeciality") String advocateSpeciality, @RequestPart("experience") String experience,
-			@RequestPart("licenseKey") String licenseKey, @RequestPart("degrees") String degreesJson,
-			@RequestPart("workingExperiences") String workJson,
+			@RequestPart("userId") String userId, @RequestPart("advocateSpeciality") String advocateSpeciality,
+			@RequestPart("experience") String experience, @RequestPart("licenseKey") String licenseKey,
+			@RequestPart("degrees") String degreesJson, @RequestPart("workingExperiences") String workJson,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 
 		try {
@@ -212,6 +214,33 @@ public class AdvocateController {
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
+	}
+
+	// ------------------------ DOWNLOAD CV
+	// -------------------------------------------
+	@GetMapping("/cv/{advocateId}")
+	public ResponseEntity<?> downloadCv(@PathVariable String advocateId) {
+
+		try {
+
+			Advocate advocate = advocateService.findByUserId(advocateId);
+
+			if (advocate.getCvHexKey() == null)
+				return ResponseEntity.badRequest().body("No CV uploaded");
+
+			byte[] fileBytes = FileHexConverter.hexToFile(advocate.getCvHexKey());
+
+			String fileName = "advocate_cv.pdf"; // Or .doc/.docx if needed
+
+			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
+					.contentType(MediaType.APPLICATION_PDF).body(fileBytes);
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(400).body(e.getMessage());
+
+		}
+
 	}
 
 	// --------------------- DELETE ---------------------
