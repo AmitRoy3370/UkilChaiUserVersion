@@ -357,7 +357,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 			if (_advocate != null) {
 
-				if (!_advocate.getId().equals(userId)) {
+				if (!_advocate.getId().equals(advocateId)) {
 
 					throw new ArithmeticException();
 
