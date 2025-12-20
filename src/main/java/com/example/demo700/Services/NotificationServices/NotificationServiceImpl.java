@@ -9,11 +9,11 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+
 import com.example.demo700.Model.NotificationModel.Notification;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Repositories.NotificationRepository.NotificationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
-
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
@@ -107,4 +107,3 @@ public class NotificationServiceImpl implements NotificationService {
 	}
 
 }
-
