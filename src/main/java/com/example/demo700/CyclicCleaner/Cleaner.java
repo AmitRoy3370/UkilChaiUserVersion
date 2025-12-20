@@ -1,5 +1,7 @@
 package com.example.demo700.CyclicCleaner;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -8,14 +10,19 @@ import com.example.demo700.Model.AdminModels.AdminJoinRequest;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
+import com.example.demo700.Model.ChatModels.ChatMessage;
+import com.example.demo700.Model.NotificationModel.Notification;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Model.UserModels.UserContactInfo;
 import com.example.demo700.Model.UserModels.UserLocation;
+
 import com.example.demo700.Repositories.AdminRepositories.AdminJoinRequestRepository;
 import com.example.demo700.Repositories.AdminRepositories.AdminRepository;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateJoinRequestRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
+import com.example.demo700.Repositories.ChatRepositories.ChatMessageRepository;
+import com.example.demo700.Repositories.NotificationRepository.NotificationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
 import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
@@ -50,6 +57,12 @@ public class Cleaner {
 
 	@Autowired
 	private AdminJoinRequestRepository adminJoinRequestRepository;
+	
+	@Autowired
+	private ChatMessageRepository chatMessageRepository;
+	
+	@Autowired
+	private NotificationRepository notificationRepository;
 
 	public void removeUser(String userId) {
 
@@ -164,6 +177,35 @@ public class Cleaner {
 					if(adminJoinRequest != null) {
 						
 						removeAdminJoinRequest(adminJoinRequest.getId());
+						
+					}
+					
+				} catch(Exception e) {
+					
+				}
+				
+				try {
+					
+					List<ChatMessage> list = chatMessageRepository.findByReceiverOrSender(userId, userId);
+					
+					for(ChatMessage i : list) {
+						
+						removeChatMessage(i.getId());
+						
+					}
+					
+				} catch(Exception e) {
+					
+					
+				}
+				
+				try {
+					
+					List<Notification> list = notificationRepository.findByUserId(userId);
+					
+					for(Notification i : list) {
+						
+						removeNotification(i.getId());
 						
 					}
 					
@@ -361,4 +403,54 @@ public class Cleaner {
 
 	}
 
+	public void removeChatMessage(String id) {
+		
+		try {
+			
+			ChatMessage chatMessage = chatMessageRepository.findById(id).get();
+			
+			if(chatMessage != null) {
+				
+				long count = chatMessageRepository.count();
+				
+				chatMessageRepository.deleteById(id);
+				
+				if(count != chatMessageRepository.count()) {
+					
+				}
+				
+			}
+				
+					
+			
+		} catch(Exception e) {
+			
+		}
+		
+	}
+	
+	public void removeNotification(String id) {
+		
+		try {
+			
+			Notification notification = notificationRepository.findById(id).get();
+			
+			if(notification != null) {
+				
+				long count = notificationRepository.count();
+				
+				notificationRepository.deleteById(id);
+				
+				if(count != notificationRepository.count()) {
+					
+				}
+				
+			}
+			
+		} catch(Exception e) {
+			
+		}
+		
+	}
+	
 }
