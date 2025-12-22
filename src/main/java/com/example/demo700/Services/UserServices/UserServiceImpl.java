@@ -363,4 +363,33 @@ public class UserServiceImpl implements UserService {
 
 	}
 
+	@Override
+	public User searchUser(String userId) {
+
+		if (userId == null) {
+
+			throw new NullPointerException("False request...");
+
+		}
+
+		try {
+
+			User user = userRepository.findById(userId).get();
+
+			if (user == null) {
+
+				throw new Exception();
+
+			}
+
+			return user;
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such user exist at here...");
+
+		}
+
+	}
+
 }

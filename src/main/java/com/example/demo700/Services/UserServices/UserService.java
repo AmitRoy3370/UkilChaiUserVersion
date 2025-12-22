@@ -17,5 +17,6 @@ public interface UserService {
 	public User findByName(String name);
 	public List<User> findByProfileImageId(String profileImageId);
 	public JwtResponse LogIn(LoginRequest loginRequest);
+	public User searchUser(String userId);
 
 }

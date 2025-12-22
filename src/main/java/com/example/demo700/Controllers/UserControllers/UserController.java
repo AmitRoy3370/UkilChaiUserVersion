@@ -141,4 +141,30 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
 		}
 	}
+
+	// ✅ Find user by id
+
+	@GetMapping("/search")
+	public ResponseEntity<?> searchUserById(@RequestParam String userId) {
+
+		try {
+
+			User user = userService.searchUser(userId);
+
+			if (user == null) {
+
+				return ResponseEntity.status(404).body("No such user exist at here...");
+
+			}
+
+			return ResponseEntity.status(200).body(user);
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(404).body(e.getMessage());
+
+		}
+
+	}
+
 }
