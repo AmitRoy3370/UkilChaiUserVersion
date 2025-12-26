@@ -34,6 +34,8 @@ public interface AdvocatePostService {
 	
 	public AdvocatePost updateAdvocatePost(String postId, String userId, AdvocatePost advocatePost, MultipartFile file);
 	
+	public AdvocatePost searchPost(String advocateId);
+	
 	public boolean deleteAdvocatePost(String postId, String userId);
 
 }

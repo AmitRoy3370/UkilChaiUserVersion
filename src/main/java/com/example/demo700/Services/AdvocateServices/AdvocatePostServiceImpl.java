@@ -400,4 +400,33 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 		return list;
 	}
 
+	@Override
+	public AdvocatePost searchPost(String postId) {
+		
+		if(postId == null) {
+			
+			throw new NullPointerException("False request...");
+			
+		}
+		
+		try {
+			
+			AdvocatePost post = advocatePostRepository.findById(postId).get();
+			
+			if(post == null) {
+				
+				throw new Exception();
+				
+			}
+			
+			return post;
+			
+		} catch(Exception e) {
+			
+			throw new NoSuchElementException("No Such advocate find at here...");
+			
+		}
+		
+	}
+
 }
