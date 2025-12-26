@@ -10,6 +10,7 @@ import com.example.demo700.Model.AdminModels.AdminJoinRequest;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
+import com.example.demo700.Model.AdvocateModels.AdvocatePost;
 import com.example.demo700.Model.ChatModels.ChatMessage;
 import com.example.demo700.Model.NotificationModel.Notification;
 import com.example.demo700.Model.UserModels.User;
@@ -21,6 +22,7 @@ import com.example.demo700.Repositories.AdminRepositories.AdminRepository;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateJoinRequestRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
+import com.example.demo700.Repositories.AdvocateRepositories.PostRepository;
 import com.example.demo700.Repositories.ChatRepositories.ChatMessageRepository;
 import com.example.demo700.Repositories.NotificationRepository.NotificationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
@@ -57,12 +59,15 @@ public class Cleaner {
 
 	@Autowired
 	private AdminJoinRequestRepository adminJoinRequestRepository;
-	
+
 	@Autowired
 	private ChatMessageRepository chatMessageRepository;
-	
+
 	@Autowired
 	private NotificationRepository notificationRepository;
+
+	@Autowired
+	private PostRepository advocatePostRepository;
 
 	public void removeUser(String userId) {
 
@@ -169,48 +174,47 @@ public class Cleaner {
 				} catch (Exception e) {
 
 				}
-				
+
 				try {
-					
+
 					AdminJoinRequest adminJoinRequest = adminJoinRequestRepository.findByUserId(user.getId());
-					
-					if(adminJoinRequest != null) {
-						
+
+					if (adminJoinRequest != null) {
+
 						removeAdminJoinRequest(adminJoinRequest.getId());
-						
+
 					}
-					
-				} catch(Exception e) {
-					
+
+				} catch (Exception e) {
+
 				}
-				
+
 				try {
-					
+
 					List<ChatMessage> list = chatMessageRepository.findByReceiverOrSender(userId, userId);
-					
-					for(ChatMessage i : list) {
-						
+
+					for (ChatMessage i : list) {
+
 						removeChatMessage(i.getId());
-						
+
 					}
-					
-				} catch(Exception e) {
-					
-					
+
+				} catch (Exception e) {
+
 				}
-				
+
 				try {
-					
+
 					List<Notification> list = notificationRepository.findByUserId(userId);
-					
-					for(Notification i : list) {
-						
+
+					for (Notification i : list) {
+
 						removeNotification(i.getId());
-						
+
 					}
-					
-				} catch(Exception e) {
-					
+
+				} catch (Exception e) {
+
 				}
 
 			}
@@ -309,6 +313,24 @@ public class Cleaner {
 
 				if (count != advocateRepository.count()) {
 
+					try {
+
+						List<AdvocatePost> list = advocatePostRepository.findByAdvocateId(advocate.getId());
+
+						if (!list.isEmpty()) {
+
+							for (AdvocatePost i : list) {
+
+								removePost(i.getId());
+
+							}
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
 				}
 
 			}
@@ -404,53 +426,75 @@ public class Cleaner {
 	}
 
 	public void removeChatMessage(String id) {
-		
+
 		try {
-			
+
 			ChatMessage chatMessage = chatMessageRepository.findById(id).get();
-			
-			if(chatMessage != null) {
-				
+
+			if (chatMessage != null) {
+
 				long count = chatMessageRepository.count();
-				
+
 				chatMessageRepository.deleteById(id);
-				
-				if(count != chatMessageRepository.count()) {
-					
+
+				if (count != chatMessageRepository.count()) {
+
 				}
-				
+
 			}
-				
-					
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 		}
-		
+
 	}
-	
+
 	public void removeNotification(String id) {
-		
+
 		try {
-			
+
 			Notification notification = notificationRepository.findById(id).get();
-			
-			if(notification != null) {
-				
+
+			if (notification != null) {
+
 				long count = notificationRepository.count();
-				
+
 				notificationRepository.deleteById(id);
-				
-				if(count != notificationRepository.count()) {
-					
+
+				if (count != notificationRepository.count()) {
+
 				}
-				
+
 			}
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 		}
-		
+
 	}
-	
+
+	public void removePost(String postId) {
+
+		try {
+
+			AdvocatePost post = advocatePostRepository.findById(postId).get();
+
+			if (post != null) {
+
+				long count = advocatePostRepository.count();
+
+				advocatePostRepository.deleteById(postId);
+
+				if (advocatePostRepository.count() != count) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
 }
