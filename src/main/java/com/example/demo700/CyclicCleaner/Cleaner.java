@@ -13,6 +13,7 @@ import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
 import com.example.demo700.Model.AdvocateModels.AdvocatePost;
 import com.example.demo700.Model.ChatModels.ChatMessage;
 import com.example.demo700.Model.NotificationModel.Notification;
+import com.example.demo700.Model.QNAModels.AskQuestion;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Model.UserModels.UserContactInfo;
 import com.example.demo700.Model.UserModels.UserLocation;
@@ -25,6 +26,7 @@ import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositorie
 import com.example.demo700.Repositories.AdvocateRepositories.PostRepository;
 import com.example.demo700.Repositories.ChatRepositories.ChatMessageRepository;
 import com.example.demo700.Repositories.NotificationRepository.NotificationRepository;
+import com.example.demo700.Repositories.QNARepositories.QuestionRepository;
 import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
 import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
@@ -69,6 +71,9 @@ public class Cleaner {
 	@Autowired
 	private PostRepository advocatePostRepository;
 
+	@Autowired
+	private QuestionRepository questionRepository;
+	
 	public void removeUser(String userId) {
 
 		try {
@@ -215,6 +220,20 @@ public class Cleaner {
 
 				} catch (Exception e) {
 
+				}
+				
+				try {
+					
+					List<AskQuestion> list = questionRepository.findByUserId(user.getId());
+					
+					for(AskQuestion i : list) {
+						
+						removeQuestion(i.getId());
+						
+					}
+					
+				} catch(Exception e) {
+					
 				}
 
 			}
@@ -495,6 +514,30 @@ public class Cleaner {
 
 		}
 
+	}
+	
+	public void removeQuestion(String questionId) {
+		
+		try {
+			
+			AskQuestion question = questionRepository.findById(questionId).get();
+			
+			if(question != null) {
+				
+				long count = questionRepository.count();
+				
+				questionRepository.deleteById(questionId);
+				
+				if(count != questionRepository.count()) {
+					
+				}
+				
+			}
+			
+		} catch(Exception e) {
+			
+		}
+		
 	}
 
 }
