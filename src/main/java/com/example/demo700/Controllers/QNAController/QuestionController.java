@@ -26,8 +26,8 @@ public class QuestionController {
 	 * ------------------------------------------------- ASK QUESTION (POST)
 	 * multipart/form-data -------------------------------------------------
 	 */
-	@PostMapping(value = "/ask/{usersId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<?> askQuestion(@PathVariable String usersId, @RequestPart("userId") String userId,
+	@PostMapping(value = "/ask", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<?> askQuestion(@RequestPart("usersId") String usersId, @RequestPart("userId") String userId,
 			@RequestPart("message") String message, @RequestPart("questionType") AdvocateSpeciality questionType,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 		try {
@@ -51,8 +51,8 @@ public class QuestionController {
 	 * ------------------------------------------------- UPDATE QUESTION (PUT)
 	 * multipart/form-data -------------------------------------------------
 	 */
-	@PutMapping(value = "/update/{usersId}/{questionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<?> updateQuestion(@PathVariable String questionId, @PathVariable String usersId,
+	@PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<?> updateQuestion(@RequestPart("questionId") String questionId, @RequestPart("usersId") String usersId,
 			@RequestPart("userId") String userId, @RequestPart("message") String message,
 			@RequestPart("questionType") AdvocateSpeciality questionType,
 			@RequestPart("attachmentId") String attachmentId,
