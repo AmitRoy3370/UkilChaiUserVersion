@@ -32,9 +32,9 @@ public class QuestionController {
     )
     public ResponseEntity<?> askQuestion(
             @RequestParam String usersId,
-            @RequestPart(value="userId") String userId,
-            @RequestPart(value = "message", required = true) String message,
-            @RequestPart(value = "questionType", required = true) AdvocateSpeciality questionType,
+            @RequestPart("userId") String userId,
+            @RequestPart("message") String message,
+            @RequestPart("questionType") AdvocateSpeciality questionType,
             @RequestPart(value="file",required = false) MultipartFile file
     ) {
         try {
@@ -66,10 +66,10 @@ public class QuestionController {
     public ResponseEntity<?> updateQuestion(
             @PathVariable String questionId,
             @RequestParam String usersId,
-            @RequestPart(value = "userId", required = true) String userId,
-            @RequestPart(value = "message", required = true) String message,
-            @RequestPart(value = "questionType", required = true) AdvocateSpeciality questionType,
-            @RequestPart(value = "attachmentId", required = false) String attachmentId,
+            @RequestPart("userId") String userId,
+            @RequestPart("message") String message,
+            @RequestPart("questionType") AdvocateSpeciality questionType,
+            @RequestPart("attachmentId") String attachmentId,
             @RequestPart(value = "file",required = false) MultipartFile file
     ) {
         try {
