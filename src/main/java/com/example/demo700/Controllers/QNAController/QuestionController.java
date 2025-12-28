@@ -19,159 +19,140 @@ import com.example.demo700.Services.QNAServices.QuestionService;
 @RequestMapping("/api/questions")
 public class QuestionController {
 
-    @Autowired
-    private QuestionService questionService;
+	@Autowired
+	private QuestionService questionService;
 
-    /* -------------------------------------------------
-       ASK QUESTION (POST)
-       multipart/form-data
-    ------------------------------------------------- */
-    @PostMapping(
-        value = "/ask",
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
-    public ResponseEntity<?> askQuestion(
-            @RequestParam String usersId,
-            @RequestPart("userId") String userId,
-            @RequestPart("message") String message,
-            @RequestPart("questionType") AdvocateSpeciality questionType,
-            @RequestPart(value="file",required = false) MultipartFile file
-    ) {
-        try {
-            AskQuestion question = new AskQuestion();
-            question.setUserId(userId);
-            question.setMessage(message);
-            question.setQuestionType(questionType);
-            question.setPostTime(Instant.now());
+	/*
+	 * ------------------------------------------------- ASK QUESTION (POST)
+	 * multipart/form-data -------------------------------------------------
+	 */
+	@PostMapping(value = "/ask", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE,
+			MediaType.APPLICATION_OCTET_STREAM_VALUE })
+	public ResponseEntity<?> askQuestion(@RequestParam String usersId, @RequestPart("userId") String userId,
+			@RequestPart("message") String message, @RequestPart("questionType") AdvocateSpeciality questionType,
+			@RequestPart(value = "file", required = false) MultipartFile file) {
+		try {
+			AskQuestion question = new AskQuestion();
+			question.setUserId(userId);
+			question.setMessage(message);
+			question.setQuestionType(questionType);
+			question.setPostTime(Instant.now());
 
-            AskQuestion saved = questionService.AskQuestion(question, usersId, file);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+			AskQuestion saved = questionService.AskQuestion(question, usersId, file);
+			return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 
-        } catch (NullPointerException | NoSuchElementException | ArithmeticException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Something went wrong");
-        }
-    }
+		} catch (NullPointerException | NoSuchElementException | ArithmeticException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
+		}
+	}
 
-    /* -------------------------------------------------
-       UPDATE QUESTION (PUT)
-       multipart/form-data
-    ------------------------------------------------- */
-    @PutMapping(
-        value = "/update/{questionId}",
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
-    public ResponseEntity<?> updateQuestion(
-            @PathVariable String questionId,
-            @RequestParam String usersId,
-            @RequestPart("userId") String userId,
-            @RequestPart("message") String message,
-            @RequestPart("questionType") AdvocateSpeciality questionType,
-            @RequestPart("attachmentId") String attachmentId,
-            @RequestPart(value = "file",required = false) MultipartFile file
-    ) {
-        try {
-            AskQuestion question = new AskQuestion();
-            question.setUserId(userId);
-            question.setMessage(message);
-            question.setQuestionType(questionType);
+	/*
+	 * ------------------------------------------------- UPDATE QUESTION (PUT)
+	 * multipart/form-data -------------------------------------------------
+	 */
+	@PutMapping(value = "/update/{questionId}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE,
+			MediaType.APPLICATION_OCTET_STREAM_VALUE })
+	public ResponseEntity<?> updateQuestion(@PathVariable String questionId, @RequestParam String usersId,
+			@RequestPart("userId") String userId, @RequestPart("message") String message,
+			@RequestPart("questionType") AdvocateSpeciality questionType,
+			@RequestPart("attachmentId") String attachmentId,
+			@RequestPart(value = "file", required = false) MultipartFile file) {
+		try {
+			AskQuestion question = new AskQuestion();
+			question.setUserId(userId);
+			question.setMessage(message);
+			question.setQuestionType(questionType);
 
-            AskQuestion updated = questionService.updateQuestion(
-                    question, usersId, questionId, file);
+			AskQuestion updated = questionService.updateQuestion(question, usersId, questionId, file);
 
-            return ResponseEntity.ok(updated);
+			return ResponseEntity.ok(updated);
 
-        } catch (NullPointerException | NoSuchElementException | ArithmeticException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Something went wrong");
-        }
-    }
+		} catch (NullPointerException | NoSuchElementException | ArithmeticException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
+		}
+	}
 
-    /* -------------------------------------------------
-       GET ALL QUESTIONS
-    ------------------------------------------------- */
-    @GetMapping("/all")
-    public ResponseEntity<?> getAll() {
-        try {
-            List<AskQuestion> list = questionService.seeAll();
-            return ResponseEntity.ok(list);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+	/*
+	 * ------------------------------------------------- GET ALL QUESTIONS
+	 * -------------------------------------------------
+	 */
+	@GetMapping("/all")
+	public ResponseEntity<?> getAll() {
+		try {
+			List<AskQuestion> list = questionService.seeAll();
+			return ResponseEntity.ok(list);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 
-    /* -------------------------------------------------
-       FIND BY USER
-    ------------------------------------------------- */
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> findByUser(@PathVariable String userId) {
-        try {
-            return ResponseEntity.ok(questionService.findByUserId(userId));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+	/*
+	 * ------------------------------------------------- FIND BY USER
+	 * -------------------------------------------------
+	 */
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<?> findByUser(@PathVariable String userId) {
+		try {
+			return ResponseEntity.ok(questionService.findByUserId(userId));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 
-    /* -------------------------------------------------
-       FIND BY MESSAGE KEYWORD
-    ------------------------------------------------- */
-    @GetMapping("/search")
-    public ResponseEntity<?> search(@RequestParam String keyword) {
-        try {
-            return ResponseEntity.ok(
-                questionService.findByMessageContainingIgnoreCase(keyword)
-            );
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+	/*
+	 * ------------------------------------------------- FIND BY MESSAGE KEYWORD
+	 * -------------------------------------------------
+	 */
+	@GetMapping("/search")
+	public ResponseEntity<?> search(@RequestParam String keyword) {
+		try {
+			return ResponseEntity.ok(questionService.findByMessageContainingIgnoreCase(keyword));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 
-    /* -------------------------------------------------
-       FIND BY QUESTION TYPE
-    ------------------------------------------------- */
-    @GetMapping("/type/{type}")
-    public ResponseEntity<?> findByType(@PathVariable AdvocateSpeciality type) {
-        try {
-            return ResponseEntity.ok(questionService.findByQuestionType(type));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+	/*
+	 * ------------------------------------------------- FIND BY QUESTION TYPE
+	 * -------------------------------------------------
+	 */
+	@GetMapping("/type/{type}")
+	public ResponseEntity<?> findByType(@PathVariable AdvocateSpeciality type) {
+		try {
+			return ResponseEntity.ok(questionService.findByQuestionType(type));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 
-    /* -------------------------------------------------
-       FIND BY TIME RANGE
-    ------------------------------------------------- */
-    @GetMapping("/between")
-    public ResponseEntity<?> findBetween(
-            @RequestParam Instant start,
-            @RequestParam Instant end
-    ) {
-        try {
-            return ResponseEntity.ok(
-                questionService.findByPostTimeBetween(start, end)
-            );
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+	/*
+	 * ------------------------------------------------- FIND BY TIME RANGE
+	 * -------------------------------------------------
+	 */
+	@GetMapping("/between")
+	public ResponseEntity<?> findBetween(@RequestParam Instant start, @RequestParam Instant end) {
+		try {
+			return ResponseEntity.ok(questionService.findByPostTimeBetween(start, end));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 
-    /* -------------------------------------------------
-       DELETE QUESTION
-    ------------------------------------------------- */
-    @DeleteMapping("/{questionId}")
-    public ResponseEntity<?> delete(
-            @PathVariable String questionId,
-            @RequestParam String userId
-    ) {
-        try {
-            boolean deleted = questionService.removeQuestion(userId, questionId);
-            return ResponseEntity.ok(deleted);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+	/*
+	 * ------------------------------------------------- DELETE QUESTION
+	 * -------------------------------------------------
+	 */
+	@DeleteMapping("/{questionId}")
+	public ResponseEntity<?> delete(@PathVariable String questionId, @RequestParam String userId) {
+		try {
+			boolean deleted = questionService.removeQuestion(userId, questionId);
+			return ResponseEntity.ok(deleted);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 }
