@@ -28,13 +28,13 @@ public class QuestionController {
 	 */
 	@PostMapping(value = "/ask", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> askQuestion(@RequestPart("usersId") String usersId, @RequestPart("userId") String userId,
-			@RequestPart("message") String message, @RequestPart("questionType") AdvocateSpeciality questionType,
+			@RequestPart("message") String message, @RequestPart("questionType") String questionType,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 		try {
 			AskQuestion question = new AskQuestion();
 			question.setUserId(userId);
 			question.setMessage(message);
-			question.setQuestionType(questionType);
+			question.setQuestionType(AdvocateSpeciality.valueOf(questionType));
 			question.setPostTime(Instant.now());
 
 			AskQuestion saved = questionService.AskQuestion(question, usersId, file);
@@ -54,14 +54,15 @@ public class QuestionController {
 	@PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> updateQuestion(@RequestPart("questionId") String questionId, @RequestPart("usersId") String usersId,
 			@RequestPart("userId") String userId, @RequestPart("message") String message,
-			@RequestPart("questionType") AdvocateSpeciality questionType,
+			@RequestPart("questionType") String questionType,
 			@RequestPart("attachmentId") String attachmentId,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 		try {
 			AskQuestion question = new AskQuestion();
 			question.setUserId(userId);
 			question.setMessage(message);
-			question.setQuestionType(questionType);
+			question.setAttachmentId(attachmentId);
+			question.setQuestionType(AdvocateSpeciality.valueOf(questionType));
 
 			AskQuestion updated = questionService.updateQuestion(question, usersId, questionId, file);
 
