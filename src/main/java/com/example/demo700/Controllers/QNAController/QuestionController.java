@@ -26,8 +26,7 @@ public class QuestionController {
 	 * ------------------------------------------------- ASK QUESTION (POST)
 	 * multipart/form-data -------------------------------------------------
 	 */
-	@PostMapping(value = "/ask/{usersId}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE,
-			MediaType.APPLICATION_OCTET_STREAM_VALUE })
+	@PostMapping(value = "/ask/{usersId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> askQuestion(@PathVariable String usersId, @RequestPart("userId") String userId,
 			@RequestPart("message") String message, @RequestPart("questionType") AdvocateSpeciality questionType,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
@@ -52,8 +51,7 @@ public class QuestionController {
 	 * ------------------------------------------------- UPDATE QUESTION (PUT)
 	 * multipart/form-data -------------------------------------------------
 	 */
-	@PutMapping(value = "/update/{usersId}/{questionId}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE,
-			MediaType.APPLICATION_OCTET_STREAM_VALUE })
+	@PutMapping(value = "/update/{usersId}/{questionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> updateQuestion(@PathVariable String questionId, @PathVariable String usersId,
 			@RequestPart("userId") String userId, @RequestPart("message") String message,
 			@RequestPart("questionType") AdvocateSpeciality questionType,
