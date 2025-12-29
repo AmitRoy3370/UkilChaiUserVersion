@@ -218,6 +218,29 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	@Override
+	public AskQuestion findByQuestionId(String questionId) {
+		
+		try {
+			
+			AskQuestion question = questionRepository.findById(questionId).get();
+			
+			if(question == null) {
+				
+				throw new Exception();
+				
+			}
+			
+			return question;
+			
+		} catch(Exception e) {
+			
+			throw new NoSuchElementException("No such question find at here..");
+			
+		}
+		
+	}
+	
+	@Override
 	public AskQuestion updateQuestion(AskQuestion askQuestion, String userId, String questionId, MultipartFile file) {
 
 		if (askQuestion == null || userId == null) {

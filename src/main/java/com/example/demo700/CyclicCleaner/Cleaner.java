@@ -13,7 +13,9 @@ import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
 import com.example.demo700.Model.AdvocateModels.AdvocatePost;
 import com.example.demo700.Model.ChatModels.ChatMessage;
 import com.example.demo700.Model.NotificationModel.Notification;
+import com.example.demo700.Model.QNAModels.AnswerQuestion;
 import com.example.demo700.Model.QNAModels.AskQuestion;
+import com.example.demo700.Model.UserModels.AdvocateRating;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Model.UserModels.UserContactInfo;
 import com.example.demo700.Model.UserModels.UserLocation;
@@ -26,7 +28,9 @@ import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositorie
 import com.example.demo700.Repositories.AdvocateRepositories.PostRepository;
 import com.example.demo700.Repositories.ChatRepositories.ChatMessageRepository;
 import com.example.demo700.Repositories.NotificationRepository.NotificationRepository;
+import com.example.demo700.Repositories.QNARepositories.AnswerRepository;
 import com.example.demo700.Repositories.QNARepositories.QuestionRepository;
+import com.example.demo700.Repositories.UserRepositories.AdvocateRatingRepository;
 import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
 import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
@@ -73,7 +77,13 @@ public class Cleaner {
 
 	@Autowired
 	private QuestionRepository questionRepository;
-	
+
+	@Autowired
+	private AnswerRepository answerRepository;
+
+	@Autowired
+	private AdvocateRatingRepository advocateRatingRepository;
+
 	public void removeUser(String userId) {
 
 		try {
@@ -221,19 +231,33 @@ public class Cleaner {
 				} catch (Exception e) {
 
 				}
-				
+
 				try {
-					
+
 					List<AskQuestion> list = questionRepository.findByUserId(user.getId());
-					
-					for(AskQuestion i : list) {
-						
+
+					for (AskQuestion i : list) {
+
 						removeQuestion(i.getId());
-						
+
 					}
-					
-				} catch(Exception e) {
-					
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<AdvocateRating> list = advocateRatingRepository.findByUserId(user.getId());
+
+					for (AdvocateRating i : list) {
+
+						removeAdvocateRating(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
 				}
 
 			}
@@ -343,6 +367,40 @@ public class Cleaner {
 								removePost(i.getId());
 
 							}
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
+						List<AnswerQuestion> list = answerRepository.findByAdvocateId(advocate.getId());
+
+						for (AnswerQuestion i : list) {
+
+							removeAnswer(i.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
+						try {
+
+							List<AdvocateRating> list = advocateRatingRepository.findByAdvocateId(advocate.getId());
+
+							for (AdvocateRating i : list) {
+
+								removeAdvocateRating(i.getId());
+
+							}
+
+						} catch (Exception e) {
 
 						}
 
@@ -515,29 +573,77 @@ public class Cleaner {
 		}
 
 	}
-	
+
 	public void removeQuestion(String questionId) {
-		
+
 		try {
-			
+
 			AskQuestion question = questionRepository.findById(questionId).get();
-			
-			if(question != null) {
-				
+
+			if (question != null) {
+
 				long count = questionRepository.count();
-				
+
 				questionRepository.deleteById(questionId);
-				
-				if(count != questionRepository.count()) {
-					
+
+				if (count != questionRepository.count()) {
+
 				}
-				
+
 			}
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 		}
-		
+
+	}
+
+	public void removeAnswer(String answerId) {
+
+		try {
+
+			AnswerQuestion answer = answerRepository.findById(answerId).get();
+
+			if (answer != null) {
+
+				long count = answerRepository.count();
+
+				answerRepository.deleteById(answerId);
+
+				if (count != answerRepository.count()) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeAdvocateRating(String advocateRatingId) {
+
+		try {
+
+			AdvocateRating advocateRating = advocateRatingRepository.findById(advocateRatingId).get();
+
+			if (advocateRating != null) {
+
+				long count = advocateRatingRepository.count();
+
+				advocateRatingRepository.deleteById(advocateRatingId);
+
+				if (count != advocateRatingRepository.count()) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
 	}
 
 }

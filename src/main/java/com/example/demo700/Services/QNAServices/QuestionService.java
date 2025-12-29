@@ -25,6 +25,8 @@ public interface QuestionService {
     
     List<AskQuestion> findByQuestionType(AdvocateSpeciality questionType);
     
+    public AskQuestion findByQuestionId(String questionId);
+    
     public AskQuestion updateQuestion(AskQuestion askQuestion, String userId, String questionId, MultipartFile file);
     public boolean removeQuestion(String userId, String questionId);
 	
