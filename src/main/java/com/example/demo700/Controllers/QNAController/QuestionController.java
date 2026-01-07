@@ -87,7 +87,7 @@ public class QuestionController {
 		}
 	}
 
-	@PutMapping("/downloadQuestionContent")
+	@GetMapping("/downloadQuestionContent")
 	public ResponseEntity<?> downloadPostContent(@RequestParam String attachmentId) {
 		
 		try {

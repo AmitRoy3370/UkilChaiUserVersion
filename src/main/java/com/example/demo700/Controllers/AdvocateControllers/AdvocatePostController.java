@@ -203,7 +203,7 @@ public class AdvocatePostController {
 	// Download Post content
 	//--------------------------------------------------
 	
-	@PutMapping("download/postContent")
+	@GetMapping("download/postContent")
 	public ResponseEntity<?> downloadPostContent(@RequestParam String attachmentId) {
 		
 		try {
