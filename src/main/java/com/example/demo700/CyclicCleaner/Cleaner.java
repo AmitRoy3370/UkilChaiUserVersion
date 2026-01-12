@@ -11,6 +11,13 @@ import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
 import com.example.demo700.Model.AdvocateModels.AdvocatePost;
+import com.example.demo700.Model.CaseModels.AppealCase;
+import com.example.demo700.Model.CaseModels.AppealHearings;
+import com.example.demo700.Model.CaseModels.Case;
+import com.example.demo700.Model.CaseModels.CaseJudgment;
+import com.example.demo700.Model.CaseModels.CaseRequest;
+import com.example.demo700.Model.CaseModels.DocumentDraft;
+import com.example.demo700.Model.CaseModels.Hearing;
 import com.example.demo700.Model.ChatModels.ChatMessage;
 import com.example.demo700.Model.NotificationModel.Notification;
 import com.example.demo700.Model.QNAModels.AnswerQuestion;
@@ -26,6 +33,13 @@ import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateJoinRequestRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
 import com.example.demo700.Repositories.AdvocateRepositories.PostRepository;
+import com.example.demo700.Repositories.CaseRepositories.AppealHearingRepository;
+import com.example.demo700.Repositories.CaseRepositories.CaseAppealRepository;
+import com.example.demo700.Repositories.CaseRepositories.CaseJudgementRepository;
+import com.example.demo700.Repositories.CaseRepositories.CaseRepository;
+import com.example.demo700.Repositories.CaseRepositories.CaseRequestRepository;
+import com.example.demo700.Repositories.CaseRepositories.DocumentDraftRepository;
+import com.example.demo700.Repositories.CaseRepositories.HearingRepository;
 import com.example.demo700.Repositories.ChatRepositories.ChatMessageRepository;
 import com.example.demo700.Repositories.NotificationRepository.NotificationRepository;
 import com.example.demo700.Repositories.QNARepositories.AnswerRepository;
@@ -84,6 +98,27 @@ public class Cleaner {
 	@Autowired
 	private AdvocateRatingRepository advocateRatingRepository;
 
+	@Autowired
+	private CaseRequestRepository caseRequestRepository;
+
+	@Autowired
+	private CaseRepository caseRepository;
+
+	@Autowired
+	private CaseAppealRepository caseAppealRepository;
+
+	@Autowired
+	private HearingRepository hearingRepository;
+
+	@Autowired
+	private AppealHearingRepository appealHearingRepository;
+
+	@Autowired
+	private DocumentDraftRepository documentDraftRepository;
+
+	@Autowired
+	private CaseJudgementRepository caseJudgmentRepository;
+
 	public void removeUser(String userId) {
 
 		try {
@@ -101,6 +136,34 @@ public class Cleaner {
 			userRepository.deleteById(user.getId());
 
 			if (count != userRepository.count()) {
+
+				try {
+
+					List<Case> list = caseRepository.findByUserId(user.getId());
+
+					for (Case i : list) {
+
+						removeCase(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<CaseRequest> list = caseRequestRepository.findByUserId(user.getId());
+
+					for (CaseRequest caseRequest : list) {
+
+						removeCaseRequest(caseRequest.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
 
 				try {
 
@@ -355,6 +418,20 @@ public class Cleaner {
 				advocateRepository.deleteById(advocateId);
 
 				if (count != advocateRepository.count()) {
+
+					try {
+
+						List<Case> list = caseRepository.findByAdvocateId(advocate.getId());
+
+						for (Case i : list) {
+
+							removeCase(i.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
 
 					try {
 
@@ -635,6 +712,248 @@ public class Cleaner {
 				advocateRatingRepository.deleteById(advocateRatingId);
 
 				if (count != advocateRatingRepository.count()) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeCaseRequest(String caseRequestId) {
+
+		try {
+
+			CaseRequest caseRequest = caseRequestRepository.findById(caseRequestId).get();
+
+			if (caseRequest != null) {
+
+				long count = caseRequestRepository.count();
+
+				caseRequestRepository.deleteById(caseRequestId);
+
+				if (count != caseRequestRepository.count()) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeCase(String caseId) {
+
+		try {
+
+			Case acceptedCase = caseRepository.findById(caseId).get();
+
+			if (acceptedCase != null) {
+
+				long count = caseRepository.count();
+
+				caseRepository.deleteById(caseId);
+
+				if (count != caseRepository.count()) {
+
+					try {
+
+						CaseJudgment caseJudgment = caseJudgmentRepository.findByCaseId(acceptedCase.getId());
+
+						if (caseJudgment != null) {
+
+							removeCaseJudgment(caseJudgment.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
+						DocumentDraft draft = documentDraftRepository.findByCaseId(acceptedCase.getId());
+
+						if (draft != null) {
+
+							removeDocumentDraft(draft.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
+						List<Hearing> list = hearingRepository.findByCaseId(acceptedCase.getId());
+
+						for (Hearing i : list) {
+
+							removeHearing(i.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
+						AppealCase appeal = caseAppealRepository.findByCaseId(acceptedCase.getId());
+
+						if (appeal != null) {
+
+							removeCaseAppeal(appeal.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeCaseAppeal(String id) {
+
+		try {
+
+			AppealCase appeal = caseAppealRepository.findById(id).get();
+
+			if (appeal == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = caseAppealRepository.count();
+
+			caseAppealRepository.deleteById(id);
+
+			if (count != caseAppealRepository.count()) {
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeHearing(String id) {
+
+		try {
+
+			Hearing hearing = hearingRepository.findById(id).get();
+
+			if (hearing != null) {
+
+				long count = hearingRepository.count();
+
+				hearingRepository.deleteById(id);
+
+				if (count != hearingRepository.count()) {
+
+					try {
+
+						AppealHearings appeal = appealHearingRepository.findByHearingId(hearing.getId());
+
+						if (appeal != null) {
+
+							removeAppealHearing(appeal.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeAppealHearing(String id) {
+
+		try {
+
+			AppealHearings appeal = appealHearingRepository.findById(id).get();
+
+			if (appeal != null) {
+
+				long count = appealHearingRepository.count();
+
+				appealHearingRepository.deleteById(id);
+
+				if (count != appealHearingRepository.count()) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeDocumentDraft(String id) {
+
+		try {
+
+			DocumentDraft draft = documentDraftRepository.findById(id).get();
+
+			if (draft == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = documentDraftRepository.count();
+
+			documentDraftRepository.deleteById(id);
+
+			if (count != documentDraftRepository.count()) {
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeCaseJudgment(String id) {
+
+		try {
+
+			CaseJudgment caseJudgment = caseJudgmentRepository.findById(id).get();
+
+			if (caseJudgment != null) {
+
+				long count = caseJudgmentRepository.count();
+
+				caseJudgmentRepository.deleteById(id);
+
+				if (count != caseJudgmentRepository.count()) {
 
 				}
 
