@@ -23,6 +23,8 @@ import com.example.demo700.Model.NotificationModel.Notification;
 import com.example.demo700.Model.QNAModels.AnswerQuestion;
 import com.example.demo700.Model.QNAModels.AskQuestion;
 import com.example.demo700.Model.UserModels.AdvocateRating;
+import com.example.demo700.Model.UserModels.ClientFeedback;
+import com.example.demo700.Model.UserModels.PostReaction;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Model.UserModels.UserContactInfo;
 import com.example.demo700.Model.UserModels.UserLocation;
@@ -45,6 +47,8 @@ import com.example.demo700.Repositories.NotificationRepository.NotificationRepos
 import com.example.demo700.Repositories.QNARepositories.AnswerRepository;
 import com.example.demo700.Repositories.QNARepositories.QuestionRepository;
 import com.example.demo700.Repositories.UserRepositories.AdvocateRatingRepository;
+import com.example.demo700.Repositories.UserRepositories.ClientFeedbackRepository;
+import com.example.demo700.Repositories.UserRepositories.PostReactionRepository;
 import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
 import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
@@ -119,6 +123,12 @@ public class Cleaner {
 	@Autowired
 	private CaseJudgementRepository caseJudgmentRepository;
 
+	@Autowired
+	private ClientFeedbackRepository clientFeedbackRepository;
+
+	@Autowired
+	private PostReactionRepository postReactionRepository;
+
 	public void removeUser(String userId) {
 
 		try {
@@ -136,6 +146,34 @@ public class Cleaner {
 			userRepository.deleteById(user.getId());
 
 			if (count != userRepository.count()) {
+
+				try {
+
+					List<PostReaction> list = postReactionRepository.findByUserId(user.getId());
+
+					for (PostReaction i : list) {
+
+						removePostReaction(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<ClientFeedback> list = clientFeedbackRepository.findByUserId(user.getId());
+
+					for (ClientFeedback i : list) {
+
+						removeClientFeedback(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
 
 				try {
 
@@ -641,6 +679,20 @@ public class Cleaner {
 
 				if (advocatePostRepository.count() != count) {
 
+					try {
+
+						List<PostReaction> list = postReactionRepository.findByAdvocatePostId(post.getId());
+
+						for (PostReaction i : list) {
+
+							removePostReaction(i.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
 				}
 
 			}
@@ -760,6 +812,20 @@ public class Cleaner {
 				caseRepository.deleteById(caseId);
 
 				if (count != caseRepository.count()) {
+
+					try {
+
+						List<ClientFeedback> list = clientFeedbackRepository.findByCaseId(acceptedCase.getId());
+
+						for (ClientFeedback i : list) {
+
+							removeClientFeedback(i.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
 
 					try {
 
@@ -954,6 +1020,54 @@ public class Cleaner {
 				caseJudgmentRepository.deleteById(id);
 
 				if (count != caseJudgmentRepository.count()) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeClientFeedback(String id) {
+
+		try {
+
+			ClientFeedback feedback = clientFeedbackRepository.findById(id).get();
+
+			if (feedback != null) {
+
+				long count = clientFeedbackRepository.count();
+
+				clientFeedbackRepository.deleteById(id);
+
+				if (count != clientFeedbackRepository.count()) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removePostReaction(String id) {
+
+		try {
+
+			PostReaction postReaction = postReactionRepository.findById(id).get();
+
+			if (postReaction != null) {
+
+				long count = postReactionRepository.count();
+
+				postReactionRepository.deleteById(id);
+
+				if (count != postReactionRepository.count()) {
 
 				}
 
