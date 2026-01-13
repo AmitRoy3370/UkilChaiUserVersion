@@ -23,9 +23,9 @@ public class AppealHearingController {
     @PostMapping(value = "/add/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> add(
             @PathVariable String userId,
-            @RequestPart("hearingId") String hearingId,
-            @RequestPart("reason") String reason,
-            @RequestPart(value = "appealHearingTime", required = false) String appealTime) {
+            @RequestParam("hearingId") String hearingId,
+            @RequestParam("reason") String reason,
+            @RequestParam(value = "appealHearingTime", required = false) String appealTime) {
 
         try {
             AppealHearings appeal = new AppealHearings();
@@ -46,9 +46,9 @@ public class AppealHearingController {
     public ResponseEntity<?> update(
             @PathVariable String appealId,
             @PathVariable String userId,
-            @RequestPart("hearingId") String hearingId,
-            @RequestPart("reason") String reason,
-            @RequestPart(value = "appealHearingTime", required = false) String appealTime) {
+            @RequestParam("hearingId") String hearingId,
+            @RequestParam("reason") String reason,
+            @RequestParam(value = "appealHearingTime", required = false) String appealTime) {
 
         try {
             AppealHearings appeal = new AppealHearings();
