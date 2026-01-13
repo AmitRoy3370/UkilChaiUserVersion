@@ -36,7 +36,7 @@ public class DocumentDraftController {
 	public ResponseEntity<?> addDocumentDraft(@RequestPart("advocateId") String advocateId,
 			@RequestPart("caseId") String caseId,
 			@RequestPart(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant issuedDate,
-			@RequestPart(value = "files", required = false) MultipartFile[] files,
+			@RequestPart(value = "files", required = false) MultipartFile files[],
 			@RequestParam("userId") String userId) {
 		try {
 			DocumentDraft draft = new DocumentDraft();
@@ -56,7 +56,7 @@ public class DocumentDraftController {
 			@RequestPart("advocateId") String advocateId, @RequestPart("caseId") String caseId,
 			@RequestPart(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant issuedDate,
 			@RequestPart(value = "attachmentsId", required = false) String[] attachmentsId,
-			@RequestPart(value = "files", required = false) MultipartFile[] files,
+			@RequestPart(value = "files", required = false) MultipartFile files[],
 			@RequestParam("userId") String userId) {
 		try {
 			DocumentDraft draft = new DocumentDraft();

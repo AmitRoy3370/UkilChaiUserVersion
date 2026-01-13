@@ -36,7 +36,7 @@ public class CaseRequestController {
 	@PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> add(@RequestPart("caseName") String caseName, @RequestPart("caseType") String caseType,
 			@RequestPart("userId") String userId,
-			@RequestPart(value = "files", required = false) MultipartFile[] files) {
+			@RequestPart(value = "files", required = false) MultipartFile files[]) {
 		try {
 			CaseRequest request = new CaseRequest();
 			request.setCaseName(caseName);
@@ -54,7 +54,7 @@ public class CaseRequestController {
 	public ResponseEntity<?> update(@RequestPart("caseRequestId") String caseRequestId,
 			@RequestPart("caseName") String caseName, @RequestPart("caseType") String caseType,
 			@RequestPart("userId") String userId,
-			@RequestPart(value = "files", required = false) MultipartFile[] files) {
+			@RequestPart(value = "files", required = false) MultipartFile files[]) {
 		try {
 			CaseRequest request = new CaseRequest();
 			request.setCaseName(caseName);

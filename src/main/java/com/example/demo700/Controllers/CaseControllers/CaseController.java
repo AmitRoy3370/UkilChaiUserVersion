@@ -66,7 +66,7 @@ public class CaseController {
 	public ResponseEntity<?> updateCase(@RequestPart("caseId") String caseId, @RequestPart("caseName") String caseName,
 			@RequestPart("userId") String userId, @RequestPart("advocateId") String advocateId,
 			@RequestPart("caseType") String caseType,
-			@RequestPart(value = "files", required = false) MultipartFile[] files) {
+			@RequestPart(value = "files", required = false) MultipartFile files[]) {
 		try {
 			Case acceptedCase = new Case();
 			acceptedCase.setCaseName(caseName);

@@ -36,7 +36,7 @@ public class HearingController {
 	public ResponseEntity<?> addHearing(@PathVariable String userId, @RequestPart("caseId") String caseId,
 			@RequestPart("hearningNumber") int hearningNumber,
 			@RequestPart(value = "issuedDate", required = false) String issuedDate,
-			@RequestPart(value = "files", required = false) MultipartFile[] files) {
+			@RequestPart(value = "files", required = false) MultipartFile files[]) {
 
 		try {
 			Hearing hearing = new Hearing();
@@ -58,7 +58,7 @@ public class HearingController {
 	public ResponseEntity<?> updateHearing(@PathVariable String hearingId, @PathVariable String userId,
 			@RequestPart("caseId") String caseId, @RequestPart("hearningNumber") int hearningNumber,
 			@RequestPart(value = "issuedDate", required = false) String issuedDate,
-			@RequestPart(value = "files", required = false) MultipartFile[] files) {
+			@RequestPart(value = "files", required = false) MultipartFile files[]) {
 
 		try {
 			Hearing hearing = new Hearing();
