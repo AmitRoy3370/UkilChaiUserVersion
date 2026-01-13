@@ -499,9 +499,11 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 			acceptedCase.setCaseName(_caseRequest.getCaseName());
 			
+			String s[] = _caseRequest.getAttachmentId();
+			
 			_caseRequest.setAttachmentId(null);
 			
-			acceptedCase.setAttachmentId(_caseRequest.getAttachmentId());
+			acceptedCase.setAttachmentId(s);
 			acceptedCase.setCaseType(_caseRequest.getCaseType());
 			acceptedCase.setIssuedTime(_caseRequest.getRequestDate());
 			acceptedCase.setUserId(_caseRequest.getUserId());
