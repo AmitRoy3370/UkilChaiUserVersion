@@ -32,7 +32,7 @@ public class DocumentDraftController {
 	private ImageService imageService;
 
 	// ========================= ADD =========================
-	@PostMapping(value = "/add", consumes = "multipart/form-data")
+	@PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> addDocumentDraft(@RequestPart("advocateId") String advocateId,
 			@RequestPart("caseId") String caseId,
 			@RequestPart(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant issuedDate,
@@ -51,7 +51,7 @@ public class DocumentDraftController {
 	}
 
 	// ========================= UPDATE =========================
-	@PutMapping(value = "/update/{id}", consumes = "multipart/form-data")
+	@PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> updateDocumentDraft(@PathVariable("id") String documentDraftId,
 			@RequestPart("advocateId") String advocateId, @RequestPart("caseId") String caseId,
 			@RequestPart(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant issuedDate,

@@ -32,7 +32,7 @@ public class HearingController {
 	private ImageService imageService;
 
 	// ================= ADD =================
-	@PostMapping(value="/add/{userId}", consumes = "multipart/form-data")
+	@PostMapping(value="/add/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> addHearing(@PathVariable String userId, @RequestPart("caseId") String caseId,
 			@RequestPart("hearningNumber") int hearningNumber,
 			@RequestPart(value = "issuedDate", required = false) String issuedDate,
@@ -54,7 +54,7 @@ public class HearingController {
 	}
 
 	// ================= UPDATE =================
-	@PutMapping(value="/update/{hearingId}/{userId}", consumes = "multipart/form-data")
+	@PutMapping(value="/update/{hearingId}/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> updateHearing(@PathVariable String hearingId, @PathVariable String userId,
 			@RequestPart("caseId") String caseId, @RequestPart("hearningNumber") int hearningNumber,
 			@RequestPart(value = "issuedDate", required = false) String issuedDate,
