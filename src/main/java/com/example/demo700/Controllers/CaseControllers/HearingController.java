@@ -56,9 +56,9 @@ public class HearingController {
 	// ================= UPDATE =================
 	@PutMapping(value="/update/{hearingId}/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> updateHearing(@PathVariable String hearingId, @PathVariable String userId,
-			@RequestPart("caseId") String caseId, @RequestPart("hearningNumber") int hearningNumber,
-			@RequestPart(value = "issuedDate", required = false) String issuedDate,
-			@RequestPart(value = "files", required = false) MultipartFile files[]) {
+			@RequestParam("caseId") String caseId, @RequestParam("hearningNumber") int hearningNumber,
+			@RequestParam(value = "issuedDate", required = false) String issuedDate,
+			@RequestParam(value = "files", required = false) MultipartFile files[]) {
 
 		try {
 			Hearing hearing = new Hearing();
