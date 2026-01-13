@@ -114,7 +114,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 
 			}
 
-			if (!acceptedCase.getUserId().equals(userId)) {
+			if (!advocate.getUserId().equals(userId)) {
 
 				throw new Exception();
 
