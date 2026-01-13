@@ -62,7 +62,7 @@ public class CaseController {
 	}
 
 	// ================= UPDATE CASE =================
-	@PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> updateCase(@RequestPart("caseId") String caseId, @RequestPart("caseName") String caseName,
 			@RequestPart("userId") String userId, @RequestPart("advocateId") String advocateId,
 			@RequestPart("caseType") String caseType,
