@@ -164,7 +164,15 @@ public class CaseAppealServiceImpl implements CaseAppealService {
 
 			}
 
-			if (!caseAppeal.getId().equals(appealCaseId)) {
+			AppealCase appeal = caseAppealRepository.findByCaseId(acceptedCase.getId());
+			
+			if(appeal == null) {
+				
+				throw new Exception();
+				
+			}
+			
+			if (!appeal.getId().equals(appealCaseId)) {
 
 				throw new Exception();
 
