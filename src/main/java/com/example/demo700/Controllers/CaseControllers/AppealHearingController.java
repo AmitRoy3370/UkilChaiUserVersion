@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class AppealHearingController {
     private AppealHearingService appealService;
 
     // ================= ADD =================
-    @PostMapping("/add/{userId}")
+    @PostMapping(value = "/add/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> add(
             @PathVariable String userId,
             @RequestPart("hearingId") String hearingId,
@@ -41,7 +42,7 @@ public class AppealHearingController {
     }
 
     // ================= UPDATE =================
-    @PutMapping("/update/{appealId}/{userId}")
+    @PutMapping(value="/update/{appealId}/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> update(
             @PathVariable String appealId,
             @PathVariable String userId,
