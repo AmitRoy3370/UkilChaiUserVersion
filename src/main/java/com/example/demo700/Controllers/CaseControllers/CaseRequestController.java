@@ -152,18 +152,18 @@ public class CaseRequestController {
 	}
 
 	@GetMapping("/after")
-	public ResponseEntity<?> after(@RequestParam Instant date) {
+	public ResponseEntity<?> after(@RequestParam String date) {
 		try {
-			return ResponseEntity.ok(caseRequestService.findByIssuedTimeAfter(date));
+			return ResponseEntity.ok(caseRequestService.findByIssuedTimeAfter(Instant.parse(date)));
 		} catch (Exception e) {
 			return error(e);
 		}
 	}
 
 	@GetMapping("/before")
-	public ResponseEntity<?> before(@RequestParam Instant date) {
+	public ResponseEntity<?> before(@RequestParam String date) {
 		try {
-			return ResponseEntity.ok(caseRequestService.findByIssuedTimeBefore(date));
+			return ResponseEntity.ok(caseRequestService.findByIssuedTimeBefore(Instant.parse(date)));
 		} catch (Exception e) {
 			return error(e);
 		}

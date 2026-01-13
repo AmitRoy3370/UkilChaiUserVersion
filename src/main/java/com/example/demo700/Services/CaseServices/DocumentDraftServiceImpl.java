@@ -294,7 +294,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 				try {
 
-					if (index < documentDraft.getAttachmentsId().length
+					if (documentDraft.getAttachmentsId() != null && index < documentDraft.getAttachmentsId().length
 							&& documentDraft.getAttachmentsId()[index] != null) {
 
 						String id = fileUpload.update(documentDraft.getAttachmentsId()[index], file);

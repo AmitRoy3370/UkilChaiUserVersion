@@ -350,7 +350,7 @@ public class HearingServiceImpl implements HearingService {
 
 					try {
 
-						if (index < hearing.getAttachmentsId().length) {
+						if (hearing.getAttachmentsId() != null && index < hearing.getAttachmentsId().length) {
 
 							String id = attachmentService.update(hearing.getAttachmentsId()[index], file);
 

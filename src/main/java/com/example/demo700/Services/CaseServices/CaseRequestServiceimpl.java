@@ -228,7 +228,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 					try {
 
-						if (index < caseRequest.getAttachmentId().length && caseRequest.getAttachmentId()[index] != null) {
+						if (caseRequest.getAttachmentId() != null && index < caseRequest.getAttachmentId().length && caseRequest.getAttachmentId()[index] != null) {
 
 							String id = fileUpload.update(caseRequest.getAttachmentId()[index], file);
 

@@ -126,7 +126,7 @@ public class CaseServiceImpl implements CaseService {
 
 					try {
 
-						if (index < acceptedCase.getAttachmentsId().length && acceptedCase.getAttachmentsId()[index] != null) {
+						if (acceptedCase.getAttachmentsId() != null && index < acceptedCase.getAttachmentsId().length && acceptedCase.getAttachmentsId()[index] != null) {
 
 							String id = fileUpload.update(acceptedCase.getAttachmentsId()[index], file);
 

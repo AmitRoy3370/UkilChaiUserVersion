@@ -145,9 +145,9 @@ public class DocumentDraftController {
 
 	// ========================= FIND AFTER DATE =========================
 	@GetMapping("/after")
-	public ResponseEntity<?> findAfter(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant date) {
+	public ResponseEntity<?> findAfter(@RequestParam String date) {
 		try {
-			return ResponseEntity.ok(documentDraftService.findByIssuedDateAfter(date));
+			return ResponseEntity.ok(documentDraftService.findByIssuedDateAfter(Instant.parse(date)));
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
@@ -156,9 +156,9 @@ public class DocumentDraftController {
 	// ========================= FIND BEFORE DATE =========================
 	@GetMapping("/before")
 	public ResponseEntity<?> findBefore(
-			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant date) {
+			@RequestParam String date) {
 		try {
-			return ResponseEntity.ok(documentDraftService.findByIssuedDateBefore(date));
+			return ResponseEntity.ok(documentDraftService.findByIssuedDateBefore(Instant.parse(date)));
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}

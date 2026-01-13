@@ -142,9 +142,9 @@ public class CaseJudgmentController {
 
 	// ==================== DATE AFTER ====================
 	@GetMapping("/after")
-	public ResponseEntity<?> findAfter(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant date) {
+	public ResponseEntity<?> findAfter(@RequestParam String date) {
 		try {
-			return ResponseEntity.ok(caseJudgmentService.findByDateAfter(date));
+			return ResponseEntity.ok(caseJudgmentService.findByDateAfter(Instant.parse(date)));
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
@@ -153,9 +153,9 @@ public class CaseJudgmentController {
 	// ==================== DATE BEFORE ====================
 	@GetMapping("/before")
 	public ResponseEntity<?> findBefore(
-			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant date) {
+			@RequestParam String date) {
 		try {
-			return ResponseEntity.ok(caseJudgmentService.findByDateBefore(date));
+			return ResponseEntity.ok(caseJudgmentService.findByDateBefore(Instant.parse(date)));
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}

@@ -187,9 +187,9 @@ public class CaseController {
 
 	// ================= AFTER DATE =================
 	@GetMapping("/after")
-	public ResponseEntity<?> after(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant time) {
+	public ResponseEntity<?> after(@RequestParam String time) {
 		try {
-			return success(caseService.findByIssuedTimeAfter(time));
+			return success(caseService.findByIssuedTimeAfter(Instant.parse(time)));
 		} catch (Exception e) {
 			return error(e);
 		}
@@ -197,9 +197,9 @@ public class CaseController {
 
 	// ================= BEFORE DATE =================
 	@GetMapping("/before")
-	public ResponseEntity<?> before(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant time) {
+	public ResponseEntity<?> before(@RequestParam String time) {
 		try {
-			return success(caseService.findByIssuedTimeBefore(time));
+			return success(caseService.findByIssuedTimeBefore(Instant.parse(time)));
 		} catch (Exception e) {
 			return error(e);
 		}
