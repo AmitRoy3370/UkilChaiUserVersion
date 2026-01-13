@@ -47,7 +47,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 	@Autowired
 	private Cleaner cleaner;
-
+	
 	@Override
 	public CaseRequest addCaseRequest(CaseRequest caseRequest, String userId, MultipartFile files[]) {
 
@@ -498,11 +498,16 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 			}
 
 			acceptedCase.setCaseName(_caseRequest.getCaseName());
+			
+			_caseRequest.setAttachmentId(null);
+			
 			acceptedCase.setAttachmentId(_caseRequest.getAttachmentId());
 			acceptedCase.setCaseType(_caseRequest.getCaseType());
 			acceptedCase.setIssuedTime(_caseRequest.getRequestDate());
 			acceptedCase.setUserId(_caseRequest.getUserId());
 
+			caseRequestRepository.save(_caseRequest);
+			
 		} catch (Exception e) {
 
 			throw new NoSuchElementException("No such case request find at here...");
