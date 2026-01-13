@@ -251,6 +251,8 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 						}
 
 					} catch (Exception e) {
+						
+						System.out.println("exception in update case case request service :- " + e.getMessage());
 
 					}
 

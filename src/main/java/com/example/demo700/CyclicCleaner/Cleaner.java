@@ -679,6 +679,12 @@ public class Cleaner {
 
 				if (advocatePostRepository.count() != count) {
 
+					if (post.getAttachmentId() != null) {
+
+						imageService.delete(post.getAttachmentId());
+
+					}
+
 					try {
 
 						List<PostReaction> list = postReactionRepository.findByAdvocatePostId(post.getId());
@@ -716,6 +722,12 @@ public class Cleaner {
 				questionRepository.deleteById(questionId);
 
 				if (count != questionRepository.count()) {
+
+					if (question.getAttachmentId() != null) {
+
+						imageService.delete(question.getAttachmentId());
+
+					}
 
 				}
 
@@ -789,6 +801,16 @@ public class Cleaner {
 
 				if (count != caseRequestRepository.count()) {
 
+					if (caseRequest.getAttachmentId() != null) {
+
+						for (String i : caseRequest.getAttachmentId()) {
+
+							imageService.delete(i);
+
+						}
+
+					}
+
 				}
 
 			}
@@ -812,6 +834,16 @@ public class Cleaner {
 				caseRepository.deleteById(caseId);
 
 				if (count != caseRepository.count()) {
+
+					if (acceptedCase.getAttachmentsId() != null) {
+
+						for (String i : acceptedCase.getAttachmentsId()) {
+
+							imageService.delete(i);
+
+						}
+
+					}
 
 					try {
 
@@ -933,6 +965,22 @@ public class Cleaner {
 
 				if (count != hearingRepository.count()) {
 
+					if (hearing.getAttachmentsId() != null) {
+
+						for (String i : hearing.getAttachmentsId()) {
+
+							try {
+
+								imageService.delete(i);
+
+							} catch (Exception e) {
+
+							}
+
+						}
+
+					}
+
 					try {
 
 						AppealHearings appeal = appealHearingRepository.findByHearingId(hearing.getId());
@@ -999,6 +1047,22 @@ public class Cleaner {
 
 			if (count != documentDraftRepository.count()) {
 
+				if (draft.getAttachmentsId() != null) {
+
+					for (String i : draft.getAttachmentsId()) {
+
+						try {
+
+							imageService.delete(i);
+
+						} catch (Exception e) {
+
+						}
+
+					}
+
+				}
+
 			}
 
 		} catch (Exception e) {
@@ -1020,6 +1084,18 @@ public class Cleaner {
 				caseJudgmentRepository.deleteById(id);
 
 				if (count != caseJudgmentRepository.count()) {
+
+					if (caseJudgment.getJudgmentAttachmentId() != null) {
+
+						try {
+
+							imageService.delete(caseJudgment.getJudgmentAttachmentId());
+
+						} catch (Exception e) {
+
+						}
+
+					}
 
 				}
 

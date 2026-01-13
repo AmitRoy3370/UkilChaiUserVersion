@@ -34,7 +34,7 @@ public class ImageService {
 	// GET FILE
 	public GridFSFile getFile(String id) {
 		return gridFsTemplate.findOne(new org.springframework.data.mongodb.core.query.Query(
-				org.springframework.data.mongodb.core.query.Criteria.where("_id").is(id)));
+				org.springframework.data.mongodb.core.query.Criteria.where("_id").is(new ObjectId(id))));
 	}
 
 	// GET STREAM
@@ -45,12 +45,20 @@ public class ImageService {
 	// DELETE
 	public void delete(String id) {
 		gridFsTemplate.delete(new org.springframework.data.mongodb.core.query.Query(
-				org.springframework.data.mongodb.core.query.Criteria.where("_id").is(id)));
+				org.springframework.data.mongodb.core.query.Criteria.where("_id").is(new ObjectId(id))));
 	}
 
 	// UPDATE = delete + new upload
 	public String update(String oldId, MultipartFile newFile) throws IOException {
-		delete(oldId);
+
+		try {
+
+			delete(oldId);
+
+		} catch (Exception e) {
+
+		}
+
 		return upload(newFile);
 	}
 }
