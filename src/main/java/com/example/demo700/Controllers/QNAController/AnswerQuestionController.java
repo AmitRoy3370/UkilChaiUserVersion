@@ -31,15 +31,21 @@ public class AnswerQuestionController {
 	private PostContentService imageService;
 
 	/*
-	 * ========================================================= 
-	 * CREATE ANSWER
-	 * (RequestPart) 
-	 * =========================================================
+	 * ========================================================= CREATE ANSWER
+	 * (RequestPart) =========================================================
 	 */
 	@PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<?> answerQuestion(@RequestPart("answer") AnswerQuestion answerQuestion,
+	public ResponseEntity<?> answerQuestion(@RequestPart("advocateId") String advocateId,
+			@RequestPart("message") String message, @RequestPart("questionId") String questionId,
 			@RequestPart("userId") String userId, @RequestPart(value = "file", required = false) MultipartFile file) {
 		try {
+
+			AnswerQuestion answerQuestion = new AnswerQuestion();
+
+			answerQuestion.setAdvocateId(advocateId);
+			answerQuestion.setMessage(message);
+			answerQuestion.setQuestionId(questionId);
+
 			AnswerQuestion saved = answerService.answer(answerQuestion, userId, file);
 			return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 
@@ -49,16 +55,27 @@ public class AnswerQuestionController {
 	}
 
 	/*
-	 * ========================================================= 
-	 * UPDATE ANSWER
-	 * (RequestPart) 
-	 * =========================================================
+	 * ========================================================= UPDATE ANSWER
+	 * (RequestPart) =========================================================
 	 */
 	@PutMapping(value = "/update/{answerId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<?> updateAnswer(@PathVariable String answerId,
-			@RequestPart("answer") AnswerQuestion answerQuestion, @RequestPart("userId") String userId,
+	public ResponseEntity<?> updateAnswer(@PathVariable String answerId, @RequestPart("advocateId") String advocateId,
+			@RequestPart("message") String message, @RequestPart("questionId") String questionId,
+			@RequestPart(value="attachmentId", required = false) String attachmentId, @RequestPart("userId") String userId,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 		try {
+
+			AnswerQuestion answerQuestion = new AnswerQuestion();
+
+			answerQuestion.setAdvocateId(advocateId);
+			answerQuestion.setMessage(message);
+			answerQuestion.setQuestionId(questionId);
+			if (attachmentId != null) {
+
+				answerQuestion.setAttachmentId(attachmentId);
+
+			}
+
 			AnswerQuestion updated = answerService.updateAnswer(answerQuestion, userId, answerId, file);
 
 			return ResponseEntity.ok(updated);
@@ -94,8 +111,7 @@ public class AnswerQuestionController {
 	}
 
 	/*
-	 * ========================================================= 
-	 * FIND BY ANSWER ID
+	 * ========================================================= FIND BY ANSWER ID
 	 * =========================================================
 	 */
 	@GetMapping("/{answerId}")
@@ -108,8 +124,7 @@ public class AnswerQuestionController {
 	}
 
 	/*
-	 * ========================================================= 
-	 * FIND ALL ANSWERS
+	 * ========================================================= FIND ALL ANSWERS
 	 * =========================================================
 	 */
 	@GetMapping("/all")
@@ -122,8 +137,7 @@ public class AnswerQuestionController {
 	}
 
 	/*
-	 * ========================================================= 
-	 * FIND BY ADVOCATE ID
+	 * ========================================================= FIND BY ADVOCATE ID
 	 * =========================================================
 	 */
 	@GetMapping("/by-advocate/{advocateId}")
@@ -136,8 +150,7 @@ public class AnswerQuestionController {
 	}
 
 	/*
-	 * ========================================================= 
-	 * FIND BY QUESTION ID
+	 * ========================================================= FIND BY QUESTION ID
 	 * =========================================================
 	 */
 	@GetMapping("/by-question/{questionId}")
@@ -150,8 +163,7 @@ public class AnswerQuestionController {
 	}
 
 	/*
-	 * ========================================================= 
-	 * SEARCH BY MESSAGE
+	 * ========================================================= SEARCH BY MESSAGE
 	 * =========================================================
 	 */
 	@GetMapping("/search")
@@ -164,8 +176,7 @@ public class AnswerQuestionController {
 	}
 
 	/*
-	 * ========================================================= 
-	 * FIND AFTER TIME
+	 * ========================================================= FIND AFTER TIME
 	 * =========================================================
 	 */
 	@GetMapping("/after")
@@ -179,8 +190,7 @@ public class AnswerQuestionController {
 	}
 
 	/*
-	 * ========================================================= 
-	 * FIND BEFORE TIME
+	 * ========================================================= FIND BEFORE TIME
 	 * =========================================================
 	 */
 	@GetMapping("/before")
@@ -194,8 +204,7 @@ public class AnswerQuestionController {
 	}
 
 	/*
-	 * ========================================================= 
-	 * FIND BETWEEN TIME
+	 * ========================================================= FIND BETWEEN TIME
 	 * =========================================================
 	 */
 	@GetMapping("/between")
@@ -211,8 +220,7 @@ public class AnswerQuestionController {
 	}
 
 	/*
-	 * ========================================================= 
-	 * DELETE ANSWER
+	 * ========================================================= DELETE ANSWER
 	 * =========================================================
 	 */
 	@DeleteMapping("/delete/{answerId}")
