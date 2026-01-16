@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
 
 		try {
 
-			User _user = userRepository.findByName(user.getName());
+			User _user = userRepository.findByNameIgnoreCase(user.getName().trim());
 
 			if (_user != null) {
 
@@ -97,6 +97,8 @@ public class UserServiceImpl implements UserService {
 
 		System.out.println("after encrypted :- " + user.getPassword());
 
+		user.setName(user.getName().trim());
+		
 		user = userRepository.save(user);
 
 		if (user == null) {
@@ -138,6 +140,8 @@ public class UserServiceImpl implements UserService {
 			throw new NullPointerException("Have to put all the data perfectly at here...");
 
 		}
+		
+		user.setName(user.getName().trim());
 
 		try {
 
@@ -157,7 +161,7 @@ public class UserServiceImpl implements UserService {
 
 		try {
 
-			User _user = userRepository.findByName(user.getName());
+			User _user = userRepository.findByNameIgnoreCase(user.getName().trim());
 
 			if (_user != null) {
 
@@ -232,7 +236,7 @@ public class UserServiceImpl implements UserService {
 		}
 
 		user.setId(userId);
-
+		
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 
 		user = userRepository.save(user);
@@ -273,7 +277,7 @@ public class UserServiceImpl implements UserService {
 
 		try {
 
-			User user = userRepository.findByName(name);
+			User user = userRepository.findByNameIgnoreCase(name.trim());
 
 			if (user == null) {
 
@@ -334,7 +338,7 @@ public class UserServiceImpl implements UserService {
 
 		try {
 
-			User user = userRepository.findByName(userName);
+			User user = userRepository.findByNameIgnoreCase(userName.trim());
 
 			if (user == null) {
 

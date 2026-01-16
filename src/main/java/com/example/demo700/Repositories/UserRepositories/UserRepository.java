@@ -10,7 +10,7 @@ import com.example.demo700.Model.UserModels.User;
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
 	
-	public User findByName(String name);
+	public User findByNameIgnoreCase(String name);
 	public List<User> findByProfileImageId(String profileImageId);
 
 }
