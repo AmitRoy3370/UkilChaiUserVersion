@@ -262,6 +262,12 @@ public class UserLocationServiceImpl implements UserlocationService {
 
 		UserLocation userLocation = userLocationRepository.findByUserId(userId);
 
+		if(userLocation == null) {
+			
+			throw new NoSuchElementException("No such user find at here...");
+			
+		}
+		
 		return userLocation;
 	}
 
