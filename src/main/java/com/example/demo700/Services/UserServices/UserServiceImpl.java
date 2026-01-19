@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
 		System.out.println("after encrypted :- " + user.getPassword());
 
 		user.setName(user.getName().trim());
-		
+
 		user = userRepository.save(user);
 
 		if (user == null) {
@@ -140,7 +140,7 @@ public class UserServiceImpl implements UserService {
 			throw new NullPointerException("Have to put all the data perfectly at here...");
 
 		}
-		
+
 		user.setName(user.getName().trim());
 
 		try {
@@ -183,52 +183,27 @@ public class UserServiceImpl implements UserService {
 
 		try {
 
-			if (imageService.getFile(user.getProfileImageId()) != null) {
-
-				if (file == null || file.isEmpty()) {
-
-					throw new Exception();
-
-				}
+			// ===== IMAGE UPDATE LOGIC =====
+			if (file != null && !file.isEmpty()) {
 
 				String contentType = file.getContentType();
 
-				if (contentType != null && contentType.startsWith("image/")) {
-
-					String hexCode = imageService.update(user.getProfileImageId(), file);
-
-					user.setProfileImageId(hexCode);
-
+				if (contentType == null || !contentType.startsWith("image/")) {
+					throw new IllegalArgumentException("Only image files are allowed");
 				}
 
-			} else {
+				// user already has an image → update
+				if (user.getProfileImageId() != null && imageService.getFile(user.getProfileImageId()) != null) {
 
-				try {
-
-					if (file == null || file.isEmpty()) {
-
-						throw new Exception();
-
-					}
-
-					String contentType = file.getContentType();
-
-					if (contentType != null && contentType.startsWith("image/")) {
-
-						String hexCode = imageService.upload(file);
-
-						if (hexCode != null) {
-
-							user.setProfileImageId(hexCode);
-
-						}
-
-					}
-
-				} catch (Exception e) {
+					String newImageId = imageService.update(user.getProfileImageId(), file);
+					user.setProfileImageId(newImageId);
 
 				}
-
+				// user has no image → upload
+				else {
+					String newImageId = imageService.upload(file);
+					user.setProfileImageId(newImageId);
+				}
 			}
 
 		} catch (Exception e) {
@@ -236,7 +211,7 @@ public class UserServiceImpl implements UserService {
 		}
 
 		user.setId(userId);
-		
+
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 
 		user = userRepository.save(user);
