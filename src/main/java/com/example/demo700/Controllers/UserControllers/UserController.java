@@ -49,7 +49,7 @@ public class UserController {
 	// ----------------- UPDATE USER --------------------
 	@PutMapping(value = "/update/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> updateUser(@RequestPart("name") String name, @RequestPart("password") String password,
-			@RequestPart("profileImageId") String profileImageId,
+			@RequestPart(value = "profileImageId", required = false) String profileImageId,
 			@RequestPart(value = "file", required = false) MultipartFile file, @PathVariable String userId) {
 		try {
 			User user = new User(name, password, profileImageId);
