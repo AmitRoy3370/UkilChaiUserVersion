@@ -186,21 +186,30 @@ public class UserServiceImpl implements UserService {
 			// ===== IMAGE UPDATE LOGIC =====
 			if (file != null && !file.isEmpty()) {
 
+				System.out.println("files find at here....");
+				
 				String contentType = file.getContentType();
 
 				if (contentType == null || !contentType.startsWith("image/")) {
 					throw new IllegalArgumentException("Only image files are allowed");
 				}
 
+				System.out.println("This is a valid image....");
+				
 				// user already has an image → update
-				if (user.getProfileImageId() != null && imageService.getFile(user.getProfileImageId()) != null) {
+				if (user.getProfileImageId() != null) {
 
+					System.out.println("Updating profile image.....");
+					
 					String newImageId = imageService.update(user.getProfileImageId(), file);
 					user.setProfileImageId(newImageId);
 
 				}
 				// user has no image → upload
 				else {
+					
+					System.out.println("Uploading profile image....");
+					
 					String newImageId = imageService.upload(file);
 					user.setProfileImageId(newImageId);
 				}
@@ -208,6 +217,8 @@ public class UserServiceImpl implements UserService {
 
 		} catch (Exception e) {
 
+			System.out.println("error message :- " + e.getMessage());
+			
 		}
 
 		user.setId(userId);
