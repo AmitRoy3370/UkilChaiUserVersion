@@ -87,6 +87,23 @@ public class AdvocateController {
 		}
 	}
 
+	// -------------------- find by id --------------------
+	
+	@GetMapping("/{advocateId}")
+	public ResponseEntity<?> findByIf(@PathVariable String advocateId) {
+		
+		try {
+			
+			return ResponseEntity.status(200).body(advocateService.findById(advocateId));
+			
+		} catch(Exception e) {
+			
+			return ResponseEntity.status(404).body(e.getMessage());
+			
+		}
+		
+	}
+	
 	// --------------------- VIEW ALL ---------------------
 	@GetMapping("/all")
 	public ResponseEntity<?> getAll() {

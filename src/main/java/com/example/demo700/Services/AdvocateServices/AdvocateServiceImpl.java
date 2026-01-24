@@ -495,5 +495,34 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 		return count != advocateRepository.count();
 	}
+
+	@Override
+	public Advocate findById(String advocateId) {
+		
+		if(advocateId == null) {
+			
+			throw new NullPointerException("False request....");
+			
+		}
+		
+		try {
+			
+			Advocate advocate = advocateRepository.findById(advocateId).get();
+			
+			if(advocate == null) {
+				
+				throw new Exception();
+				
+			}
+			
+			return advocate;
+			
+		} catch(Exception e) {
+			
+			throw new NoSuchElementException("No such advocate find at here....");
+			
+		}
+		
+	}
 	
 }

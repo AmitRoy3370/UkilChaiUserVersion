@@ -10,6 +10,7 @@ import com.example.demo700.Model.AdvocateModels.Advocate;
 public interface AdvocateService {
 	
 	public Advocate addVocate(Advocate advocate, String userId, MultipartFile file);
+	public Advocate findById(String advocateId);
 	public List<Advocate> seeAllAdvocate();
 	public Advocate findByUserId(String userId);
 	public List<Advocate> findByAdvocateSpeciality(AdvocateSpeciality AdvocateSpeciality);
