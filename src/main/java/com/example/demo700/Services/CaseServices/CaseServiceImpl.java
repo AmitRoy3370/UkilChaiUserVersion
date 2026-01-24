@@ -116,9 +116,14 @@ public class CaseServiceImpl implements CaseService {
 
 		try {
 
-			if (files != null) {
+			List<String> list = new ArrayList<>();
 
-				List<String> list = new ArrayList<>();
+			for (String i : acceptedCase.getAttachmentsId()) {
+
+				list.add(i);
+			}
+
+			if (files != null) {
 
 				int index = 0;
 
@@ -126,25 +131,11 @@ public class CaseServiceImpl implements CaseService {
 
 					try {
 
-						if (acceptedCase.getAttachmentsId() != null && index < acceptedCase.getAttachmentsId().length && acceptedCase.getAttachmentsId()[index] != null) {
+						String id = fileUpload.upload(file);
 
-							String id = fileUpload.update(acceptedCase.getAttachmentsId()[index], file);
+						if (id != null) {
 
-							if (id != null) {
-
-								list.add(id);
-
-							}
-
-						} else {
-
-							String id = fileUpload.upload(file);
-
-							if (id != null) {
-
-								list.add(id);
-
-							}
+							list.add(id);
 
 						}
 
@@ -153,22 +144,22 @@ public class CaseServiceImpl implements CaseService {
 					}
 
 					++index;
-					
-				}
-
-				String s[] = new String[list.size()];
-
-				index = 0;
-
-				for (String i : list) {
-
-					s[index++] = i;
 
 				}
-
-				acceptedCase.setAttachmentId(s);
 
 			}
+
+			String s[] = new String[list.size()];
+
+			int index = 0;
+
+			for (String i : list) {
+
+				s[index++] = i;
+
+			}
+
+			acceptedCase.setAttachmentId(s);
 
 		} catch (Exception e) {
 
@@ -431,16 +422,16 @@ public class CaseServiceImpl implements CaseService {
 
 			Advocate advocate = advocateRepository.findByUserId(user.getId());
 
-			if(advocate == null) {
-				
-				if(!case1.getUserId().equals(userId)) {
-					
+			if (advocate == null) {
+
+				if (!case1.getUserId().equals(userId)) {
+
 					throw new Exception();
-					
+
 				}
-				
+
 			}
-			
+
 			if (!case1.getAdvocateId().equals(advocate.getId()) && !case1.getUserId().equals(userId)) {
 
 				throw new Exception();

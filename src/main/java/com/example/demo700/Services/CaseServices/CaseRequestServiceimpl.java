@@ -47,7 +47,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 	@Autowired
 	private Cleaner cleaner;
-	
+
 	@Override
 	public CaseRequest addCaseRequest(CaseRequest caseRequest, String userId, MultipartFile files[]) {
 
@@ -218,9 +218,14 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 		try {
 
-			if (files != null) {
+			List<String> list = new ArrayList<>();
 
-				List<String> list = new ArrayList<>();
+			for (String i : caseRequest.getAttachmentId()) {
+
+				list.add(i);
+			}
+
+			if (files != null) {
 
 				int index = 0;
 
@@ -228,51 +233,37 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 					try {
 
-						if (caseRequest.getAttachmentId() != null && index < caseRequest.getAttachmentId().length && caseRequest.getAttachmentId()[index] != null) {
+						String id = fileUpload.upload(file);
 
-							String id = fileUpload.update(caseRequest.getAttachmentId()[index], file);
+						if (id != null) {
 
-							if (id != null) {
-
-								list.add(id);
-
-							}
-
-						} else {
-
-							String id = fileUpload.upload(file);
-
-							if (id != null) {
-
-								list.add(id);
-
-							}
+							list.add(id);
 
 						}
 
 					} catch (Exception e) {
-						
+
 						System.out.println("exception in update case case request service :- " + e.getMessage());
 
 					}
 
 					++index;
-					
-				}
-
-				String s[] = new String[list.size()];
-
-				index = 0;
-
-				for (String i : list) {
-
-					s[index++] = i;
 
 				}
-
-				caseRequest.setAttachmentId(s);
 
 			}
+
+			String s[] = new String[list.size()];
+
+			int index = 0;
+
+			for (String i : list) {
+
+				s[index++] = i;
+
+			}
+
+			caseRequest.setAttachmentId(s);
 
 		} catch (Exception e) {
 
@@ -498,18 +489,18 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 			}
 
 			acceptedCase.setCaseName(_caseRequest.getCaseName());
-			
+
 			String s[] = _caseRequest.getAttachmentId();
-			
+
 			_caseRequest.setAttachmentId(null);
-			
+
 			acceptedCase.setAttachmentId(s);
 			acceptedCase.setCaseType(_caseRequest.getCaseType());
 			acceptedCase.setIssuedTime(_caseRequest.getRequestDate());
 			acceptedCase.setUserId(_caseRequest.getUserId());
 
 			caseRequestRepository.save(_caseRequest);
-			
+
 		} catch (Exception e) {
 
 			throw new NoSuchElementException("No such case request find at here...");

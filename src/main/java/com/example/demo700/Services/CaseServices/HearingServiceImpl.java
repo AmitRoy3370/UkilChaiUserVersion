@@ -340,9 +340,15 @@ public class HearingServiceImpl implements HearingService {
 
 		try {
 
-			if (files != null) {
+			List<String> list = new ArrayList<>();
 
-				List<String> list = new ArrayList<>();
+			for (String i : hearing.getAttachmentsId()) {
+
+				list.add(i);
+
+			}
+
+			if (files != null) {
 
 				int index = 0;
 
@@ -350,25 +356,11 @@ public class HearingServiceImpl implements HearingService {
 
 					try {
 
-						if (hearing.getAttachmentsId() != null && index < hearing.getAttachmentsId().length) {
+						String id = attachmentService.upload(file);
 
-							String id = attachmentService.update(hearing.getAttachmentsId()[index], file);
+						if (id != null) {
 
-							if (id != null) {
-
-								list.add(id);
-
-							}
-
-						} else {
-
-							String id = attachmentService.upload(file);
-
-							if (id != null) {
-
-								list.add(id);
-
-							}
+							list.add(id);
 
 						}
 
@@ -380,19 +372,19 @@ public class HearingServiceImpl implements HearingService {
 
 				}
 
-				String s[] = new String[list.size()];
+			}
 
-				index = 0;
+			String s[] = new String[list.size()];
 
-				for (String i : list) {
+			int index = 0;
 
-					s[index++] = i;
+			for (String i : list) {
 
-				}
-
-				hearing.setAttachmentsId(s);
+				s[index++] = i;
 
 			}
+
+			hearing.setAttachmentsId(s);
 
 		} catch (Exception e) {
 
@@ -530,13 +522,13 @@ public class HearingServiceImpl implements HearingService {
 
 	@Override
 	public boolean removeHearing(String id, String userId) {
-		
-		if(id == null || userId == null) {
-			
+
+		if (id == null || userId == null) {
+
 			throw new NullPointerException("False request....");
-			
+
 		}
-		
+
 		try {
 
 			Hearing hearing1 = hearingRepository.findById(id).get();
@@ -552,11 +544,11 @@ public class HearingServiceImpl implements HearingService {
 			throw new NoSuchElementException("No such hearing find at here...");
 
 		}
-		
+
 		long count = hearingRepository.count();
-		
+
 		cleaner.removeHearing(id);
-		
+
 		return count != hearingRepository.count();
 	}
 

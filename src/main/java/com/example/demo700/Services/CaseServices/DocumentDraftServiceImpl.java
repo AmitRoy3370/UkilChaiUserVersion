@@ -290,31 +290,21 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 			List<String> list = new ArrayList<>();
 
+			for (String i : documentDraft.getAttachmentsId()) {
+
+				list.add(i);
+
+			}
+
 			for (MultipartFile file : files) {
 
 				try {
 
-					if (documentDraft.getAttachmentsId() != null && index < documentDraft.getAttachmentsId().length
-							&& documentDraft.getAttachmentsId()[index] != null) {
+					String id = fileUpload.upload(file);
 
-						String id = fileUpload.update(documentDraft.getAttachmentsId()[index], file);
+					if (id != null) {
 
-						if (id != null) {
-
-							list.add(id);
-
-						}
-
-					} else {
-
-						String id = fileUpload.upload(file);
-
-						if (id != null) {
-
-							list.add(id);
-
-						}
-
+						list.add(id);
 					}
 
 				} catch (Exception e) {
