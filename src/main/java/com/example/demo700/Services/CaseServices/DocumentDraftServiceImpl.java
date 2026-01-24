@@ -122,6 +122,12 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 		try {
 
 			List<String> list = new ArrayList<>();
+			
+			for(String i : documentDraft.getAttachmentsId()) {
+				
+				list.add(i);
+				
+			}
 
 			for (MultipartFile file : files) {
 
