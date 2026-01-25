@@ -227,9 +227,8 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 				try {
 
 					if (fileUpload.attachmentExists(i)) {
-					    list.add(i);
+						list.add(i);
 					}
-
 
 				} catch (Exception e) {
 
@@ -507,7 +506,6 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 		}
 
 		try {
-			
 
 			CaseRequest _caseRequest = caseRequestRepository.findById(caseRequestId).get();
 
@@ -516,23 +514,23 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 				throw new Exception();
 
 			}
-			
+
 			Case oldCase = caseRepository.findByCaseNameIgnoreCase(_caseRequest.getCaseName());
-			
-			if(oldCase != null) {
-				
+
+			if (oldCase != null) {
+
 				throw new ArithmeticException();
-				
+
 			}
-			
-		} catch(ArithmeticException e) {
-			
+
+		} catch (ArithmeticException e) {
+
 			throw new ArithmeticException("Case name already exist at here...");
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 		}
-		
+
 		Case acceptedCase = new Case();
 
 		try {

@@ -87,7 +87,11 @@ public class CaseServiceImpl implements CaseService {
 
 				if (!oldCase.getId().equals(caseRequestId)) {
 
-					throw new ArithmeticException();
+					if (!oldCase.getId().equals(caseRequestId)) {
+
+						throw new ArithmeticException();
+
+					};
 
 				}
 
