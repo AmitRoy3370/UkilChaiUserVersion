@@ -506,6 +506,33 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 		}
 
+		try {
+			
+
+			CaseRequest _caseRequest = caseRequestRepository.findById(caseRequestId).get();
+
+			if (_caseRequest == null) {
+
+				throw new Exception();
+
+			}
+			
+			Case oldCase = caseRepository.findByCaseNameIgnoreCase(_caseRequest.getCaseName());
+			
+			if(oldCase != null) {
+				
+				throw new ArithmeticException();
+				
+			}
+			
+		} catch(ArithmeticException e) {
+			
+			throw new ArithmeticException("Case name already exist at here...");
+			
+		} catch(Exception e) {
+			
+		}
+		
 		Case acceptedCase = new Case();
 
 		try {

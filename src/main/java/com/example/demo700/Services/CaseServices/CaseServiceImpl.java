@@ -16,6 +16,7 @@ import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.CaseModels.Case;
+import com.example.demo700.Model.CaseModels.CaseRequest;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
@@ -72,6 +73,36 @@ public class CaseServiceImpl implements CaseService {
 
 		try {
 
+			Case _caseRequest = caseRepository.findById(caseRequestId).get();
+
+			if (_caseRequest == null) {
+
+				throw new Exception();
+
+			}
+
+			Case oldCase = caseRepository.findByCaseNameIgnoreCase(_caseRequest.getCaseName());
+
+			if (oldCase != null) {
+
+				if (!oldCase.getId().equals(caseRequestId)) {
+
+					throw new ArithmeticException();
+
+				}
+
+			}
+
+		} catch (ArithmeticException e) {
+
+			throw new ArithmeticException("Case name already exist at here...");
+
+		} catch (Exception e) {
+
+		}
+
+		try {
+
 			User user = userRepository.findById(acceptedCase.getUserId()).get();
 
 			if (user == null) {
@@ -122,7 +153,7 @@ public class CaseServiceImpl implements CaseService {
 
 			for (String i : acceptedCase.getAttachmentsId()) {
 				if (fileUpload.attachmentExists(i)) {
-				    list.add(i);
+					list.add(i);
 				}
 
 			}
