@@ -68,7 +68,7 @@ public class CaseController {
 			@RequestPart("userId") String userId, @RequestPart("advocateId") String advocateId,
 			@RequestPart("caseType") String caseType,
 			@RequestPart(value = "existingFiles", required = false) String existingFilesJson,
-			@RequestPart(value = "files", required = false) MultipartFile files[], @RequestParam String usersId) {
+			@RequestPart(value = "files", required = false) MultipartFile files[], @RequestPart("usersId") String usersId) {
 		try {
 			Case acceptedCase = new Case();
 			acceptedCase.setCaseName(caseName);
