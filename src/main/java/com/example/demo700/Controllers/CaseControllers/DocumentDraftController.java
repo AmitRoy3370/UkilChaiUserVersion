@@ -20,6 +20,7 @@ import com.example.demo700.Services.UserServices.ImageService;
 import com.mongodb.client.gridfs.model.GridFSFile;
 
 import io.jsonwebtoken.io.IOException;
+import tools.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/document-draft")
@@ -55,7 +56,7 @@ public class DocumentDraftController {
 	public ResponseEntity<?> updateDocumentDraft(@PathVariable("id") String documentDraftId,
 			@RequestPart("advocateId") String advocateId, @RequestPart("caseId") String caseId,
 			@RequestPart(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant issuedDate,
-			@RequestPart(value = "attachmentsId", required = false) String[] attachmentsId,
+			@RequestPart(value = "existingFiles", required = false) String existingFilesJson,
 			@RequestPart(value = "files", required = false) MultipartFile files[],
 			@RequestParam("userId") String userId) {
 		try {
@@ -63,6 +64,10 @@ public class DocumentDraftController {
 			draft.setAdvocateId(advocateId);
 			draft.setCaseId(caseId);
 			draft.setIssuedDate(issuedDate != null ? issuedDate : Instant.now());
+			
+			ObjectMapper mapper = new ObjectMapper();
+			String[] attachmentsId = mapper.readValue(existingFilesJson, String[].class);
+
 			draft.setAttachmentsId(attachmentsId);
 
 			return ResponseEntity.ok(documentDraftService.updateDocumentDraft(draft, userId, documentDraftId, files));

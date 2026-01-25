@@ -21,6 +21,7 @@ import com.example.demo700.Services.UserServices.ImageService;
 import com.mongodb.client.gridfs.model.GridFSFile;
 
 import io.jsonwebtoken.io.IOException;
+import tools.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/case-request")
@@ -28,7 +29,7 @@ public class CaseRequestController {
 
 	@Autowired
 	private CaseRequestService caseRequestService;
-	
+
 	@Autowired
 	private ImageService imageService;
 
@@ -36,14 +37,14 @@ public class CaseRequestController {
 	@PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> add(@RequestPart("caseName") String caseName, @RequestPart("caseType") String caseType,
 			@RequestPart("userId") String userId,
-			
+
 			@RequestPart(value = "files", required = false) MultipartFile files[]) {
 		try {
 			CaseRequest request = new CaseRequest();
 			request.setCaseName(caseName);
 			request.setCaseType(AdvocateSpeciality.valueOf(caseType)); // enum
 			request.setUserId(userId);
-			
+
 			return ResponseEntity.ok(caseRequestService.addCaseRequest(request, userId, files));
 		} catch (Exception e) {
 			return error(e);
@@ -55,13 +56,17 @@ public class CaseRequestController {
 	public ResponseEntity<?> update(@RequestPart("caseRequestId") String caseRequestId,
 			@RequestPart("caseName") String caseName, @RequestPart("caseType") String caseType,
 			@RequestPart("userId") String userId,
-			@RequestPart(value = "existingFiles", required = false) String existingFiles[],
+			@RequestPart(value = "existingFiles", required = false) String existingFilesJson,
 			@RequestPart(value = "files", required = false) MultipartFile files[]) {
 		try {
 			CaseRequest request = new CaseRequest();
 			request.setCaseName(caseName);
 			request.setCaseType(AdvocateSpeciality.valueOf(caseType));
 			request.setUserId(userId);
+
+			ObjectMapper mapper = new ObjectMapper();
+			String[] existingFiles = mapper.readValue(existingFilesJson, String[].class);
+
 			request.setAttachmentId(existingFiles);
 
 			return ResponseEntity.ok(caseRequestService.updateCaseRequest(request, userId, caseRequestId, files));
@@ -69,62 +74,58 @@ public class CaseRequestController {
 			return error(e);
 		}
 	}
-	
+
 	// --------------------------- view the attachment-----------------
-	
+
 	@GetMapping("/attachment/view/{attachmentId}")
 	public ResponseEntity<?> viewAttachment(@PathVariable String attachmentId) {
-	    try {
-	        GridFSFile file = imageService.getFile(attachmentId);
+		try {
+			GridFSFile file = imageService.getFile(attachmentId);
 
-	        if (file == null) {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
-	        }
-
-	        InputStream stream = imageService.getStream(file);
-
-	        return ResponseEntity.ok()
-	                .contentType(MediaType.parseMediaType(file.getMetadata().get("type").toString()))
-	                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
-	                .body(new InputStreamResource(stream));
-
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body("Failed to load file");
-	    }
-	}
-
-	
-	// ------------------- download attachment -----------------
-
-		@GetMapping("/attachment/{attachmentId}")
-		public ResponseEntity<?> downloadAttachment(@PathVariable String attachmentId) {
-
-			try {
-				GridFSFile file = imageService.getFile(attachmentId);
-
-				if (file == null) {
-					return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Image not found");
-				}
-
-				InputStream stream = imageService.getStream(file);
-
-				return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().get("type").toString()))
-						.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
-						.body(new InputStreamResource(stream));
-
-			} catch (IOException e) {
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
-			} catch (IllegalStateException e) {
-				// TODO Auto-generated catch block
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
-			} catch (java.io.IOException e) {
-				// TODO Auto-generated catch block
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
+			if (file == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
 			}
 
+			InputStream stream = imageService.getStream(file);
+
+			return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().get("type").toString()))
+					.header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
+					.body(new InputStreamResource(stream));
+
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to load file");
+		}
+	}
+
+	// ------------------- download attachment -----------------
+
+	@GetMapping("/attachment/{attachmentId}")
+	public ResponseEntity<?> downloadAttachment(@PathVariable String attachmentId) {
+
+		try {
+			GridFSFile file = imageService.getFile(attachmentId);
+
+			if (file == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Image not found");
+			}
+
+			InputStream stream = imageService.getStream(file);
+
+			return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().get("type").toString()))
+					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
+					.body(new InputStreamResource(stream));
+
+		} catch (IOException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
+		} catch (java.io.IOException e) {
+			// TODO Auto-generated catch block
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
 		}
 
+	}
 
 	// ================= SEARCH =================
 	@GetMapping("/search")

@@ -25,6 +25,7 @@ import com.example.demo700.Utils.FileHexConverter;
 import com.mongodb.client.gridfs.model.GridFSFile;
 
 import io.jsonwebtoken.io.IOException;
+import tools.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/case")
@@ -66,7 +67,7 @@ public class CaseController {
 	public ResponseEntity<?> updateCase(@RequestPart("caseId") String caseId, @RequestPart("caseName") String caseName,
 			@RequestPart("userId") String userId, @RequestPart("advocateId") String advocateId,
 			@RequestPart("caseType") String caseType,
-			@RequestPart(value = "existingFiles", required = false) String existingFiles[],
+			@RequestPart(value = "existingFiles", required = false) String existingFilesJson,
 			@RequestPart(value = "files", required = false) MultipartFile files[],
 			@RequestParam String usersId) {
 		try {
@@ -75,6 +76,10 @@ public class CaseController {
 			acceptedCase.setUserId(userId);
 			acceptedCase.setAdvocateId(advocateId);
 			acceptedCase.setCaseType(AdvocateSpeciality.valueOf(caseType));
+			
+			ObjectMapper mapper = new ObjectMapper();
+			String[] existingFiles = mapper.readValue(existingFilesJson, String[].class);
+
 			acceptedCase.setAttachmentId(existingFiles);
 
 			return success(caseService.updateCase(acceptedCase, usersId, caseId, files));

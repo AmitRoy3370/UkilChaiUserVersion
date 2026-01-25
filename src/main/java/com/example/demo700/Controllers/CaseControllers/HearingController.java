@@ -20,6 +20,7 @@ import com.example.demo700.Services.UserServices.ImageService;
 import com.mongodb.client.gridfs.model.GridFSFile;
 
 import io.jsonwebtoken.io.IOException;
+import tools.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/hearing")
@@ -32,7 +33,7 @@ public class HearingController {
 	private ImageService imageService;
 
 	// ================= ADD =================
-	@PostMapping(value="/add/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(value = "/add/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> addHearing(@PathVariable String userId, @RequestParam("caseId") String caseId,
 			@RequestParam("hearningNumber") int hearningNumber,
 			@RequestParam(value = "issuedDate", required = false) String issuedDate,
@@ -54,17 +55,21 @@ public class HearingController {
 	}
 
 	// ================= UPDATE =================
-	@PutMapping(value="/update/{hearingId}/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PutMapping(value = "/update/{hearingId}/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> updateHearing(@PathVariable String hearingId, @PathVariable String userId,
 			@RequestParam("caseId") String caseId, @RequestParam("hearningNumber") int hearningNumber,
 			@RequestParam(value = "issuedDate", required = false) String issuedDate,
-			@RequestPart(value = "existingFiles", required = false) String existingFiles[],
+			@RequestPart(value = "existingFiles", required = false) String existingFilesJson,
 			@RequestParam(value = "files", required = false) MultipartFile files[]) {
 
 		try {
 			Hearing hearing = new Hearing();
 			hearing.setCaseId(caseId);
 			hearing.setHearningNumber(hearningNumber);
+
+			ObjectMapper mapper = new ObjectMapper();
+			String[] existingFiles = mapper.readValue(existingFilesJson, String[].class);
+
 			hearing.setAttachmentsId(existingFiles);
 
 			if (issuedDate != null)
