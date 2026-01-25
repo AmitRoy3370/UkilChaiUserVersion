@@ -66,6 +66,7 @@ public class CaseController {
 	public ResponseEntity<?> updateCase(@RequestPart("caseId") String caseId, @RequestPart("caseName") String caseName,
 			@RequestPart("userId") String userId, @RequestPart("advocateId") String advocateId,
 			@RequestPart("caseType") String caseType,
+			@RequestPart(value = "existingFiles", required = false) String existingFiles[],
 			@RequestPart(value = "files", required = false) MultipartFile files[],
 			@RequestParam String usersId) {
 		try {
@@ -74,6 +75,7 @@ public class CaseController {
 			acceptedCase.setUserId(userId);
 			acceptedCase.setAdvocateId(advocateId);
 			acceptedCase.setCaseType(AdvocateSpeciality.valueOf(caseType));
+			acceptedCase.setAttachmentId(existingFiles);
 
 			return success(caseService.updateCase(acceptedCase, usersId, caseId, files));
 		} catch (Exception e) {

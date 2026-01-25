@@ -36,13 +36,14 @@ public class CaseRequestController {
 	@PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> add(@RequestPart("caseName") String caseName, @RequestPart("caseType") String caseType,
 			@RequestPart("userId") String userId,
+			
 			@RequestPart(value = "files", required = false) MultipartFile files[]) {
 		try {
 			CaseRequest request = new CaseRequest();
 			request.setCaseName(caseName);
 			request.setCaseType(AdvocateSpeciality.valueOf(caseType)); // enum
 			request.setUserId(userId);
-
+			
 			return ResponseEntity.ok(caseRequestService.addCaseRequest(request, userId, files));
 		} catch (Exception e) {
 			return error(e);
@@ -54,12 +55,14 @@ public class CaseRequestController {
 	public ResponseEntity<?> update(@RequestPart("caseRequestId") String caseRequestId,
 			@RequestPart("caseName") String caseName, @RequestPart("caseType") String caseType,
 			@RequestPart("userId") String userId,
+			@RequestPart(value = "existingFiles", required = false) String existingFiles[],
 			@RequestPart(value = "files", required = false) MultipartFile files[]) {
 		try {
 			CaseRequest request = new CaseRequest();
 			request.setCaseName(caseName);
 			request.setCaseType(AdvocateSpeciality.valueOf(caseType));
 			request.setUserId(userId);
+			request.setAttachmentId(existingFiles);
 
 			return ResponseEntity.ok(caseRequestService.updateCaseRequest(request, userId, caseRequestId, files));
 		} catch (Exception e) {

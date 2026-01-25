@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,11 +33,21 @@ public class ImageService {
 		return id.toHexString();
 	}
 
+	private ObjectId parseObjectId(String id) {
+	    if (!ObjectId.isValid(id)) {
+	        throw new IllegalArgumentException("Invalid attachment id");
+	    }
+	    return new ObjectId(id);
+	}
+
+	
 	// GET FILE
 	public GridFSFile getFile(String id) {
-		return gridFsTemplate.findOne(new org.springframework.data.mongodb.core.query.Query(
-				org.springframework.data.mongodb.core.query.Criteria.where("_id").is(new ObjectId(id))));
+	    return gridFsTemplate.findOne(
+	        new Query(Criteria.where("_id").is(parseObjectId(id)))
+	    );
 	}
+
 
 	// GET STREAM
 	public InputStream getStream(GridFSFile file) throws IllegalStateException, IOException {
@@ -45,9 +57,20 @@ public class ImageService {
 	// DELETE
 	public void delete(String id) {
 		gridFsTemplate.delete(new org.springframework.data.mongodb.core.query.Query(
-				org.springframework.data.mongodb.core.query.Criteria.where("_id").is(new ObjectId(id))));
+				org.springframework.data.mongodb.core.query.Criteria.where("_id").is(parseObjectId(id))));
 	}
 
+	public boolean attachmentExists(String id) {
+	    try {
+	        return gridFsTemplate.findOne(
+	            new Query(Criteria.where("_id").is(parseObjectId(id)))
+	        ) != null;
+	    } catch (IllegalArgumentException e) {
+	        return false;
+	    }
+	}
+
+	
 	// UPDATE = delete + new upload
 	public String update(String oldId, MultipartFile newFile) throws IOException {
 

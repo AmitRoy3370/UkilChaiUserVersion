@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.bson.types.ObjectId;
+
 import com.example.demo700.CyclicCleaner.Cleaner;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
@@ -122,11 +124,11 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 		try {
 
 			List<String> list = new ArrayList<>();
-			
-			for(String i : documentDraft.getAttachmentsId()) {
-				
+
+			for (String i : documentDraft.getAttachmentsId()) {
+
 				list.add(i);
-				
+
 			}
 
 			for (MultipartFile file : files) {
@@ -297,8 +299,28 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 			List<String> list = new ArrayList<>();
 
 			for (String i : documentDraft.getAttachmentsId()) {
+				if (fileUpload.attachmentExists(i)) {
+				    list.add(i);
+				}
 
-				list.add(i);
+
+			}
+
+			DocumentDraft oldDraft = documentDraftRepository.findById(documentDraftId).get();
+
+			for (String i : oldDraft.getAttachmentsId()) {
+
+				try {
+
+					if (!list.contains(i)) {
+
+						fileUpload.delete(i);
+
+					}
+
+				} catch (Exception e) {
+
+				}
 
 			}
 

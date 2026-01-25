@@ -58,12 +58,14 @@ public class HearingController {
 	public ResponseEntity<?> updateHearing(@PathVariable String hearingId, @PathVariable String userId,
 			@RequestParam("caseId") String caseId, @RequestParam("hearningNumber") int hearningNumber,
 			@RequestParam(value = "issuedDate", required = false) String issuedDate,
+			@RequestPart(value = "existingFiles", required = false) String existingFiles[],
 			@RequestParam(value = "files", required = false) MultipartFile files[]) {
 
 		try {
 			Hearing hearing = new Hearing();
 			hearing.setCaseId(caseId);
 			hearing.setHearningNumber(hearningNumber);
+			hearing.setAttachmentsId(existingFiles);
 
 			if (issuedDate != null)
 				hearing.setIssuedDate(Instant.parse(issuedDate));

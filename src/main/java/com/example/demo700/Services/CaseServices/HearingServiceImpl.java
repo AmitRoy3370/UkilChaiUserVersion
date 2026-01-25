@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.bson.types.ObjectId;
+
 import com.example.demo700.CyclicCleaner.Cleaner;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.CaseModels.Case;
@@ -344,7 +346,32 @@ public class HearingServiceImpl implements HearingService {
 
 			for (String i : hearing.getAttachmentsId()) {
 
-				list.add(i);
+				try {
+					if (attachmentService.attachmentExists(i)) {
+						list.add(i);
+					}
+
+				} catch (Exception e) {
+
+				}
+
+			}
+
+			Hearing oldHearing = hearingRepository.findById(hearingId).get();
+
+			for (String i : oldHearing.getAttachmentsId()) {
+
+				try {
+
+					if (!list.contains(i)) {
+
+						attachmentService.delete(i);
+
+					}
+
+				} catch (Exception e) {
+
+				}
 
 			}
 

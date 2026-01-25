@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.bson.types.ObjectId;
+
 import com.example.demo700.CyclicCleaner.Cleaner;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
@@ -119,8 +121,28 @@ public class CaseServiceImpl implements CaseService {
 			List<String> list = new ArrayList<>();
 
 			for (String i : acceptedCase.getAttachmentsId()) {
+				if (fileUpload.attachmentExists(i)) {
+				    list.add(i);
+				}
 
-				list.add(i);
+			}
+
+			Case oldCase = caseRepository.findById(caseRequestId).get();
+
+			for (String i : oldCase.getAttachmentsId()) {
+
+				try {
+
+					if (!list.contains(i)) {
+
+						fileUpload.delete(i);
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
 			}
 
 			if (files != null) {
