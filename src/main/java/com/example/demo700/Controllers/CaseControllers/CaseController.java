@@ -68,19 +68,24 @@ public class CaseController {
 			@RequestPart("userId") String userId, @RequestPart("advocateId") String advocateId,
 			@RequestPart("caseType") String caseType,
 			@RequestPart(value = "existingFiles", required = false) String existingFilesJson,
-			@RequestPart(value = "files", required = false) MultipartFile files[],
-			@RequestParam String usersId) {
+			@RequestPart(value = "files", required = false) MultipartFile files[], @RequestParam String usersId) {
 		try {
 			Case acceptedCase = new Case();
 			acceptedCase.setCaseName(caseName);
 			acceptedCase.setUserId(userId);
 			acceptedCase.setAdvocateId(advocateId);
 			acceptedCase.setCaseType(AdvocateSpeciality.valueOf(caseType));
-			
-			ObjectMapper mapper = new ObjectMapper();
-			String[] existingFiles = mapper.readValue(existingFilesJson, String[].class);
 
-			acceptedCase.setAttachmentId(existingFiles);
+			try {
+
+				ObjectMapper mapper = new ObjectMapper();
+				String[] existingFiles = mapper.readValue(existingFilesJson, String[].class);
+
+				acceptedCase.setAttachmentId(existingFiles);
+
+			} catch (Exception e) {
+
+			}
 
 			return success(caseService.updateCase(acceptedCase, usersId, caseId, files));
 		} catch (Exception e) {
@@ -88,31 +93,28 @@ public class CaseController {
 		}
 	}
 
-	//-------------- view the attachment ---------------------
-	
+	// -------------- view the attachment ---------------------
+
 	@GetMapping("/attachment/view/{attachmentId}")
 	public ResponseEntity<?> viewAttachment(@PathVariable String attachmentId) {
-	    try {
-	        GridFSFile file = imageService.getFile(attachmentId);
+		try {
+			GridFSFile file = imageService.getFile(attachmentId);
 
-	        if (file == null) {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
-	        }
+			if (file == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
+			}
 
-	        InputStream stream = imageService.getStream(file);
+			InputStream stream = imageService.getStream(file);
 
-	        return ResponseEntity.ok()
-	                .contentType(MediaType.parseMediaType(file.getMetadata().get("type").toString()))
-	                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
-	                .body(new InputStreamResource(stream));
+			return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().get("type").toString()))
+					.header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
+					.body(new InputStreamResource(stream));
 
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body("Failed to load file");
-	    }
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to load file");
+		}
 	}
 
-	
 	// ------------------- download attachment -----------------
 
 	@GetMapping("/attachment/{attachmentId}")

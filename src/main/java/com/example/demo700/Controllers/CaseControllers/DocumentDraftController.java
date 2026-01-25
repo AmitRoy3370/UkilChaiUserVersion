@@ -64,11 +64,17 @@ public class DocumentDraftController {
 			draft.setAdvocateId(advocateId);
 			draft.setCaseId(caseId);
 			draft.setIssuedDate(issuedDate != null ? issuedDate : Instant.now());
-			
-			ObjectMapper mapper = new ObjectMapper();
-			String[] attachmentsId = mapper.readValue(existingFilesJson, String[].class);
 
-			draft.setAttachmentsId(attachmentsId);
+			try {
+
+				ObjectMapper mapper = new ObjectMapper();
+				String[] attachmentsId = mapper.readValue(existingFilesJson, String[].class);
+
+				draft.setAttachmentsId(attachmentsId);
+
+			} catch (Exception e) {
+
+			}
 
 			return ResponseEntity.ok(documentDraftService.updateDocumentDraft(draft, userId, documentDraftId, files));
 		} catch (Exception e) {
@@ -160,8 +166,7 @@ public class DocumentDraftController {
 
 	// ========================= FIND BEFORE DATE =========================
 	@GetMapping("/before")
-	public ResponseEntity<?> findBefore(
-			@RequestParam String date) {
+	public ResponseEntity<?> findBefore(@RequestParam String date) {
 		try {
 			return ResponseEntity.ok(documentDraftService.findByIssuedDateBefore(Instant.parse(date)));
 		} catch (Exception e) {

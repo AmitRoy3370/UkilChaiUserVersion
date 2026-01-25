@@ -67,10 +67,16 @@ public class HearingController {
 			hearing.setCaseId(caseId);
 			hearing.setHearningNumber(hearningNumber);
 
-			ObjectMapper mapper = new ObjectMapper();
-			String[] existingFiles = mapper.readValue(existingFilesJson, String[].class);
+			try {
 
-			hearing.setAttachmentsId(existingFiles);
+				ObjectMapper mapper = new ObjectMapper();
+				String[] existingFiles = mapper.readValue(existingFilesJson, String[].class);
+
+				hearing.setAttachmentsId(existingFiles);
+
+			} catch (Exception e) {
+
+			}
 
 			if (issuedDate != null)
 				hearing.setIssuedDate(Instant.parse(issuedDate));

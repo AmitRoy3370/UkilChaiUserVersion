@@ -64,10 +64,16 @@ public class CaseRequestController {
 			request.setCaseType(AdvocateSpeciality.valueOf(caseType));
 			request.setUserId(userId);
 
-			ObjectMapper mapper = new ObjectMapper();
-			String[] existingFiles = mapper.readValue(existingFilesJson, String[].class);
+			try {
 
-			request.setAttachmentId(existingFiles);
+				ObjectMapper mapper = new ObjectMapper();
+				String[] existingFiles = mapper.readValue(existingFilesJson, String[].class);
+
+				request.setAttachmentId(existingFiles);
+
+			} catch (Exception e) {
+
+			}
 
 			return ResponseEntity.ok(caseRequestService.updateCaseRequest(request, userId, caseRequestId, files));
 		} catch (Exception e) {
