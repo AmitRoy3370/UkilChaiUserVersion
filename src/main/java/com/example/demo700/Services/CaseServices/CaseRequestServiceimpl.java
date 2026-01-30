@@ -101,6 +101,26 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 		try {
 
+			if (caseRequest.getRequestedAdvocateId().trim() != null) {
+
+				Advocate advocate = advocateRepository.findById(caseRequest.getRequestedAdvocateId()).get();
+
+				if (advocate == null) {
+
+					throw new Exception();
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such requested advocate find at here....");
+
+		}
+
+		try {
+
 			List<String> list = new ArrayList<>();
 
 			for (MultipartFile file : files) {
@@ -215,6 +235,26 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 			throw new ArithmeticException("Case name already exist at here...");
 
 		} catch (Exception e) {
+
+		}
+
+		try {
+
+			if (caseRequest.getRequestedAdvocateId().trim() != null) {
+
+				Advocate advocate = advocateRepository.findById(caseRequest.getRequestedAdvocateId()).get();
+
+				if (advocate == null) {
+
+					throw new Exception();
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such requested advocate find at here....");
 
 		}
 
@@ -586,11 +626,21 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 			}
 
+			if (_caseRequest.getRequestedAdvocateId() != null) {
+
+				if (!_caseRequest.getRequestedAdvocateId().equals(advocate.getId())) {
+
+					throw new Exception();
+
+				}
+
+			}
+
 			acceptedCase.setAdvocateId(advocate.getId());
 
 		} catch (Exception e) {
 
-			throw new NoSuchElementException("No such advocate find at here...");
+			throw new NoSuchElementException("No such advocate find at here who can accept this case......");
 
 		}
 
@@ -605,6 +655,35 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 		}
 
 		return acceptedCase;
+	}
+
+	@Override
+	public List<CaseRequest> findByRequestedAdvocateId(String requestedAdvocateId) {
+
+		if (requestedAdvocateId == null) {
+
+			throw new NullPointerException("False request....");
+
+		}
+
+		try {
+
+			List<CaseRequest> list = caseRequestRepository.findByRequestedAdvocateId(requestedAdvocateId);
+
+			if (list.isEmpty()) {
+
+				throw new Exception();
+
+			}
+
+			return list;
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such case request find at here...");
+
+		}
+
 	}
 
 }

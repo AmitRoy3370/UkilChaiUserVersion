@@ -23,4 +23,6 @@ public interface CaseRequestRepository extends MongoRepository<CaseRequest, Stri
 	
 	public List<CaseRequest> findByRequestDateBefore(Instant issuedTime);
 	
+	public List<CaseRequest> findByRequestedAdvocateId(String requestedAdvocateId);
+	
 }

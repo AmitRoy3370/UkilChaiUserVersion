@@ -1,6 +1,7 @@
 package com.example.demo700.Model.CaseModels;
 
 import java.time.Instant;
+import java.util.Arrays;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -26,6 +27,8 @@ public class CaseRequest {
 
 	@NonNull
 	private String userId;
+
+	private String requestedAdvocateId;
 
 	public CaseRequest(String caseName, AdvocateSpeciality caseType, String[] attachmentId, String userId) {
 		super();
@@ -87,10 +90,19 @@ public class CaseRequest {
 		this.userId = userId;
 	}
 
+	public String getRequestedAdvocateId() {
+		return requestedAdvocateId;
+	}
+
+	public void setRequestedAdvocateId(String requestedAdvocateId) {
+		this.requestedAdvocateId = requestedAdvocateId;
+	}
+
 	@Override
 	public String toString() {
 		return "CaseRequest [id=" + id + ", caseName=" + caseName + ", caseType=" + caseType + ", requestDate="
-				+ requestDate + ", attachmentId=" + attachmentId + ", userId=" + userId + "]";
+				+ requestDate + ", attachmentId=" + Arrays.toString(attachmentId) + ", userId=" + userId
+				+ ", requestedAdvocateId=" + requestedAdvocateId + "]";
 	}
 
 }

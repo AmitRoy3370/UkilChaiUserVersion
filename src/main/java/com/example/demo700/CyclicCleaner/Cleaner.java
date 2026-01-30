@@ -458,21 +458,47 @@ public class Cleaner {
 				if (count != advocateRepository.count()) {
 
 					try {
-						
-						CenterAdmin centerAdmin = centerAdminRepository.findByAdvocatesContainingIgnoreCase(advocate.getId());
-						
-						if(centerAdmin != null) {
-							
-							centerAdmin.getAdvocates().remove(advocate.getId());
-							
-							centerAdminRepository.save(centerAdmin);
-							
+
+						List<CaseRequest> list = caseRequestRepository.findByRequestedAdvocateId(advocate.getId());
+
+						if (!list.isEmpty()) {
+
+							for (CaseRequest i : list) {
+
+								try {
+
+									i.setRequestedAdvocateId("");
+									caseRequestRepository.save(i);
+
+								} catch (Exception e) {
+
+								}
+
+							}
+
 						}
-						
-					} catch(Exception e) {
-						
+
+					} catch (Exception e) {
+
 					}
-					
+
+					try {
+
+						CenterAdmin centerAdmin = centerAdminRepository
+								.findByAdvocatesContainingIgnoreCase(advocate.getId());
+
+						if (centerAdmin != null) {
+
+							centerAdmin.getAdvocates().remove(advocate.getId());
+
+							centerAdminRepository.save(centerAdmin);
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
 					try {
 
 						List<Case> list = caseRepository.findByAdvocateId(advocate.getId());
@@ -564,15 +590,15 @@ public class Cleaner {
 				if (count != adminRepository.count()) {
 
 					CenterAdmin centerAdmin = centerAdminRepository.findByAdminsContainingIgnoreCase(admin.getId());
-					
-					if(centerAdmin != null) {
-						
+
+					if (centerAdmin != null) {
+
 						centerAdmin.getAdmins().remove(admin.getId());
-						
+
 						centerAdminRepository.save(centerAdmin);
-						
+
 					}
-					
+
 				}
 
 			}
