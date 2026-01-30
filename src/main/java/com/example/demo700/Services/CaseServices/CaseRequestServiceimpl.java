@@ -101,11 +101,35 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 		try {
 
+			Case acceptedCase = caseRepository.findByCaseNameIgnoreCase(caseRequest.getCaseName());
+
+			if (acceptedCase != null) {
+
+				throw new ArithmeticException();
+
+			}
+
+		} catch (ArithmeticException e) {
+
+			throw new ArithmeticException("Case name already exist at here...");
+
+		} catch (Exception e) {
+
+		}
+
+		try {
+
 			if (caseRequest.getRequestedAdvocateId() != null) {
 
 				Advocate advocate = advocateRepository.findById(caseRequest.getRequestedAdvocateId().trim()).get();
 
 				if (advocate == null) {
+
+					throw new Exception();
+
+				}
+
+				if (!advocate.getAdvocateSpeciality().contains(caseRequest.getCaseType())) {
 
 					throw new Exception();
 
@@ -240,11 +264,35 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 		try {
 
+			Case acceptedCase = caseRepository.findByCaseNameIgnoreCase(caseRequest.getCaseName());
+
+			if (acceptedCase != null) {
+
+				throw new ArithmeticException();
+
+			}
+
+		} catch (ArithmeticException e) {
+
+			throw new ArithmeticException("Case name already exist at here...");
+
+		} catch (Exception e) {
+
+		}
+
+		try {
+
 			if (caseRequest.getRequestedAdvocateId() != null) {
 
 				Advocate advocate = advocateRepository.findById(caseRequest.getRequestedAdvocateId().trim()).get();
 
 				if (advocate == null) {
+
+					throw new Exception();
+
+				}
+
+				if (!advocate.getAdvocateSpeciality().contains(caseRequest.getCaseType())) {
 
 					throw new Exception();
 
@@ -326,9 +374,13 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 			int index = 0;
 
+			System.out.println("All attachments :- ");
+			
 			for (String i : list) {
 
 				s[index++] = i;
+				
+				System.out.println(i);
 
 			}
 
