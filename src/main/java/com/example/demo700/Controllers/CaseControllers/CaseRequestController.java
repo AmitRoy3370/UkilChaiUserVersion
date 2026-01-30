@@ -37,13 +37,19 @@ public class CaseRequestController {
 	@PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> add(@RequestPart("caseName") String caseName, @RequestPart("caseType") String caseType,
 			@RequestPart("userId") String userId,
-            @RequestPart(value = "requestedAdvocateId", required = false) String requestedAdvocateId,
+			@RequestPart(value = "requestedAdvocateId", required = false) String requestedAdvocateId,
 			@RequestPart(value = "files", required = false) MultipartFile files[]) {
 		try {
 			CaseRequest request = new CaseRequest();
 			request.setCaseName(caseName);
 			request.setCaseType(AdvocateSpeciality.valueOf(caseType)); // enum
 			request.setUserId(userId);
+
+			if (requestedAdvocateId != null) {
+
+				request.setRequestedAdvocateId(requestedAdvocateId);
+
+			}
 
 			return ResponseEntity.ok(caseRequestService.addCaseRequest(request, userId, files));
 		} catch (Exception e) {
@@ -73,6 +79,12 @@ public class CaseRequestController {
 				request.setAttachmentId(existingFiles);
 
 			} catch (Exception e) {
+
+			}
+
+			if (requestedAdvocateId != null) {
+
+				request.setRequestedAdvocateId(requestedAdvocateId);
 
 			}
 
@@ -201,22 +213,22 @@ public class CaseRequestController {
 	}
 
 	// ================ find the case request by the advocate
-	
+
 	@GetMapping("/findByAdvocate/{requestedAdvocateId}")
 	public ResponseEntity<?> findByAdovocateId(@PathVariable String requestedAdvocateId) {
-		
+
 		try {
-			
+
 			return ResponseEntity.status(200).body(caseRequestService.findByRequestedAdvocateId(requestedAdvocateId));
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			return ResponseEntity.status(404).body(e.getMessage());
-			
+
 		}
-		
+
 	}
-	
+
 	// ================= DELETE =================
 	@DeleteMapping("/{id}/{userId}")
 	public ResponseEntity<?> delete(@PathVariable String id, @PathVariable String userId) {

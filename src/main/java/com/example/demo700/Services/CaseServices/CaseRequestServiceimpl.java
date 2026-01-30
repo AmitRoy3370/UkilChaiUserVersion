@@ -101,9 +101,9 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 		try {
 
-			if (caseRequest.getRequestedAdvocateId().trim() != null) {
+			if (caseRequest.getRequestedAdvocateId() != null) {
 
-				Advocate advocate = advocateRepository.findById(caseRequest.getRequestedAdvocateId()).get();
+				Advocate advocate = advocateRepository.findById(caseRequest.getRequestedAdvocateId().trim()).get();
 
 				if (advocate == null) {
 
@@ -240,9 +240,9 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 		try {
 
-			if (caseRequest.getRequestedAdvocateId().trim() != null) {
+			if (caseRequest.getRequestedAdvocateId() != null) {
 
-				Advocate advocate = advocateRepository.findById(caseRequest.getRequestedAdvocateId()).get();
+				Advocate advocate = advocateRepository.findById(caseRequest.getRequestedAdvocateId().trim()).get();
 
 				if (advocate == null) {
 
