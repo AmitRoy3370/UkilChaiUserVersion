@@ -26,7 +26,7 @@ public class AdvocatePostController {
 
 	@Autowired
 	private AdvocatePostService advocatePostService;
-	
+
 	@Autowired
 	private PostContentService postContentService;
 
@@ -147,32 +147,32 @@ public class AdvocatePostController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
-	
-	//--------------------------------------------------
-	//Find post by id
-	//--------------------------------------------------
-	
+
+	// --------------------------------------------------
+	// Find post by id
+	// --------------------------------------------------
+
 	@GetMapping("/findByPostId")
 	public ResponseEntity<?> findPostById(@RequestParam String postId) {
-		
+
 		try {
-			
+
 			AdvocatePost post = advocatePostService.searchPost(postId);
-			
-			if(post == null) {
-				
+
+			if (post == null) {
+
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No post find at here...");
-				
+
 			}
-			
+
 			return ResponseEntity.status(200).body(post);
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-			
+
 		}
-		
+
 	}
 
 	// -------------------------------------------------
@@ -199,23 +199,23 @@ public class AdvocatePostController {
 		}
 	}
 
-	//--------------------------------------------------
+	// --------------------------------------------------
 	// Download Post content
-	//--------------------------------------------------
-	
+	// --------------------------------------------------
+
 	@GetMapping("download/postContent")
 	public ResponseEntity<?> downloadPostContent(@RequestParam String attachmentId) {
-		
+
 		try {
-			
-			if(attachmentId == null) {
-				
+
+			if (attachmentId == null) {
+
 				throw new Exception("False request...");
-				
+
 			}
-			
+
 			String imageId = attachmentId;
-			
+
 			try {
 				GridFSFile file = postContentService.getFile(imageId);
 
@@ -225,7 +225,8 @@ public class AdvocatePostController {
 
 				InputStream stream = postContentService.getStream(file);
 
-				return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().get("type").toString()))
+				return ResponseEntity.ok()
+						.contentType(MediaType.parseMediaType(file.getMetadata().get("type").toString()))
 						.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
 						.body(new InputStreamResource(stream));
 
@@ -238,15 +239,37 @@ public class AdvocatePostController {
 				// TODO Auto-generated catch block
 				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
 			}
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-			
+
 		}
-		
+
 	}
-	
+
+	// -------------- view the attachment ---------------------
+
+	@GetMapping("/attachment/view/{attachmentId}")
+	public ResponseEntity<?> viewAttachment(@PathVariable String attachmentId) {
+		try {
+			GridFSFile file = postContentService.getFile(attachmentId);
+
+			if (file == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
+			}
+
+			InputStream stream = postContentService.getStream(file);
+
+			return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().get("type").toString()))
+					.header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
+					.body(new InputStreamResource(stream));
+
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to load file");
+		}
+	}
+
 	// -------------------------------------------------
 	// DELETE POST
 	// -------------------------------------------------
