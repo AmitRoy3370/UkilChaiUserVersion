@@ -316,7 +316,7 @@ public class ReadableChatServiceImpl implements ReadableChatService {
 
 		try {
 
-			List<ReadableChat> list = readableChatRepository.findByIsRead(isRead);
+			List<ReadableChat> list = readableChatRepository.findByRead(isRead);
 
 			if (list.isEmpty()) {
 
