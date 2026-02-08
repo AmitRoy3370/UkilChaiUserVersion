@@ -19,6 +19,7 @@ import com.example.demo700.Model.CaseModels.CaseRequest;
 import com.example.demo700.Model.CaseModels.DocumentDraft;
 import com.example.demo700.Model.CaseModels.Hearing;
 import com.example.demo700.Model.ChatModels.ChatMessage;
+import com.example.demo700.Model.ChatModels.ReadableChat;
 import com.example.demo700.Model.NotificationModel.Notification;
 import com.example.demo700.Model.QNAModels.AnswerQuestion;
 import com.example.demo700.Model.QNAModels.AskQuestion;
@@ -43,6 +44,7 @@ import com.example.demo700.Repositories.CaseRepositories.CaseRequestRepository;
 import com.example.demo700.Repositories.CaseRepositories.DocumentDraftRepository;
 import com.example.demo700.Repositories.CaseRepositories.HearingRepository;
 import com.example.demo700.Repositories.ChatRepositories.ChatMessageRepository;
+import com.example.demo700.Repositories.ChatRepositories.ReadableChatRepository;
 import com.example.demo700.Repositories.NotificationRepository.NotificationRepository;
 import com.example.demo700.Repositories.QNARepositories.AnswerRepository;
 import com.example.demo700.Repositories.QNARepositories.QuestionRepository;
@@ -128,6 +130,9 @@ public class Cleaner {
 
 	@Autowired
 	private PostReactionRepository postReactionRepository;
+
+	@Autowired
+	private ReadableChatRepository readableChatRepository;
 
 	public void removeUser(String userId) {
 
@@ -683,6 +688,20 @@ public class Cleaner {
 
 				if (count != chatMessageRepository.count()) {
 
+					try {
+
+						ReadableChat readableChat = readableChatRepository.findByChatId(chatMessage.getId());
+
+						if (readableChat != null) {
+
+							removeReadableChat(readableChat.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
 				}
 
 			}
@@ -1196,6 +1215,30 @@ public class Cleaner {
 				postReactionRepository.deleteById(id);
 
 				if (count != postReactionRepository.count()) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeReadableChat(String id) {
+
+		try {
+
+			ReadableChat readableChat = readableChatRepository.findById(id).get();
+
+			if (readableChat != null) {
+
+				long count = readableChatRepository.count();
+
+				readableChatRepository.deleteById(id);
+
+				if (count != readableChatRepository.count()) {
 
 				}
 

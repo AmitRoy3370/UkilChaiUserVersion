@@ -11,9 +11,11 @@ import com.example.demo700.CyclicCleaner.Cleaner;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.CaseModels.AppealCase;
 import com.example.demo700.Model.CaseModels.Case;
+import com.example.demo700.Model.CaseModels.CaseJudgment;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.CaseRepositories.CaseAppealRepository;
+import com.example.demo700.Repositories.CaseRepositories.CaseJudgementRepository;
 import com.example.demo700.Repositories.CaseRepositories.CaseRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 
@@ -28,6 +30,9 @@ public class CaseAppealServiceImpl implements CaseAppealService {
 
 	@Autowired
 	private CaseRepository caseRepository;
+
+	@Autowired
+	private CaseJudgementRepository caseJudgmentRepository;
 
 	@Autowired
 	private CenterAdminRepository centerAdminRepository;
@@ -118,6 +123,30 @@ public class CaseAppealServiceImpl implements CaseAppealService {
 
 		}
 
+		try {
+
+			Case acceptedCase = caseRepository.findById(caseAppeal.getCaseId()).get();
+
+			if (acceptedCase == null) {
+
+				throw new ArithmeticException();
+
+			}
+
+			CaseJudgment judgement = caseJudgmentRepository.findByCaseId(acceptedCase.getId());
+
+			if (judgement == null) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new ArithmeticException("Case judgment have to be published due to appeal it.....");
+
+		}
+
 		caseAppeal = caseAppealRepository.save(caseAppeal);
 
 		if (caseAppeal == null) {
@@ -165,13 +194,13 @@ public class CaseAppealServiceImpl implements CaseAppealService {
 			}
 
 			AppealCase appeal = caseAppealRepository.findByCaseId(acceptedCase.getId());
-			
-			if(appeal == null) {
-				
+
+			if (appeal == null) {
+
 				throw new Exception();
-				
+
 			}
-			
+
 			if (!appeal.getId().equals(appealCaseId)) {
 
 				throw new Exception();
@@ -239,6 +268,30 @@ public class CaseAppealServiceImpl implements CaseAppealService {
 			throw new ArithmeticException("Case is already appealed....");
 
 		} catch (Exception e) {
+
+		}
+
+		try {
+
+			Case acceptedCase = caseRepository.findById(caseAppeal.getCaseId()).get();
+
+			if (acceptedCase == null) {
+
+				throw new ArithmeticException();
+
+			}
+
+			CaseJudgment judgement = caseJudgmentRepository.findByCaseId(acceptedCase.getId());
+
+			if (judgement == null) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new ArithmeticException("Case judgment have to be published due to appeal it.....");
 
 		}
 
