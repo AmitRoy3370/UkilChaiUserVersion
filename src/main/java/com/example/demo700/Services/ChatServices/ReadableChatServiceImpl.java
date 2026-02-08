@@ -201,7 +201,11 @@ public class ReadableChatServiceImpl implements ReadableChatService {
 
 			if (chatRead != null) {
 
-				throw new ArithmeticException();
+				if (!chatRead.getId().equals(id)) {
+
+					throw new ArithmeticException();
+
+				}
 
 			}
 
