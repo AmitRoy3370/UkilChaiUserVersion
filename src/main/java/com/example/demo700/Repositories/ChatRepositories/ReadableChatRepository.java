@@ -11,6 +11,6 @@ import com.example.demo700.Model.ChatModels.ReadableChat;
 public interface ReadableChatRepository extends MongoRepository<ReadableChat, String> {
 	
 	public ReadableChat findByChatId(String chatId);
-	public List<ReadableChat> findByIsRead(boolean isRead);
+	public List<ReadableChat> findByRead(boolean read);
 
 }

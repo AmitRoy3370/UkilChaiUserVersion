@@ -14,12 +14,12 @@ public class ReadableChat {
 	@NonNull
 	private String chatId;
 
-	private boolean isRead;
+	private boolean read;
 
-	public ReadableChat(String chatId, boolean isRead) {
+	public ReadableChat(String chatId, boolean read) {
 		super();
 		this.chatId = chatId;
-		this.isRead = isRead;
+		this.read = read;
 	}
 
 	public ReadableChat() {
@@ -43,16 +43,16 @@ public class ReadableChat {
 	}
 
 	public boolean isRead() {
-		return isRead;
+		return read;
 	}
 
-	public void setRead(boolean isRead) {
-		this.isRead = isRead;
+	public void setRead(boolean read) {
+		this.read = read;
 	}
 
 	@Override
 	public String toString() {
-		return "ReadableChat [id=" + id + ", chatId=" + chatId + ", isRead=" + isRead + "]";
+		return "ReadableChat [id=" + id + ", chatId=" + chatId + ", isRead=" + read + "]";
 	}
 
 }
