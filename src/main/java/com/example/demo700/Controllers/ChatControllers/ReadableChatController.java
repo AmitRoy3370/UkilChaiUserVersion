@@ -91,7 +91,7 @@ public class ReadableChatController {
 
     // ================= FIND BY READ STATUS =================
     @GetMapping("/status/{isRead}")
-    public ResponseEntity<?> findByIsRead(@PathVariable boolean isRead) {
+    public ResponseEntity<?> findByIsRead(@RequestParam boolean isRead) {
 
         try {
             return ResponseEntity.ok(
