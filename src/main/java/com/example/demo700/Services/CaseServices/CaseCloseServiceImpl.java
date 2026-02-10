@@ -137,7 +137,7 @@ public class CaseCloseServiceImpl implements CaseCloseService {
 	@Override
 	public CaseClose updateCaseClose(CaseClose caseClose, String userId, String closedCaseId) {
 
-		if (caseClose == null || userId == null || closedCaseId != null) {
+		if (caseClose == null || userId == null || closedCaseId == null) {
 
 			throw new NullPointerException("False request....");
 
