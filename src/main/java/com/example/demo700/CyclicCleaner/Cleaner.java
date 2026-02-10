@@ -14,6 +14,7 @@ import com.example.demo700.Model.AdvocateModels.AdvocatePost;
 import com.example.demo700.Model.CaseModels.AppealCase;
 import com.example.demo700.Model.CaseModels.AppealHearings;
 import com.example.demo700.Model.CaseModels.Case;
+import com.example.demo700.Model.CaseModels.CaseClose;
 import com.example.demo700.Model.CaseModels.CaseJudgment;
 import com.example.demo700.Model.CaseModels.CaseRequest;
 import com.example.demo700.Model.CaseModels.DocumentDraft;
@@ -38,6 +39,7 @@ import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositorie
 import com.example.demo700.Repositories.AdvocateRepositories.PostRepository;
 import com.example.demo700.Repositories.CaseRepositories.AppealHearingRepository;
 import com.example.demo700.Repositories.CaseRepositories.CaseAppealRepository;
+import com.example.demo700.Repositories.CaseRepositories.CaseCloseRepository;
 import com.example.demo700.Repositories.CaseRepositories.CaseJudgementRepository;
 import com.example.demo700.Repositories.CaseRepositories.CaseRepository;
 import com.example.demo700.Repositories.CaseRepositories.CaseRequestRepository;
@@ -133,6 +135,9 @@ public class Cleaner {
 
 	@Autowired
 	private ReadableChatRepository readableChatRepository;
+
+	@Autowired
+	private CaseCloseRepository caseCloseRepository;
 
 	public void removeUser(String userId) {
 
@@ -918,6 +923,20 @@ public class Cleaner {
 
 					try {
 
+						CaseClose caseClose = caseCloseRepository.findByCaseId(acceptedCase.getId());
+
+						if (caseClose != null) {
+
+							removeCaseClose(caseClose.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
 						List<ClientFeedback> list = clientFeedbackRepository.findByCaseId(acceptedCase.getId());
 
 						for (ClientFeedback i : list) {
@@ -1239,6 +1258,30 @@ public class Cleaner {
 				readableChatRepository.deleteById(id);
 
 				if (count != readableChatRepository.count()) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeCaseClose(String id) {
+
+		try {
+
+			CaseClose caseClose = caseCloseRepository.findById(id).get();
+
+			if (caseClose != null) {
+
+				long count = caseCloseRepository.count();
+
+				caseCloseRepository.deleteById(id);
+
+				if (count != caseCloseRepository.count()) {
 
 				}
 
