@@ -22,6 +22,7 @@ import com.example.demo700.Model.CaseModels.Hearing;
 import com.example.demo700.Model.ChatModels.ChatMessage;
 import com.example.demo700.Model.ChatModels.ReadableChat;
 import com.example.demo700.Model.NotificationModel.Notification;
+import com.example.demo700.Model.PaymentModels.PaymentDetails;
 import com.example.demo700.Model.QNAModels.AnswerQuestion;
 import com.example.demo700.Model.QNAModels.AskQuestion;
 import com.example.demo700.Model.UserModels.AdvocateRating;
@@ -48,6 +49,7 @@ import com.example.demo700.Repositories.CaseRepositories.HearingRepository;
 import com.example.demo700.Repositories.ChatRepositories.ChatMessageRepository;
 import com.example.demo700.Repositories.ChatRepositories.ReadableChatRepository;
 import com.example.demo700.Repositories.NotificationRepository.NotificationRepository;
+import com.example.demo700.Repositories.PaymentRepositories.PaymentDetailsRepository;
 import com.example.demo700.Repositories.QNARepositories.AnswerRepository;
 import com.example.demo700.Repositories.QNARepositories.QuestionRepository;
 import com.example.demo700.Repositories.UserRepositories.AdvocateRatingRepository;
@@ -138,6 +140,9 @@ public class Cleaner {
 
 	@Autowired
 	private CaseCloseRepository caseCloseRepository;
+
+	@Autowired
+	private PaymentDetailsRepository paymentDetailsRepository;
 
 	public void removeUser(String userId) {
 
@@ -923,6 +928,20 @@ public class Cleaner {
 
 					try {
 
+						List<PaymentDetails> list = paymentDetailsRepository.findByCaseId(acceptedCase.getId());
+
+						for (PaymentDetails i : list) {
+
+							removePaymentDetails(i.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
 						CaseClose caseClose = caseCloseRepository.findByCaseId(acceptedCase.getId());
 
 						if (caseClose != null) {
@@ -1282,6 +1301,30 @@ public class Cleaner {
 				caseCloseRepository.deleteById(id);
 
 				if (count != caseCloseRepository.count()) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removePaymentDetails(String id) {
+
+		try {
+
+			PaymentDetails paymentDetails = paymentDetailsRepository.findById(id).get();
+
+			long count = paymentDetailsRepository.count();
+
+			if (paymentDetails != null) {
+
+				paymentDetailsRepository.deleteById(paymentDetails.getId());
+
+				if (count != paymentDetailsRepository.count()) {
 
 				}
 
