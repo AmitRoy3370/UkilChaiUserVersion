@@ -24,6 +24,7 @@ import com.example.demo700.Repositories.CaseRepositories.CaseRepository;
 import com.example.demo700.Repositories.CaseRepositories.CaseRequestRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 import com.example.demo700.Services.AdvocateServices.CVUploadService;
+import com.example.demo700.Services.NotificationServices.NotificationService;
 import com.example.demo700.Services.UserServices.ImageService;
 
 @Service
@@ -46,6 +47,9 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 	@Autowired
 	private CenterAdminRepository centerAdminRepository;
+
+	@Autowired
+	private NotificationService notificationService;
 
 	@Autowired
 	private Cleaner cleaner;
@@ -375,11 +379,11 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 			int index = 0;
 
 			System.out.println("All attachments :- ");
-			
+
 			for (String i : list) {
 
 				s[index++] = i;
-				
+
 				System.out.println(i);
 
 			}
@@ -705,6 +709,19 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 			throw new ArithmeticException("No such case added at here...");
 
 		}
+
+		User user = userRepository.findById(acceptedCase.getUserId()).get();
+
+		String name = user.getName();
+		String requestedUserId = user.getId();
+
+		Advocate advocate = advocateRepository.findById(acceptedCase.getAdvocateId()).get();
+
+		user = userRepository.findById(advocate.getUserId()).get();
+
+		String advocateName = user.getName();
+
+		notificationService.sendNotification(requestedUserId, name + " your case is accepted by the " + advocateName);
 
 		return acceptedCase;
 	}

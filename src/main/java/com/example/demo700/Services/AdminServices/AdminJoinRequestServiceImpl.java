@@ -18,6 +18,7 @@ import com.example.demo700.Repositories.AdminRepositories.AdminJoinRequestReposi
 import com.example.demo700.Repositories.AdminRepositories.AdminRepository;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
+import com.example.demo700.Services.NotificationServices.NotificationService;
 
 @Service
 public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
@@ -39,6 +40,9 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 
 	@Autowired
 	private AdminService adminService;
+
+	@Autowired
+	private NotificationService notificationService;
 
 	@Override
 	public AdminJoinRequest addAdmin(AdminJoinRequest admin, String userId) {
@@ -441,6 +445,13 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 
 		RequestResponse requestResponse = RequestResponse.valueOf(response);
 
+		AdminJoinRequest _adminJoinRequest = adminJoinRequestRepository.findById(adminJoinRequestId).get();
+
+		User user = userRepository.findById(_adminJoinRequest.getUserId()).get();
+
+		String name = user.getName();
+		String requestedUserId = user.getId();
+
 		if (requestResponse == RequestResponse.ACCEPT) {
 
 			AdminJoinRequest adminJoinRequest = adminJoinRequestRepository.findById(adminJoinRequestId).get();
@@ -456,24 +467,30 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 				admin = adminService.addAdmin(admin, admin.getUserId());
 
 				CenterAdmin centerAdmin = centerAdminRepository.findByUserId(userId);
-				
-				if(centerAdmin.getAdmins().isEmpty()) {
-					
+
+				if (centerAdmin.getAdmins().isEmpty()) {
+
 					List<String> list = new ArrayList<>();
-					
+
 					list.add(admin.getId());
-					
+
 					centerAdmin.setAdmins(list);
-					
+
 				} else {
-					
+
 					centerAdmin.getAdmins().add(admin.getId());
-					
+
 				}
-				
+
 				centerAdminRepository.save(centerAdmin);
-				
+
 				cleaner.removeAdminJoinRequest(adminJoinRequestId);
+
+				if (admin != null) {
+
+					notificationService.sendNotification(requestedUserId, name + " you are accepted as an admin.");
+
+				}
 
 				return admin;
 
@@ -486,6 +503,8 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 		} else if (requestResponse == RequestResponse.REJECT) {
 
 			cleaner.removeAdminJoinRequest(adminJoinRequestId);
+
+			notificationService.sendNotification(requestedUserId, name + " you are rejected as an admin.");
 
 			throw new ArithmeticException("Admin join request denied...");
 

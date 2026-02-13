@@ -22,6 +22,7 @@ import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateJoinRequestRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
+import com.example.demo700.Services.NotificationServices.NotificationService;
 
 @Service
 public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestService {
@@ -46,6 +47,9 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 	@Autowired
 	private AdminRepository adminRepository;
+
+	@Autowired
+	private NotificationService notificationService;
 
 	@Autowired
 	private Cleaner cleaner;
@@ -680,15 +684,38 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 						centerAdmin = centerAdminRepositroy.save(centerAdmin);
 
+						if (centerAdmin != null) {
+
+							User user = userRepository.findById(advocate.getUserId()).get();
+
+							String name = user.getName();
+
+							notificationService.sendNotification(advocate.getUserId(),
+									name + " you are accepted as an advocate....");
+
+						}
+
 						System.out.println("updated center admin :- " + centerAdmin.toString());
-						
+
 					} else {
 
 						centerAdmin.getAdvocates().add(advocate.getId());
 
 						centerAdmin = centerAdminRepositroy.save(centerAdmin);
-						
-						System.out.println("udated center admin :- " + centerAdmin.toString());;
+
+						if (centerAdmin != null) {
+
+							User user = userRepository.findById(advocate.getUserId()).get();
+
+							String name = user.getName();
+
+							notificationService.sendNotification(advocate.getUserId(),
+									name + " you are accepted as an advocate....");
+
+						}
+
+						System.out.println("udated center admin :- " + centerAdmin.toString());
+						;
 
 					}
 
