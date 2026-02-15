@@ -25,6 +25,7 @@ import com.example.demo700.Model.NotificationModel.Notification;
 import com.example.demo700.Model.PaymentModels.PaymentDetails;
 import com.example.demo700.Model.QNAModels.AnswerQuestion;
 import com.example.demo700.Model.QNAModels.AskQuestion;
+import com.example.demo700.Model.UserActiveModel.UserActive;
 import com.example.demo700.Model.UserModels.AdvocateRating;
 import com.example.demo700.Model.UserModels.ClientFeedback;
 import com.example.demo700.Model.UserModels.PostReaction;
@@ -52,6 +53,7 @@ import com.example.demo700.Repositories.NotificationRepository.NotificationRepos
 import com.example.demo700.Repositories.PaymentRepositories.PaymentDetailsRepository;
 import com.example.demo700.Repositories.QNARepositories.AnswerRepository;
 import com.example.demo700.Repositories.QNARepositories.QuestionRepository;
+import com.example.demo700.Repositories.UserActiveRepositories.UserActiveRepository;
 import com.example.demo700.Repositories.UserRepositories.AdvocateRatingRepository;
 import com.example.demo700.Repositories.UserRepositories.ClientFeedbackRepository;
 import com.example.demo700.Repositories.UserRepositories.PostReactionRepository;
@@ -144,6 +146,9 @@ public class Cleaner {
 	@Autowired
 	private PaymentDetailsRepository paymentDetailsRepository;
 
+	@Autowired
+	private UserActiveRepository userActiveRepository;
+
 	public void removeUser(String userId) {
 
 		try {
@@ -161,6 +166,20 @@ public class Cleaner {
 			userRepository.deleteById(user.getId());
 
 			if (count != userRepository.count()) {
+
+				try {
+
+					UserActive userActive = userActiveRepository.findByUserId(user.getId());
+
+					if (userActive != null) {
+
+						removeUserActive(userActive.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
 
 				try {
 
@@ -1325,6 +1344,30 @@ public class Cleaner {
 				paymentDetailsRepository.deleteById(paymentDetails.getId());
 
 				if (count != paymentDetailsRepository.count()) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeUserActive(String id) {
+
+		try {
+
+			UserActive userActive = userActiveRepository.findById(id).get();
+
+			if (userActive != null) {
+
+				long count = userActiveRepository.count();
+
+				userActiveRepository.deleteById(id);
+
+				if (count != userActiveRepository.count()) {
 
 				}
 
