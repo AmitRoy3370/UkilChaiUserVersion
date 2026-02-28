@@ -125,9 +125,17 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 			List<String> list = new ArrayList<>();
 
-			for (String i : documentDraft.getAttachmentsId()) {
+			if (documentDraft.getAttachmentsId() != null) {
 
-				list.add(i);
+				for (String i : documentDraft.getAttachmentsId()) {
+
+					if (fileUpload.attachmentExists(i)) {
+
+						list.add(i);
+
+					}
+
+				}
 
 			}
 
@@ -300,9 +308,8 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 			for (String i : documentDraft.getAttachmentsId()) {
 				if (fileUpload.attachmentExists(i)) {
-				    list.add(i);
+					list.add(i);
 				}
-
 
 			}
 
