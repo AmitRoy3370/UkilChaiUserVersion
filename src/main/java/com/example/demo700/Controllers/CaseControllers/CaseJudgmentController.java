@@ -33,9 +33,9 @@ public class CaseJudgmentController {
 
 	// ==================== ADD ====================
 	@PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<?> addCaseJudgment(@RequestPart("caseId") String caseId, @RequestPart("result") String result,
-			@RequestPart(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant date,
-			@RequestPart(value = "file", required = false) MultipartFile file, @RequestParam("userId") String userId) {
+	public ResponseEntity<?> addCaseJudgment(@RequestParam("caseId") String caseId, @RequestParam("result") String result,
+			@RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant date,
+			@RequestParam(value = "file", required = false) MultipartFile file, @RequestParam("userId") String userId) {
 		try {
 			CaseJudgment judgment = new CaseJudgment();
 			judgment.setCaseId(caseId);
@@ -51,10 +51,10 @@ public class CaseJudgmentController {
 	// ==================== UPDATE ====================
 	@PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> updateCaseJudgment(@PathVariable("id") String caseJudgmentId,
-			@RequestPart("caseId") String caseId, @RequestPart("result") String result,
-			@RequestPart(value = "judgmentAttachmentId", required = false) String judgmentAttachmentId,
-			@RequestPart(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant date,
-			@RequestPart(value = "file", required = false) MultipartFile file, @RequestParam("userId") String userId) {
+			@RequestParam("caseId") String caseId, @RequestParam("result") String result,
+			@RequestParam(value = "judgmentAttachmentId", required = false) String judgmentAttachmentId,
+			@RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant date,
+			@RequestParam(value = "file", required = false) MultipartFile file, @RequestParam("userId") String userId) {
 		try {
 			CaseJudgment judgment = new CaseJudgment();
 			judgment.setCaseId(caseId);
