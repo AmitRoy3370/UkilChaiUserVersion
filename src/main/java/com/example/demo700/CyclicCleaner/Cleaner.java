@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo700.ENums.CasePayment;
 import com.example.demo700.Model.AdminModels.Admin;
 import com.example.demo700.Model.AdminModels.AdminJoinRequest;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
@@ -1093,6 +1094,26 @@ public class Cleaner {
 
 				if (count != hearingRepository.count()) {
 
+					try {
+						
+						List<PaymentDetails> list = paymentDetailsRepository.findByCaseIdAndPaymentFor(hearing.getCaseId(), CasePayment.CASE_HEARING_PAYMENT);
+						
+						int deletedHearingNumber = (hearing.getHearningNumber() - 1);
+						
+						PaymentDetails payment = list.get(deletedHearingNumber);
+						
+						long paymentDetailsCount = paymentDetailsRepository.count();
+						
+						paymentDetailsRepository.deleteById(payment.getId());
+						
+						if(paymentDetailsCount != paymentDetailsRepository.count()) {
+							
+						}
+						
+					} catch(Exception e) {
+						
+					}
+					
 					if (hearing.getAttachmentsId() != null) {
 
 						for (String i : hearing.getAttachmentsId()) {
