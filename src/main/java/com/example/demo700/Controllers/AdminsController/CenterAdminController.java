@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo700.Model.AdminModels.Admin;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Services.AdminServices.CenterAdminService;
 
@@ -83,6 +84,24 @@ public class CenterAdminController {
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		}
+	}
+
+	// ✅ FIND ALL ADMIN BY DISTRICTS
+	@GetMapping("district/admins")
+	public ResponseEntity<?> findAdminsByDistrict(@RequestParam String district) {
+
+		try {
+
+			List<Admin> list = centerAdminService.findAdminByDistricts(district);
+
+			return ResponseEntity.status(200).body(list);
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(404).body(e.getMessage());
+
+		}
+
 	}
 
 	// ✅ UPDATE CENTER ADMIN

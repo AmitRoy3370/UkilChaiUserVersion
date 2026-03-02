@@ -2,6 +2,7 @@ package com.example.demo700.Services.AdminServices;
 
 import java.util.List;
 
+import com.example.demo700.Model.AdminModels.Admin;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 
 public interface CenterAdminService {
@@ -11,6 +12,7 @@ public interface CenterAdminService {
 	public CenterAdmin findByUserId(String userId);
 	public CenterAdmin findByAdminsContainingIgnoreCase(String admin);
 	public List<CenterAdmin> findByDistrictsContainingIgnoreCase(String districts);
+	public List<Admin> findAdminByDistricts(String district);
 	public CenterAdmin findByAdvocatesContainingIgnoreCase(String advocates);
 	public CenterAdmin updateCenterAdmin(CenterAdmin centerAdmin, String userId, String centerAdminId);
 	public boolean removeCentralAdmin(String centralAdminId, String userId);

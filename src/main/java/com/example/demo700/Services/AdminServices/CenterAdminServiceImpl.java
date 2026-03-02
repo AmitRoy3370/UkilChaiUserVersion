@@ -1,5 +1,6 @@
 package com.example.demo700.Services.AdminServices;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -418,7 +419,7 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 		}
 
 		centerAdmin.setId(centerAdminId);
-		
+
 		centerAdmin = centerAdminRepository.save(centerAdmin);
 
 		return centerAdmin;
@@ -450,10 +451,64 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 		}
 
 		long count = centerAdminRepository.count();
-		
+
 		cleaner.removeCenterAdmin(centerAdminId);
 
 		return count != centerAdminRepository.count();
+	}
+
+	@Override
+	public List<Admin> findAdminByDistricts(String district) {
+
+		if (district == null) {
+
+			throw new NullPointerException("False request....");
+
+		}
+
+		List<Admin> list = new ArrayList<>();
+
+		List<CenterAdmin> centerAdmins = centerAdminRepository.findByDistrictsContainingIgnoreCase(district);
+
+		if (centerAdmins.isEmpty()) {
+
+			throw new NoSuchElementException("No such admin present in that districts....");
+
+		}
+
+		for (CenterAdmin i : centerAdmins) {
+
+			List<String> admins = i.getAdmins();
+
+			for (String j : admins) {
+
+				try {
+
+					Admin admin = adminRepository.findById(j).get();
+
+					if (admin == null) {
+
+						throw new Exception();
+
+					}
+
+					list.add(admin);
+
+				} catch (Exception e) {
+
+				}
+
+			}
+
+		}
+
+		if (list.isEmpty()) {
+
+			throw new NoSuchElementException("No such admin find at here...");
+
+		}
+
+		return list;
 	}
 
 }
