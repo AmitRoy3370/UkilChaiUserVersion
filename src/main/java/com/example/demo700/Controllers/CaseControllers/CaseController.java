@@ -64,11 +64,11 @@ public class CaseController {
 
 	// ================= UPDATE CASE =================
 	@PostMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<?> updateCase(@RequestPart("caseId") String caseId, @RequestPart("caseName") String caseName,
-			@RequestPart("userId") String userId, @RequestPart("advocateId") String advocateId,
-			@RequestPart("caseType") String caseType,
+	public ResponseEntity<?> updateCase(@RequestParam("caseId") String caseId, @RequestParam("caseName") String caseName,
+			@RequestParam("userId") String userId, @RequestParam("advocateId") String advocateId,
+			@RequestParam("caseType") String caseType,
 			@RequestPart(value = "existingFiles", required = false) String existingFilesJson,
-			@RequestPart(value = "files", required = false) MultipartFile files[], @RequestPart("usersId") String usersId) {
+			@RequestPart(value = "files", required = false) MultipartFile files[], @RequestParam("usersId") String usersId) {
 		try {
 			Case acceptedCase = new Case();
 			acceptedCase.setCaseName(caseName);
