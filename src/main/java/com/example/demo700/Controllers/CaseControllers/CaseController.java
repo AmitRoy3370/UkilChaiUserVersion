@@ -67,7 +67,7 @@ public class CaseController {
 	public ResponseEntity<?> updateCase(@RequestParam("caseId") String caseId, @RequestParam("caseName") String caseName,
 			@RequestParam("userId") String userId, @RequestParam("advocateId") String advocateId,
 			@RequestParam("caseType") String caseType,
-			@RequestPart(value = "existingFiles", required = false) String existingFilesJson,
+			@RequestParam(value = "existingFiles", required = false) String existingFilesJson,
 			@RequestPart(value = "files", required = false) MultipartFile files[], @RequestParam("usersId") String usersId) {
 		try {
 			Case acceptedCase = new Case();
