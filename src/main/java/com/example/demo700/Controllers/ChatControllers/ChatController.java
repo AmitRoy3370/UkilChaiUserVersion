@@ -106,6 +106,36 @@ public class ChatController {
 		}
 	}
 
+	@MessageMapping("/chat.delete")
+	public void deleteMessageWebSocket(@Payload ChatMessage message) {
+	    try {
+
+	        boolean deleted = chatService.deleteChatMessage(
+	            message.getSender(),
+	            message.getReceiver(),
+	            message.getId()
+	        );
+
+	        if(deleted) {
+
+	            messagingTemplate.convertAndSendToUser(
+	                message.getReceiver(),
+	                "/queue/delete",
+	                message.getId()
+	            );
+
+	            messagingTemplate.convertAndSendToUser(
+	                message.getSender(),
+	                "/queue/delete",
+	                message.getId()
+	            );
+	        }
+
+	    } catch (Exception e) {
+	        System.out.println("Error deleting message via websocket: " + e.getMessage());
+	    }
+	}
+	
 	// 🔹 REST edit chat message
 	@PutMapping("/edit/{sender}/{chatId}")
 	public ResponseEntity<?> editChatMessage(@PathVariable String sender, @PathVariable String chatId,
