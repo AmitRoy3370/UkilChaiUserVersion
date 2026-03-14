@@ -552,7 +552,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
 
 			List<ReadStatus> list = readStatusRepository.findAll();
 
-			if (!list.isEmpty()) {
+			if (list.isEmpty()) {
 
 				throw new Exception();
 
