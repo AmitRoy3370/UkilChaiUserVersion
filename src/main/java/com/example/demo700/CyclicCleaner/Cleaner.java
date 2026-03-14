@@ -1521,6 +1521,38 @@ public class Cleaner {
 
 				if (count != caseTrackingRepository.count()) {
 
+					try {
+
+						if (caseTracking.getCaseStage() == CasePayment.CASE_HEARING_PAYMENT
+								|| caseTracking.getCaseStage().equals(CasePayment.CASE_HEARING_PAYMENT)) {
+
+						} else {
+
+							List<PaymentDetails> paymentDetails = paymentDetailsRepository
+									.findByCaseIdAndPaymentFor(caseTracking.getCaseId(), caseTracking.getCaseStage());
+
+							if (!paymentDetails.isEmpty()) {
+
+								for (PaymentDetails i : paymentDetails) {
+
+									try {
+
+										removePaymentDetails(i.getId());
+
+									} catch (Exception e) {
+
+									}
+
+								}
+
+							}
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
 				}
 
 			}
