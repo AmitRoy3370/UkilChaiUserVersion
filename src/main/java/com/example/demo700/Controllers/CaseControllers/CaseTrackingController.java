@@ -51,6 +51,30 @@ public class CaseTrackingController {
 		}
 	}
 
+	// ================ SWAP CASE TRACKING ORDER =================
+	@PutMapping("/swap")
+	public ResponseEntity<?> swap(@RequestParam String caseTrackingId1, @RequestParam String caseTrackingId2) {
+
+		try {
+
+			List<CaseTracking> list = caseTrackingService.swapOrder(caseTrackingId1, caseTrackingId2);
+
+			if (list.isEmpty()) {
+
+				throw new Exception("Failed to swap the order....");
+
+			}
+
+			return ResponseEntity.status(200).body(list);
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(400).body(e.getMessage());
+
+		}
+
+	}
+
 	// ================= FIND ALL =================
 	@GetMapping("/all")
 	public ResponseEntity<?> findAll() {

@@ -1,5 +1,6 @@
 package com.example.demo700.Services.CaseServices;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -259,6 +260,80 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 		}
 
 		return caseTracking;
+	}
+
+	@Override
+	public List<CaseTracking> swapOrder(String caseTrackingId1, String caseTrackingId2) {
+
+		if (caseTrackingId1 == null || caseTrackingId2 == null) {
+
+			throw new NullPointerException("False request....");
+
+		}
+
+		CaseTracking caseTracking1, caseTracking2;
+
+		try {
+
+			caseTracking1 = caseTrackingRepository.findById(caseTrackingId1).get();
+
+			if (caseTracking1 == null) {
+
+				throw new Exception();
+
+			}
+
+			caseTracking2 = caseTrackingRepository.findById(caseTrackingId2).get();
+
+			if (caseTracking2 == null) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("Your given case tracking id is not valid...");
+
+		}
+
+		try {
+
+			int firstOrder = caseTracking1.getStageNumber();
+			int secondOrder = caseTracking2.getStageNumber();
+
+			caseTracking1.setStageNumber(secondOrder);
+			caseTracking2.setStageNumber(firstOrder);
+
+			caseTracking1 = caseTrackingRepository.save(caseTracking1);
+
+			if (caseTracking1 == null) {
+
+				throw new Exception();
+
+			}
+
+			caseTracking2 = caseTrackingRepository.save(caseTracking2);
+
+			if (caseTracking2 == null) {
+
+				throw new Exception();
+
+			}
+
+			List<CaseTracking> list = new ArrayList<>();
+
+			list.add(caseTracking1);
+			list.add(caseTracking2);
+
+			return list;
+
+		} catch (Exception e) {
+
+			throw new ArithmeticException("Case tracking is not swaped...");
+
+		}
+
 	}
 
 	@Override

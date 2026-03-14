@@ -11,6 +11,8 @@ public interface CaseTrackingService {
 
 	public CaseTracking updateCaseTracking(CaseTracking caseTracking, String userId, String id);
 
+	public List<CaseTracking> swapOrder(String caseTrackingId1, String caseTrackingId2);
+	
 	public List<CaseTracking> findAll();
 
 	public List<CaseTracking> findByCaseId(String caseId);
