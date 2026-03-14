@@ -18,8 +18,10 @@ import com.example.demo700.Model.CaseModels.Case;
 import com.example.demo700.Model.CaseModels.CaseClose;
 import com.example.demo700.Model.CaseModels.CaseJudgment;
 import com.example.demo700.Model.CaseModels.CaseRequest;
+import com.example.demo700.Model.CaseModels.CaseTracking;
 import com.example.demo700.Model.CaseModels.DocumentDraft;
 import com.example.demo700.Model.CaseModels.Hearing;
+import com.example.demo700.Model.CaseModels.ReadStatus;
 import com.example.demo700.Model.ChatModels.ChatMessage;
 import com.example.demo700.Model.ChatModels.ReadableChat;
 import com.example.demo700.Model.NotificationModel.Notification;
@@ -46,8 +48,10 @@ import com.example.demo700.Repositories.CaseRepositories.CaseCloseRepository;
 import com.example.demo700.Repositories.CaseRepositories.CaseJudgementRepository;
 import com.example.demo700.Repositories.CaseRepositories.CaseRepository;
 import com.example.demo700.Repositories.CaseRepositories.CaseRequestRepository;
+import com.example.demo700.Repositories.CaseRepositories.CaseTrackingRepository;
 import com.example.demo700.Repositories.CaseRepositories.DocumentDraftRepository;
 import com.example.demo700.Repositories.CaseRepositories.HearingRepository;
+import com.example.demo700.Repositories.CaseRepositories.ReadStatusRepository;
 import com.example.demo700.Repositories.ChatRepositories.ChatMessageRepository;
 import com.example.demo700.Repositories.ChatRepositories.ReadableChatRepository;
 import com.example.demo700.Repositories.NotificationRepository.NotificationRepository;
@@ -148,7 +152,13 @@ public class Cleaner {
 	private PaymentDetailsRepository paymentDetailsRepository;
 
 	@Autowired
+	private ReadStatusRepository readStatusRepository;
+
+	@Autowired
 	private UserActiveRepository userActiveRepository;
+
+	@Autowired
+	private CaseTrackingRepository caseTrackingRepository;
 
 	public void removeUser(String userId) {
 
@@ -491,6 +501,30 @@ public class Cleaner {
 				advocateRepository.deleteById(advocateId);
 
 				if (count != advocateRepository.count()) {
+
+					try {
+
+						List<ReadStatus> list = readStatusRepository.findByAdvocateId(advocate.getId());
+
+						if (!list.isEmpty()) {
+
+							for (ReadStatus i : list) {
+
+								try {
+
+									removeReadStatus(i.getId());
+
+								} catch (Exception e) {
+
+								}
+
+							}
+
+						}
+
+					} catch (Exception e) {
+
+					}
 
 					try {
 
@@ -948,6 +982,54 @@ public class Cleaner {
 
 					try {
 
+						List<CaseTracking> list = caseTrackingRepository.findByCaseId(acceptedCase.getId());
+
+						if (!list.isEmpty()) {
+
+							for (CaseTracking i : list) {
+
+								try {
+
+									removeCaseTracking(i.getId());
+
+								} catch (Exception e) {
+
+								}
+
+							}
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
+						List<ReadStatus> list = readStatusRepository.findByCaseId(acceptedCase.getId());
+
+						if (!list.isEmpty()) {
+
+							for (ReadStatus i : list) {
+
+								try {
+
+									removeReadStatus(i.getId());
+
+								} catch (Exception e) {
+
+								}
+
+							}
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
 						List<PaymentDetails> list = paymentDetailsRepository.findByCaseId(acceptedCase.getId());
 
 						for (PaymentDetails i : list) {
@@ -1095,25 +1177,26 @@ public class Cleaner {
 				if (count != hearingRepository.count()) {
 
 					try {
-						
-						List<PaymentDetails> list = paymentDetailsRepository.findByCaseIdAndPaymentFor(hearing.getCaseId(), CasePayment.CASE_HEARING_PAYMENT);
-						
+
+						List<PaymentDetails> list = paymentDetailsRepository
+								.findByCaseIdAndPaymentFor(hearing.getCaseId(), CasePayment.CASE_HEARING_PAYMENT);
+
 						int deletedHearingNumber = (hearing.getHearningNumber() - 1);
-						
+
 						PaymentDetails payment = list.get(deletedHearingNumber);
-						
+
 						long paymentDetailsCount = paymentDetailsRepository.count();
-						
+
 						paymentDetailsRepository.deleteById(payment.getId());
-						
-						if(paymentDetailsCount != paymentDetailsRepository.count()) {
-							
+
+						if (paymentDetailsCount != paymentDetailsRepository.count()) {
+
 						}
-						
-					} catch(Exception e) {
-						
+
+					} catch (Exception e) {
+
 					}
-					
+
 					if (hearing.getAttachmentsId() != null) {
 
 						for (String i : hearing.getAttachmentsId()) {
@@ -1389,6 +1472,54 @@ public class Cleaner {
 				userActiveRepository.deleteById(id);
 
 				if (count != userActiveRepository.count()) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeReadStatus(String id) {
+
+		try {
+
+			ReadStatus readStatus = readStatusRepository.findById(id).get();
+
+			if (readStatus != null) {
+
+				long count = readStatusRepository.count();
+
+				readStatusRepository.deleteById(id);
+
+				if (count != readStatusRepository.count()) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeCaseTracking(String id) {
+
+		try {
+
+			CaseTracking caseTracking = caseTrackingRepository.findById(id).get();
+
+			if (caseTracking != null) {
+
+				long count = caseTrackingRepository.count();
+
+				caseTrackingRepository.deleteById(id);
+
+				if (count != caseTrackingRepository.count()) {
 
 				}
 
