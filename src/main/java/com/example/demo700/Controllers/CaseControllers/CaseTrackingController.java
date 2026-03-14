@@ -134,6 +134,31 @@ public class CaseTrackingController {
 		}
 	}
 
+	// ================= FIND BY CASE ID AND STAGE NUMBER GREATER THAN ===========
+	@GetMapping("/remainingLargerStage")
+	public ResponseEntity<?> findByCaseIdAndStageNumberGreaterThan(@RequestParam String caseId,
+			@RequestParam int stageNumber) {
+
+		try {
+
+			List<CaseTracking> list = caseTrackingService.findByCaseIdAndStageNumberGreaterThan(caseId, stageNumber);
+
+			if (list.isEmpty()) {
+
+				throw new Exception("There is no such case tracking exist at here....");
+
+			}
+
+			return ResponseEntity.status(200).body(list);
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(404).body(e.getMessage());
+
+		}
+
+	}
+
 	// ================= DELETE CASE TRACKING =================
 	@DeleteMapping("/delete/{id}/{userId}")
 	public ResponseEntity<?> removeCaseTracking(@PathVariable String id, @PathVariable String userId) {

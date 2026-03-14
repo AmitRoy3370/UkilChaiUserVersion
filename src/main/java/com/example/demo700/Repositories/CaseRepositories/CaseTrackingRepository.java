@@ -18,4 +18,6 @@ public interface CaseTrackingRepository extends MongoRepository<CaseTracking, St
 	
 	public CaseTracking findByCaseIdAndCaseStage(String caseId, CasePayment caseStage);
 	
+	public List<CaseTracking> findByCaseIdAndStageNumberGreaterThan(String caseId, int stageNumber);
+	
 }

@@ -1515,6 +1515,26 @@ public class Cleaner {
 
 			if (caseTracking != null) {
 
+				try {
+
+					List<CaseTracking> list = caseTrackingRepository.findByCaseIdAndStageNumberGreaterThan(
+							caseTracking.getCaseId(), caseTracking.getStageNumber());
+
+					if (!list.isEmpty()) {
+
+						for (CaseTracking i : list) {
+
+							i.setStageNumber(i.getStageNumber() - 1);
+							caseTrackingRepository.save(i);
+
+						}
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
 				long count = caseTrackingRepository.count();
 
 				caseTrackingRepository.deleteById(id);

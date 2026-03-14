@@ -401,6 +401,35 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	}
 
 	@Override
+	public List<CaseTracking> findByCaseIdAndStageNumberGreaterThan(String caseId, int stageNumber) {
+
+		if (caseId == null) {
+
+			throw new NullPointerException("False request...");
+
+		}
+
+		try {
+
+			List<CaseTracking> list = caseTrackingRepository.findByCaseIdAndStageNumberGreaterThan(caseId, stageNumber);
+
+			if (list.isEmpty()) {
+
+				throw new Exception();
+
+			}
+
+			return list;
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such case tracking stage find at here...");
+
+		}
+
+	}
+
+	@Override
 	public boolean removeCaseTracking(String id, String userId) {
 
 		if (id == null || userId == null) {

@@ -7,10 +7,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.CaseModels.Case;
+import com.example.demo700.Model.CaseModels.CaseTracking;
 
 public interface CaseService {
 
 	public Case updateCase(Case acceptedCase, String userId, String caseRequestId, MultipartFile files[]);
+
 	public Case findByCaseNameIgnoreCase(String caseName);
 
 	public List<Case> findByCaseNameContainingIgnoreCase(String caseName);
@@ -24,11 +26,11 @@ public interface CaseService {
 	public List<Case> findByIssuedTimeAfter(Instant issuedTime);
 
 	public List<Case> findByIssuedTimeBefore(Instant issuedTime);
-	
+
 	public List<Case> findAllCase();
-	
+
 	public Case findById(String caseId);
-	
+
 	public boolean removeCase(String caseId, String userId);
-	
+
 }
