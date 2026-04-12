@@ -27,20 +27,86 @@ public class CVUploadService {
 
 	// UPLOAD
 	public String upload(MultipartFile file) throws IOException, java.io.IOException {
-
-		String fileName = file.getOriginalFilename().toLowerCase();
-		if (!(fileName.endsWith(".pdf") || fileName.endsWith(".doc") || fileName.endsWith(".docx"))) {
-			throw new ArithmeticException("Only PDF, DOC, DOCX files are allowed");
+		// null চেক
+		if (file == null || file.isEmpty()) {
+			throw new IllegalArgumentException("File cannot be null or empty");
 		}
 
+		// ১ম পদ্ধতি: Original filename থেকে এক্সটেনশন বের করা
+		String originalFilename = file.getOriginalFilename();
+		String contentType = file.getContentType();
+
+		// এক্সটেনশন বের করার ফাংশন
+		String extension = getFileExtension(originalFilename);
+
+		// ২য় পদ্ধতি: Content-Type চেক করা (ব্যাকআপ)
+		boolean isValidExtension = false;
+
+		// এক্সটেনশন চেক
+		if (extension != null && !extension.isEmpty()) {
+			extension = extension.toLowerCase();
+			if (extension.equals(".pdf") || extension.equals(".doc") || extension.equals(".docx")) {
+				isValidExtension = true;
+			}
+		}
+
+		// এক্সটেনশন না পেলে content-type চেক করুন
+		if (!isValidExtension && contentType != null) {
+			if (contentType.equals("application/pdf") || contentType.equals("application/msword")
+					|| contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")) {
+				isValidExtension = true;
+
+				// Content-type অনুযায়ী এক্সটেনশন সেট করুন
+				if (contentType.equals("application/pdf")) {
+					extension = ".pdf";
+				} else if (contentType.equals("application/msword")) {
+					extension = ".doc";
+				} else {
+					extension = ".docx";
+				}
+			}
+		}
+
+		// এখনও ভ্যালিড না হলে error দিন
+		if (!isValidExtension) {
+			throw new IllegalArgumentException("Invalid file type. Only PDF, DOC, DOCX files are allowed. "
+					+ "Filename: " + originalFilename + ", Content-Type: " + contentType);
+		}
+
+		// ফাইলের নাম ঠিক করা (যদি original filename না থাকে)
+		String finalFilename = originalFilename;
+		if (finalFilename == null || finalFilename.isEmpty()) {
+			finalFilename = "document" + extension;
+		} else if (!finalFilename.toLowerCase().endsWith(extension)) {
+			// filename এ এক্সটেনশন না থাকলে যোগ করে দিন
+			finalFilename = finalFilename + extension;
+		}
+
+		// মেটাডাটা তৈরি
 		DBObject meta = new BasicDBObject();
 		meta.put("type", file.getContentType());
 		meta.put("size", file.getSize());
+		meta.put("extension", extension);
+		meta.put("originalFilename", originalFilename);
 
-		ObjectId id = gridFsTemplate.store(file.getInputStream(), file.getOriginalFilename(), file.getContentType(),
-				meta);
+		// স্টোর করুন
+		ObjectId id = gridFsTemplate.store(file.getInputStream(), finalFilename, file.getContentType(), meta);
 
 		return id.toHexString();
+	}
+
+	// হেল্পার মেথড: ফাইল থেকে এক্সটেনশন বের করা
+	private String getFileExtension(String filename) {
+		if (filename == null || filename.isEmpty()) {
+			return null;
+		}
+
+		int lastDotIndex = filename.lastIndexOf(".");
+		if (lastDotIndex == -1 || lastDotIndex == filename.length() - 1) {
+			return null; // কোন এক্সটেনশন নেই
+		}
+
+		return filename.substring(lastDotIndex); // .pdf, .doc etc.
 	}
 
 	private ObjectId parseObjectId(String id) {
@@ -76,11 +142,6 @@ public class CVUploadService {
 
 	// UPDATE = delete + new upload
 	public String update(String oldId, MultipartFile newFile) throws IOException, java.io.IOException {
-
-		String fileName = newFile.getOriginalFilename().toLowerCase();
-		if (!(fileName.endsWith(".pdf") || fileName.endsWith(".doc") || fileName.endsWith(".docx"))) {
-			throw new ArithmeticException("Only PDF, DOC, DOCX files are allowed");
-		}
 
 		try {
 
