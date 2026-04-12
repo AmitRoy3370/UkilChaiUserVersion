@@ -440,9 +440,9 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 				}
 
-				if (!advocate.getCvHexKey().isEmpty()) {
+				if (!_advocate.getCvHexKey().isEmpty()) {
 
-					cvUpload.deleteCV(advocate.getCvHexKey());
+					cvUpload.deleteCV(_advocate.getCvHexKey());
 
 				}
 
