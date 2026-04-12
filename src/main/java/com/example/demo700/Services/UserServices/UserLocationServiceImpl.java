@@ -280,7 +280,7 @@ public class UserLocationServiceImpl implements UserlocationService {
 
 		}
 
-		List<UserLocation> userLocations = userLocationRepository.findByLocationName(locationName);
+		List<UserLocation> userLocations = userLocationRepository.findByLocationNameContainingIgnoreCase(locationName);
 
 		if (userLocations.isEmpty()) {
 

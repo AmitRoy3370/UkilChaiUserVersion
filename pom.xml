@@ -108,6 +108,13 @@
 			<artifactId>spring-restdocs-mockmvc</artifactId>
 			<scope>test</scope>
 		</dependency>
+ 
+        <!--backblaze b2-->
+		<dependency>
+			<groupId>com.backblaze.b2</groupId>
+			<artifactId>b2-sdk-core</artifactId>
+			<version>4.0.0</version>
+		</dependency>
 
 		<!-- JWT -->
 		<dependency>

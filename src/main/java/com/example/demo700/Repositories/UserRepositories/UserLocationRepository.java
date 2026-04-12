@@ -11,7 +11,9 @@ import com.example.demo700.Model.UserModels.UserLocation;
 public interface UserLocationRepository extends MongoRepository<UserLocation, String> {
 
 	public UserLocation findByUserId(String userId);
-	public List<UserLocation> findByLocationName(String locationName);
+	public List<UserLocation> findByLocationNameContainingIgnoreCase(String locationName);
 	public List<UserLocation> findByLattitudeAndLongitude(double lattitude, double longitude);
+	
+	public List<UserLocation> findByUserIdIn(List<String> userIds);
 	
 }

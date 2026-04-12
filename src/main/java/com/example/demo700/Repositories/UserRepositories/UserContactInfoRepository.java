@@ -1,5 +1,7 @@
 package com.example.demo700.Repositories.UserRepositories;
 
+import java.util.List;
+
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,5 +13,7 @@ public interface UserContactInfoRepository extends MongoRepository<UserContactIn
 	public UserContactInfo findByUserId(String userId);
 	public UserContactInfo findByEmail(String email);
 	public UserContactInfo findByPhone(String phone);
+	
+	public List<UserContactInfo> findByUserIdIn(List<String> userIds);
 	
 }

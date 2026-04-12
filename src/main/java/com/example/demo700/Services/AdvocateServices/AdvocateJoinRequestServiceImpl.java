@@ -519,6 +519,32 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 		}
 
+		try {
+
+			if (file != null && !file.isEmpty()) {
+
+				AdvocateJoinRequest advocate = advocateJoinRequestRepository.findById(advocateId).get();
+
+				if (advocate == null) {
+
+					throw new Exception();
+
+				}
+
+				if (!advocate.getCvHexKey().isEmpty()) {
+
+					cvUpload.deleteCV(advocate.getCvHexKey());
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such advoacte request find at here...");
+
+		}
+
 		advocateJoinRequest.setId(advocateId);
 
 		advocateJoinRequest = advocateJoinRequestRepository.save(advocateJoinRequest);

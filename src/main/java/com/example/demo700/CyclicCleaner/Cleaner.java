@@ -476,9 +476,17 @@ public class Cleaner {
 
 			long count = advocateJoinRequestRepository.count();
 
+			AdvocateJoinRequest request = advocateJoinRequestRepository.findById(advocateJoinRequestId).get();
+
 			advocateJoinRequestRepository.deleteById(advocateJoinRequestId);
 
 			if (count != advocateJoinRequestRepository.count()) {
+
+				if (!request.getCvHexKey().isEmpty()) {
+
+					imageService.delete(request.getCvHexKey());
+
+				}
 
 			}
 
@@ -501,6 +509,18 @@ public class Cleaner {
 				advocateRepository.deleteById(advocateId);
 
 				if (count != advocateRepository.count()) {
+
+					try {
+
+						if (!advocate.getCvHexKey().isEmpty()) {
+
+							imageService.delete(advocate.getCvHexKey());
+
+						}
+
+					} catch (Exception e) {
+
+					}
 
 					try {
 

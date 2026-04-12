@@ -1,7 +1,15 @@
 package com.example.demo700.Services.AdvocateServices;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -10,13 +18,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.AdvocateResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 
 import com.example.demo700.Model.UserModels.User;
+import com.example.demo700.Model.UserModels.UserContactInfo;
+import com.example.demo700.Model.UserModels.UserLocation;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
+import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
+import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 import com.example.demo700.Utils.FileHexConverter;
 
@@ -31,6 +44,12 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 	@Autowired
 	private CenterAdminRepository centerAdminRepository;
+
+	@Autowired
+	private UserContactInfoRepository contactInfoRepository;
+
+	@Autowired
+	private UserLocationRepository locationRepository;
 
 	@Autowired
 	private Cleaner cleaner;
@@ -125,13 +144,13 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
-	public List<Advocate> seeAllAdvocate() {
+	public List<AdvocateResponse> seeAllAdvocate() {
 
-		return advocateRepository.findAll();
+		return getAdvocateResponseFromAdvocateList(advocateRepository.findAll());
 	}
 
 	@Override
-	public Advocate findByUserId(String userId) {
+	public AdvocateResponse findByUserId(String userId) {
 
 		if (userId == null) {
 
@@ -149,7 +168,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 			}
 
-			return advocate;
+			return getAdvocateResponse(advocate);
 
 		} catch (Exception e) {
 
@@ -160,7 +179,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
-	public List<Advocate> findByAdvocateSpeciality(AdvocateSpeciality advocateSpeciality) {
+	public List<AdvocateResponse> findByAdvocateSpeciality(AdvocateSpeciality advocateSpeciality) {
 
 		if (advocateSpeciality == null) {
 
@@ -178,7 +197,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 			}
 
-			return list;
+			return getAdvocateResponseFromAdvocateList(list);
 
 		} catch (Exception e) {
 
@@ -189,7 +208,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
-	public Advocate findByLicenseKey(String licenseKey) {
+	public AdvocateResponse findByLicenseKey(String licenseKey) {
 
 		if (licenseKey == null) {
 
@@ -207,7 +226,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 			}
 
-			return advocate;
+			return getAdvocateResponse(advocate);
 
 		} catch (Exception e) {
 
@@ -218,7 +237,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
-	public List<Advocate> findByExperienceGreaterThan(int experience) {
+	public List<AdvocateResponse> findByExperienceGreaterThan(int experience) {
 
 		try {
 
@@ -230,7 +249,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 			}
 
-			return list;
+			return getAdvocateResponseFromAdvocateList(list);
 
 		} catch (Exception e) {
 
@@ -241,7 +260,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
-	public List<Advocate> findByDegreesContainingIgnoreCase(String degree) {
+	public List<AdvocateResponse> findByDegreesContainingIgnoreCase(String degree) {
 
 		if (degree == null) {
 
@@ -259,7 +278,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 			}
 
-			return list;
+			return getAdvocateResponseFromAdvocateList(list);
 
 		} catch (Exception e) {
 
@@ -270,7 +289,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
-	public List<Advocate> findByWorkingExperiencesContainingIgnoreCase(String experience) {
+	public List<AdvocateResponse> findByWorkingExperiencesContainingIgnoreCase(String experience) {
 
 		if (experience == null) {
 
@@ -288,7 +307,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 			}
 
-			return list;
+			return getAdvocateResponseFromAdvocateList(list);
 
 		} catch (Exception e) {
 
@@ -409,8 +428,32 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 		}
 
+		try {
+
+			if (file != null && !file.isEmpty()) {
+
+				Advocate _advocate = advocateRepository.findById(advocateId).get();
+
+				if (_advocate == null) {
+
+					throw new Exception();
+
+				}
+
+				if (!advocate.getCvHexKey().isEmpty()) {
+
+					cvUpload.deleteCV(advocate.getCvHexKey());
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
 		advocate.setId(advocateId);
-		
+
 		advocate = advocateRepository.save(advocate);
 
 		return advocate;
@@ -497,32 +540,143 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
-	public Advocate findById(String advocateId) {
-		
-		if(advocateId == null) {
-			
+	public AdvocateResponse findById(String advocateId) {
+
+		if (advocateId == null) {
+
 			throw new NullPointerException("False request....");
-			
+
 		}
-		
+
 		try {
-			
+
 			Advocate advocate = advocateRepository.findById(advocateId).get();
-			
-			if(advocate == null) {
-				
+
+			if (advocate == null) {
+
 				throw new Exception();
-				
+
 			}
-			
-			return advocate;
-			
-		} catch(Exception e) {
-			
+
+			return getAdvocateResponse(advocate);
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException("No such advocate find at here....");
-			
+
 		}
-		
+
 	}
-	
+
+	public List<AdvocateResponse> findByLocation(String location) {
+
+		if (location == null) {
+
+			throw new NullPointerException("False request....");
+
+		}
+
+		try {
+
+			List<UserLocation> list = locationRepository.findByLocationNameContainingIgnoreCase(location);
+
+			if (list.isEmpty()) {
+
+				throw new Exception();
+
+			}
+
+			List<String> allUserId = list.stream().map(UserLocation::getUserId).collect(Collectors.toList());
+
+			List<Advocate> advocates = advocateRepository.findByUserIdIn(allUserId);
+
+			return getAdvocateResponseFromAdvocateList(advocates);
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such advocate present at here...");
+
+		}
+
+	}
+
+	private AdvocateResponse getAdvocateResponse(Advocate advocate) {
+
+		List<Advocate> advocateInfo = new ArrayList<>();
+
+		advocateInfo.add(advocate);
+
+		return getAdvocateResponseFromAdvocateList(advocateInfo).get(0);
+
+	}
+
+	private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+	private List<AdvocateResponse> getAdvocateResponseFromAdvocateList(List<Advocate> advocates) {
+
+		List<AdvocateResponse> responses = new ArrayList<>();
+
+		List<String> allUserId = advocates.stream().map(Advocate::getUserId).collect(Collectors.toList());
+
+		CompletableFuture<Map<String, User>> nameFuture = CompletableFuture
+				.supplyAsync(
+						() -> userRepository.findAllById(allUserId)
+								.isEmpty()
+										? new HashMap<>()
+										: userRepository.findAllById(allUserId).stream().collect(Collectors.toMap(
+												User::getId, Function.identity(), (existing, replacement) -> existing)),
+						executor);
+		;
+
+		CompletableFuture<Map<String, UserContactInfo>> contactInfoFuture = CompletableFuture.supplyAsync(
+				() -> contactInfoRepository.findByUserIdIn(allUserId).isEmpty() ? new HashMap<>()
+						: contactInfoRepository.findByUserIdIn(allUserId).stream().collect(Collectors.toMap(
+								UserContactInfo::getUserId, Function.identity(), (existing, replacement) -> existing)),
+				executor);
+
+		CompletableFuture<Map<String, UserLocation>> locationFuture = CompletableFuture.supplyAsync(
+				() -> locationRepository.findByUserIdIn(allUserId).isEmpty() ? new HashMap<>()
+						: locationRepository.findByUserIdIn(allUserId).stream().collect(Collectors.toMap(
+								UserLocation::getUserId, Function.identity(), (existing, replacement) -> existing)),
+				executor);
+
+		CompletableFuture.allOf(nameFuture, contactInfoFuture, locationFuture).join();
+
+		Map<String, User> userMap = nameFuture.join();
+		Map<String, UserContactInfo> contactMap = contactInfoFuture.join();
+		Map<String, UserLocation> locationMap = locationFuture.join();
+
+		for (Advocate advocate : advocates) {
+
+			AdvocateResponse response = new AdvocateResponse();
+
+			response.setId(advocate.getId());
+			response.setAdvocateSpeciality(advocate.getAdvocateSpeciality());
+			response.setDegrees(advocate.getDegrees());
+			response.setWorkingExperiences(advocate.getWorkingExperiences());
+			response.setExperience(advocate.getExperience());
+			response.setCvHexKey(advocate.getCvHexKey());
+			response.setLicenseKey(advocate.getLicenseKey());
+			response.setUserId(advocate.getUserId());
+
+			response.setName(userMap.get(advocate.getUserId()).getName());
+			response.setProfileImageId(userMap.get(advocate.getUserId()).getProfileImageId());
+
+			response.setContactInfoId(contactMap.get(advocate.getUserId()).getId());
+			response.setEmail(contactMap.get(advocate.getUserId()).getEmail());
+			response.setPhone(contactMap.get(advocate.getUserId()).getPhone());
+
+			response.setLocationId(locationMap.get(advocate.getUserId()).getId());
+			response.setLocationName(locationMap.get(advocate.getUserId()).getLocationName());
+			response.setLattitude(locationMap.get(advocate.getUserId()).getLattitude());
+			response.setLongitude(locationMap.get(advocate.getUserId()).getLongitude());
+
+			responses.add(response);
+
+		}
+
+		return responses;
+
+	}
+
 }

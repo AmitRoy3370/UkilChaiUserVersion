@@ -26,15 +26,13 @@ public class QuestionController {
 
 	@Autowired
 	private QuestionService questionService;
-	
+
 	@Autowired
 	private PostContentService imageService;
 
 	/*
-	 * ------------------------------------------------- 
-	 * ASK QUESTION (POST)
-	 * multipart/form-data 
-	 * -------------------------------------------------
+	 * ------------------------------------------------- ASK QUESTION (POST)
+	 * multipart/form-data -------------------------------------------------
 	 */
 	@PostMapping(value = "/ask", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> askQuestion(@RequestPart("usersId") String usersId, @RequestPart("userId") String userId,
@@ -58,15 +56,13 @@ public class QuestionController {
 	}
 
 	/*
-	 * ------------------------------------------------- 
-	 * UPDATE QUESTION (PUT)
-	 * multipart/form-data 
-	 * -------------------------------------------------
+	 * ------------------------------------------------- UPDATE QUESTION (PUT)
+	 * multipart/form-data -------------------------------------------------
 	 */
 	@PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<?> updateQuestion(@RequestPart("questionId") String questionId, @RequestPart("usersId") String usersId,
-			@RequestPart("userId") String userId, @RequestPart("message") String message,
-			@RequestPart("questionType") String questionType,
+	public ResponseEntity<?> updateQuestion(@RequestPart("questionId") String questionId,
+			@RequestPart("usersId") String usersId, @RequestPart("userId") String userId,
+			@RequestPart("message") String message, @RequestPart("questionType") String questionType,
 			@RequestPart("attachmentId") String attachmentId,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 		try {
@@ -89,9 +85,9 @@ public class QuestionController {
 
 	@GetMapping("/downloadQuestionContent")
 	public ResponseEntity<?> downloadPostContent(@RequestParam String attachmentId) {
-		
+
 		try {
-			
+
 			GridFSFile file = imageService.getFile(attachmentId);
 
 			if (file == null) {
@@ -104,18 +100,38 @@ public class QuestionController {
 					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
 					.body(new InputStreamResource(stream));
 
-			
-		} catch(Exception e) {
-			
+		} catch (Exception e) {
+
 			return ResponseEntity.status(400).body(e.getMessage());
-			
+
 		}
-		
+
 	}
-	
+
+	// -------------- view the attachment ---------------------
+
+	@GetMapping("/attachment/view/{attachmentId}")
+	public ResponseEntity<?> viewAttachment(@PathVariable String attachmentId) {
+		try {
+			GridFSFile file = imageService.getFile(attachmentId);
+
+			if (file == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
+			}
+
+			InputStream stream = imageService.getStream(file);
+
+			return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().get("type").toString()))
+					.header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
+					.body(new InputStreamResource(stream));
+
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to load file");
+		}
+	}
+
 	/*
-	 * ------------------------------------------------- 
-	 * GET ALL QUESTIONS
+	 * ------------------------------------------------- GET ALL QUESTIONS
 	 * -------------------------------------------------
 	 */
 	@GetMapping("/all")
@@ -129,8 +145,7 @@ public class QuestionController {
 	}
 
 	/*
-	 * ------------------------------------------------- 
-	 * FIND BY USER
+	 * ------------------------------------------------- FIND BY USER
 	 * -------------------------------------------------
 	 */
 	@GetMapping("/user/{userId}")
@@ -143,8 +158,7 @@ public class QuestionController {
 	}
 
 	/*
-	 * ------------------------------------------------- 
-	 * FIND BY MESSAGE KEYWORD
+	 * ------------------------------------------------- FIND BY MESSAGE KEYWORD
 	 * -------------------------------------------------
 	 */
 	@GetMapping("/search")
@@ -157,8 +171,7 @@ public class QuestionController {
 	}
 
 	/*
-	 * ------------------------------------------------- 
-	 * FIND BY QUESTION TYPE
+	 * ------------------------------------------------- FIND BY QUESTION TYPE
 	 * -------------------------------------------------
 	 */
 	@GetMapping("/type/{type}")
@@ -171,8 +184,7 @@ public class QuestionController {
 	}
 
 	/*
-	 * ------------------------------------------------- 
-	 * FIND BY TIME RANGE
+	 * ------------------------------------------------- FIND BY TIME RANGE
 	 * -------------------------------------------------
 	 */
 	@GetMapping("/between")
@@ -186,49 +198,49 @@ public class QuestionController {
 
 	@GetMapping("/after")
 	public ResponseEntity<?> findAfter(@RequestParam Instant time) {
-		
+
 		try {
-			
+
 			return ResponseEntity.status(200).body(questionService.findByPostTimeAfter(time));
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			return ResponseEntity.status(400).body(e.getMessage());
-			
+
 		}
-		
+
 	}
-	
+
 	@GetMapping("/before")
 	public ResponseEntity<?> findBefore(@RequestParam Instant time) {
-		
+
 		try {
-			
+
 			return ResponseEntity.status(200).body(questionService.findByPostTimeBefore(time));
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			return ResponseEntity.status(400).body(e.getMessage());
-			
+
 		}
-		
+
 	}
-	
+
 	@GetMapping("/findByQuestionId")
 	public ResponseEntity<?> findById(@RequestParam String questionId) {
-		
+
 		try {
-			
+
 			return ResponseEntity.status(200).body(questionService.findByQuestionId(questionId));
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			return ResponseEntity.status(404).body(e.getMessage());
-			
+
 		}
-		
+
 	}
-	
+
 	/*
 	 * ------------------------------------------------- DELETE QUESTION
 	 * -------------------------------------------------

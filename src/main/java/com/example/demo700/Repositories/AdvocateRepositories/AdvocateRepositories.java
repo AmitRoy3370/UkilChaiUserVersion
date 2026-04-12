@@ -17,4 +17,6 @@ public interface AdvocateRepositories extends MongoRepository<Advocate, String> 
 	public List<Advocate> findByDegreesContainingIgnoreCase(String degree);
 	public List<Advocate> findByWorkingExperiencesContainingIgnoreCase(String experience);
 
+	public List<Advocate> findByUserIdIn(List<String> userIds);
+	
 }

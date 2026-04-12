@@ -4,22 +4,24 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo700.DTOFiles.AdvocateResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 
 public interface AdvocateService {
 	
 	public Advocate addVocate(Advocate advocate, String userId, MultipartFile file);
-	public Advocate findById(String advocateId);
-	public List<Advocate> seeAllAdvocate();
-	public Advocate findByUserId(String userId);
-	public List<Advocate> findByAdvocateSpeciality(AdvocateSpeciality AdvocateSpeciality);
-	public Advocate findByLicenseKey(String licenseKey);
-	public List<Advocate> findByExperienceGreaterThan(int experience);
-	public List<Advocate> findByDegreesContainingIgnoreCase(String degree);
-	public List<Advocate> findByWorkingExperiencesContainingIgnoreCase(String experience);
+	public AdvocateResponse findById(String advocateId);
+	public List<AdvocateResponse> seeAllAdvocate();
+	public AdvocateResponse findByUserId(String userId);
+	public List<AdvocateResponse> findByAdvocateSpeciality(AdvocateSpeciality AdvocateSpeciality);
+	public AdvocateResponse findByLicenseKey(String licenseKey);
+	public List<AdvocateResponse> findByExperienceGreaterThan(int experience);
+	public List<AdvocateResponse> findByDegreesContainingIgnoreCase(String degree);
+	public List<AdvocateResponse> findByWorkingExperiencesContainingIgnoreCase(String experience);
 	public Advocate updateAdvocate(Advocate advocate, String userId, String advocateId, MultipartFile file);
 	public boolean deleteAdvocate(String userId, String advocateId);
+	public List<AdvocateResponse> findByLocation(String location);
 
 
 }

@@ -1,11 +1,14 @@
 package com.example.demo700.Controllers.AdvocateControllers;
 
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +18,9 @@ import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
 import com.example.demo700.Services.AdvocateServices.AdvocateJoinRequestService;
+import com.example.demo700.Services.UserServices.ImageService;
 import com.example.demo700.Utils.FileHexConverter;
+import com.mongodb.client.gridfs.model.GridFSFile;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -25,6 +30,9 @@ public class AdvocateJoinRequestController {
 
 	@Autowired
 	private AdvocateJoinRequestService advocateJoinRequestService;
+
+	@Autowired
+	private ImageService imageService;
 
 	// --------------------------------------------------------
 	// 1. Add Advocate Join Request
@@ -359,19 +367,47 @@ public class AdvocateJoinRequestController {
 			if (advocate.getCvHexKey() == null)
 				return ResponseEntity.badRequest().body("No CV uploaded");
 
-			byte[] fileBytes = FileHexConverter.hexToFile(advocate.getCvHexKey());
+			String attachmentId = advocate.getCvHexKey();
 
-			String fileName = "advocate_cv.pdf"; // Or .doc/.docx if needed
+			GridFSFile file = imageService.getFile(attachmentId);
 
-			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
-					.contentType(MediaType.APPLICATION_PDF).body(fileBytes);
+			if (file == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Image not found");
+			}
 
+			InputStream stream = imageService.getStream(file);
+
+			return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().get("type").toString()))
+					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
+					.body(new InputStreamResource(stream));
 		} catch (Exception e) {
 
 			return ResponseEntity.status(400).body(e.getMessage());
 
 		}
 
+	}
+
+	// -------------- view the attachment ---------------------
+
+	@GetMapping("/attachment/view/{attachmentId}")
+	public ResponseEntity<?> viewAttachment(@PathVariable String attachmentId) {
+		try {
+			GridFSFile file = imageService.getFile(attachmentId);
+
+			if (file == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
+			}
+
+			InputStream stream = imageService.getStream(file);
+
+			return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().get("type").toString()))
+					.header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
+					.body(new InputStreamResource(stream));
+
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to load file");
+		}
 	}
 
 }
