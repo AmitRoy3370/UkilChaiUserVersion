@@ -650,26 +650,50 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 			AdvocateResponse response = new AdvocateResponse();
 
-			response.setId(advocate.getId());
-			response.setAdvocateSpeciality(advocate.getAdvocateSpeciality());
-			response.setDegrees(advocate.getDegrees());
-			response.setWorkingExperiences(advocate.getWorkingExperiences());
-			response.setExperience(advocate.getExperience());
-			response.setCvHexKey(advocate.getCvHexKey());
-			response.setLicenseKey(advocate.getLicenseKey());
-			response.setUserId(advocate.getUserId());
+			try {
 
-			response.setName(userMap.get(advocate.getUserId()).getName());
-			response.setProfileImageId(userMap.get(advocate.getUserId()).getProfileImageId());
+				response.setId(advocate.getId());
+				response.setAdvocateSpeciality(advocate.getAdvocateSpeciality());
+				response.setDegrees(advocate.getDegrees());
+				response.setWorkingExperiences(advocate.getWorkingExperiences());
+				response.setExperience(advocate.getExperience());
+				response.setCvHexKey(advocate.getCvHexKey());
+				response.setLicenseKey(advocate.getLicenseKey());
+				response.setUserId(advocate.getUserId());
 
-			response.setContactInfoId(contactMap.get(advocate.getUserId()).getId());
-			response.setEmail(contactMap.get(advocate.getUserId()).getEmail());
-			response.setPhone(contactMap.get(advocate.getUserId()).getPhone());
+			} catch (Exception e) {
 
-			response.setLocationId(locationMap.get(advocate.getUserId()).getId());
-			response.setLocationName(locationMap.get(advocate.getUserId()).getLocationName());
-			response.setLattitude(locationMap.get(advocate.getUserId()).getLattitude());
-			response.setLongitude(locationMap.get(advocate.getUserId()).getLongitude());
+			}
+
+			try {
+
+				response.setName(userMap.get(advocate.getUserId()).getName());
+				response.setProfileImageId(userMap.get(advocate.getUserId()).getProfileImageId());
+
+			} catch (Exception e) {
+
+			}
+
+			try {
+
+				response.setContactInfoId(contactMap.get(advocate.getUserId()).getId());
+				response.setEmail(contactMap.get(advocate.getUserId()).getEmail());
+				response.setPhone(contactMap.get(advocate.getUserId()).getPhone());
+
+			} catch (Exception e) {
+
+			}
+
+			try {
+
+				response.setLocationId(locationMap.get(advocate.getUserId()).getId());
+				response.setLocationName(locationMap.get(advocate.getUserId()).getLocationName());
+				response.setLattitude(locationMap.get(advocate.getUserId()).getLattitude());
+				response.setLongitude(locationMap.get(advocate.getUserId()).getLongitude());
+
+			} catch (Exception e) {
+
+			}
 
 			responses.add(response);
 
