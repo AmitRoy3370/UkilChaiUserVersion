@@ -132,7 +132,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 				advocate.setCvHexKey(hex);
 
-			}
+			} 
 
 		} catch (Exception e) {
 
@@ -342,6 +342,12 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 			}
 
+			if(_advocate.getCvHexKey() != null) {
+				
+				advocate.setCvHexKey(_advocate.getCvHexKey());
+				
+			}
+			
 		} catch (Exception e) {
 
 			throw new NoSuchElementException("No such advocate exist at here...");
@@ -420,12 +426,16 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 				String hex = cvUpload.upload(file);
 
+				System.out.println("getted cv hex key :- " + hex);
+				
 				advocate.setCvHexKey(hex);
 
 			}
 
 		} catch (Exception e) {
 
+			throw new ArithmeticException("cv is not uploaded...." + e.getMessage());
+			
 		}
 
 		try {
