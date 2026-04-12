@@ -174,6 +174,8 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 		} catch (Exception e) {
 
+			throw new ArithmeticException("cv is not uploaded...." + e.getMessage());
+
 		}
 
 		advocateJoinRequest = advocateJoinRequestRepository.save(advocateJoinRequest);
@@ -516,6 +518,8 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 			}
 
 		} catch (Exception e) {
+
+			throw new ArithmeticException("cv is not uploaded...." + e.getMessage());
 
 		}
 
