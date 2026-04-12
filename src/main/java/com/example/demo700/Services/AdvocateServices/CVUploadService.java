@@ -1,13 +1,20 @@
 package com.example.demo700.Services.AdvocateServices;
 
+import java.io.InputStream;
 import java.util.NoSuchElementException;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.Services.UserServices.ImageService;
 import com.example.demo700.Utils.FileHexConverter;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.mongodb.client.gridfs.model.GridFSFile;
 
 import io.jsonwebtoken.io.IOException;
@@ -16,80 +23,74 @@ import io.jsonwebtoken.io.IOException;
 public class CVUploadService {
 
 	@Autowired
-	private ImageService cvUploaderService;
+	private GridFsTemplate gridFsTemplate;
 
-	public String uploadCv(MultipartFile file) throws java.io.IOException {
+	// UPLOAD
+	public String upload(MultipartFile file) throws IOException, java.io.IOException {
 
-		if (file == null || file.isEmpty()) {
-			throw new NullPointerException("CV file cannot be empty");
+		String fileName = file.getOriginalFilename().toLowerCase();
+		if (!(fileName.endsWith(".pdf") || fileName.endsWith(".doc") || fileName.endsWith(".docx"))) {
+			throw new ArithmeticException("Only PDF, DOC, DOCX files are allowed");
 		}
 
-		// Validate extension
-		String fileName = file.getOriginalFilename().toLowerCase();
+		DBObject meta = new BasicDBObject();
+		meta.put("type", file.getContentType());
+		meta.put("size", file.getSize());
+
+		ObjectId id = gridFsTemplate.store(file.getInputStream(), file.getOriginalFilename(), file.getContentType(),
+				meta);
+
+		return id.toHexString();
+	}
+
+	private ObjectId parseObjectId(String id) {
+		if (!ObjectId.isValid(id)) {
+			throw new IllegalArgumentException("Invalid attachment id");
+		}
+		return new ObjectId(id);
+	}
+
+	// GET FILE
+	public GridFSFile getFile(String id) {
+		return gridFsTemplate.findOne(new Query(Criteria.where("_id").is(parseObjectId(id))));
+	}
+
+	// GET STREAM
+	public InputStream getStream(GridFSFile file) throws IllegalStateException, IOException, java.io.IOException {
+		return gridFsTemplate.getResource(file).getInputStream();
+	}
+
+	// DELETE
+	public void delete(String id) {
+		gridFsTemplate.delete(new org.springframework.data.mongodb.core.query.Query(
+				org.springframework.data.mongodb.core.query.Criteria.where("_id").is(parseObjectId(id))));
+	}
+
+	public boolean attachmentExists(String id) {
+		try {
+			return gridFsTemplate.findOne(new Query(Criteria.where("_id").is(parseObjectId(id)))) != null;
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
+
+	// UPDATE = delete + new upload
+	public String update(String oldId, MultipartFile newFile) throws IOException, java.io.IOException {
+
+		String fileName = newFile.getOriginalFilename().toLowerCase();
 		if (!(fileName.endsWith(".pdf") || fileName.endsWith(".doc") || fileName.endsWith(".docx"))) {
 			throw new ArithmeticException("Only PDF, DOC, DOCX files are allowed");
 		}
 
 		try {
-			String hex = cvUploaderService.upload(file);
 
-			return hex;
+			delete(oldId);
 
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to read CV", e);
-		}
-	}
-
-	public GridFSFile getCv(String hexKey) {
-
-		if (cvUploaderService.attachmentExists(hexKey)) {
-
-			return cvUploaderService.getFile(hexKey);
-
-		} else {
-
-			throw new NoSuchElementException("No such cv exist at here...");
-
-		}
-	}
-
-	public String updateCv(MultipartFile file, String hexKey) throws java.io.IOException {
-
-		if (file == null || file.isEmpty()) {
-			throw new NullPointerException("CV file cannot be empty");
-		}
-
-		// Validate extension
-		String fileName = file.getOriginalFilename().toLowerCase();
-		if (!(fileName.endsWith(".pdf") || fileName.endsWith(".doc") || fileName.endsWith(".docx"))) {
-			throw new ArithmeticException("Only PDF, DOC, DOCX files are allowed");
-		}
-
-		if (!cvUploaderService.attachmentExists(hexKey)) {
-
-			throw new NoSuchElementException("No such cv exist at here...");
+		} catch (Exception e) {
 
 		}
 
-		cvUploaderService.delete(hexKey);
-
-		String hex = cvUploaderService.upload(file);
-
-		return hex;
-	}
-
-	public boolean deleteCV(String hex) {
-
-		if (!cvUploaderService.attachmentExists(hex)) {
-
-			throw new NoSuchElementException("No such cv exist at here...");
-
-		}
-
-		cvUploaderService.delete(hex);
-
-		return cvUploaderService.attachmentExists(hex);
-
+		return upload(newFile);
 	}
 
 }

@@ -128,7 +128,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 			if (file != null && !file.isEmpty()) {
 
-				String hex = cvUpload.uploadCv(file);
+				String hex = cvUpload.upload(file);
 
 				advocate.setCvHexKey(hex);
 
@@ -418,7 +418,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 			if (file != null && !file.isEmpty()) {
 
-				String hex = cvUpload.uploadCv(file);
+				String hex = cvUpload.upload(file);
 
 				advocate.setCvHexKey(hex);
 
@@ -440,9 +440,9 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 				}
 
-				if (!_advocate.getCvHexKey().isEmpty()) {
+				if (_advocate.getCvHexKey() != null && !_advocate.getCvHexKey().isEmpty()) {
 
-					cvUpload.deleteCV(_advocate.getCvHexKey());
+					cvUpload.delete(_advocate.getCvHexKey());
 
 				}
 
