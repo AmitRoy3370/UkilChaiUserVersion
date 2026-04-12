@@ -166,7 +166,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 			if (file != null && !file.isEmpty()) {
 
-				String hex = cvUpload.uploadCv(file);
+				String hex = cvUpload.upload(file);
 
 				advocateJoinRequest.setCvHexKey(hex);
 
