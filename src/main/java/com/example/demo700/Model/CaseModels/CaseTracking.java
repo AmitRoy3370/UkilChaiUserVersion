@@ -1,5 +1,7 @@
 package com.example.demo700.Model.CaseModels;
 
+import java.time.Instant;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -18,12 +20,15 @@ public class CaseTracking {
 	@NonNull
 	private CasePayment caseStage;
 
+	private Instant trackingTime = Instant.now();
+	
 	private int stageNumber = 1;
 
-	public CaseTracking(String caseId, CasePayment caseStage) {
+	public CaseTracking(String caseId, CasePayment caseStage, Instant trackingTime) {
 		super();
 		this.caseId = caseId;
 		this.caseStage = caseStage;
+		this.trackingTime = trackingTime;
 	}
 
 	public CaseTracking() {
@@ -62,10 +67,18 @@ public class CaseTracking {
 		this.stageNumber = stageNumber;
 	}
 
+	public Instant getTrackingTime() {
+		return trackingTime;
+	}
+
+	public void setTrackingTime(Instant trackingTime) {
+		this.trackingTime = trackingTime;
+	}
+
 	@Override
 	public String toString() {
-		return "CaseTracking [id=" + id + ", caseId=" + caseId + ", caseStage=" + caseStage + ", stageNumber="
-				+ stageNumber + "]";
+		return "CaseTracking [id=" + id + ", caseId=" + caseId + ", caseStage=" + caseStage + ", trackingTime="
+				+ trackingTime + ", stageNumber=" + stageNumber + "]";
 	}
 
 }

@@ -3,14 +3,28 @@ package com.example.demo700.Services.ChatServices;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.ChatResponse;
+import com.example.demo700.Model.AdminModels.Admin;
+import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.ChatModels.ChatMessage;
 import com.example.demo700.Model.UserModels.User;
+import com.example.demo700.Repositories.AdminRepositories.AdminRepository;
+import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.ChatRepositories.ChatMessageRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 import com.example.demo700.Services.NotificationServices.NotificationService;
@@ -29,6 +43,12 @@ public class ChatServiceImpl implements ChatService {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private AdminRepository adminRepository;
+
+	@Autowired
+	private CenterAdminRepository centerAdminRepository;
 
 	@Override
 	public ChatMessage saveMessage(ChatMessage message) {
@@ -168,6 +188,327 @@ public class ChatServiceImpl implements ChatService {
 		notificationService.sendNotification(message.getReceiver(), "Message edited by " + name);
 
 		return updated;
+	}
+
+	@Override
+	public List<ChatResponse> getAllUsersChatList(String userId) {
+
+		try {
+
+			List<ChatResponse> list = getChatResponseFromUser(userId);
+
+			if (list.isEmpty()) {
+
+				throw new Exception("No such user find at here...");
+
+			}
+
+			return list;
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException(e.getMessage());
+
+		}
+
+	}
+
+	@Override
+	public List<ChatResponse> getAllAdminsChatList(String userId) {
+
+		try {
+
+			List<Admin> admins = adminRepository.findAll();
+
+			List<String> allUsersId = admins.stream().map(Admin::getUserId).collect(Collectors.toList());
+
+			List<User> users = userRepository.findAllById(allUsersId);
+
+			List<ChatResponse> list = getChatResponseFromListUser(userId, users);
+
+			if (list.isEmpty()) {
+
+				throw new Exception();
+
+			}
+
+			return list;
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such user find at here...");
+
+		}
+
+	}
+
+	@Override
+	public List<ChatResponse> getAllCenterAdminChatList(String userId) {
+
+		try {
+
+			List<CenterAdmin> centerAdmins = centerAdminRepository.findAll();
+
+			List<String> allUserId = centerAdmins.stream().map(CenterAdmin::getUserId).collect(Collectors.toList());
+
+			List<User> allUsers = userRepository.findAllById(allUserId);
+
+			List<ChatResponse> list = getChatResponseFromListUser(userId, allUsers);
+
+			if (list.isEmpty()) {
+
+				throw new Exception("No such user find at here...");
+
+			}
+
+			return list;
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException(e.getMessage());
+
+		}
+
+	}
+
+	private ExecutorService executors = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+	private List<ChatResponse> getChatResponseFromListUser(String userId, List<User> allUsers) {
+
+		List<ChatResponse> responses = new ArrayList<>();
+
+		CompletableFuture<Map<String, User>> nameFutures = CompletableFuture.supplyAsync(() -> allUsers.isEmpty()
+				? new HashMap<>()
+				: allUsers.stream().collect(
+						Collectors.toMap(User::getId, Function.identity(), (existing, replacement) -> existing)),
+				executors);
+
+		CompletableFuture<List<ChatMessage>> senderMessagesFuture = CompletableFuture
+				.supplyAsync(() -> chatMessageRepository.findBySender(userId), executors);
+
+		CompletableFuture<List<ChatMessage>> receiverMessagesFuture = CompletableFuture
+				.supplyAsync(() -> chatMessageRepository.findByReceiver(userId), executors);
+
+		CompletableFuture<Map<String, ChatMessage>> latestMessageFuture = CompletableFuture.supplyAsync(() -> {
+			List<ChatMessage> messages = chatMessageRepository.findAllConversationsWithLatestMessage(userId);
+			if (messages.isEmpty()) {
+				return new HashMap<>();
+			}
+			return messages.stream()
+					.collect(Collectors.toMap(
+							msg -> msg.getSender().equals(userId) ? msg.getReceiver() : msg.getSender(),
+							Function.identity(), (existing, replacement) -> existing));
+		}, executors);
+
+		CompletableFuture.allOf(nameFutures, senderMessagesFuture, receiverMessagesFuture, latestMessageFuture).join();
+
+		Map<String, User> userMap = nameFutures.join();
+		Map<String, ChatMessage> latestMessageMap = latestMessageFuture.join();
+		List<ChatMessage> senderMessages = senderMessagesFuture.join();
+		List<ChatMessage> receiverMessages = receiverMessagesFuture.join();
+
+		// Build a composite key map for O(1) lookups: "sender_receiver" or
+		// "receiver_sender"
+		Map<String, ChatMessage> messageLookupMap = buildMessageLookupMap(senderMessages, receiverMessages);
+
+		List<String> allUserId = allUsers.stream().map(User::getId).collect(Collectors.toList());
+
+		for (String otherUserId : allUserId) {
+			User otherUser = userMap.get(otherUserId);
+			if (otherUser == null)
+				continue;
+
+			ChatResponse response = new ChatResponse();
+
+			User currentUser = userMap.get(userId);
+			response.setSenderId(userId);
+			response.setSenderName(currentUser != null ? currentUser.getName() : "Unknown");
+
+			// O(1) lookup instead of O(n) iteration
+			ChatMessage latestMessage = getLatestMessageFromMap(userId, otherUserId, messageLookupMap,
+					latestMessageMap);
+
+			if (latestMessage != null) {
+				response.setId(latestMessage.getId());
+				response.setTimeStamp(latestMessage.getTimeStamp());
+
+				boolean isCurrentUserSender = latestMessage.getSender().equals(userId);
+
+				if (isCurrentUserSender) {
+					response.setSenderInfo(
+							new ChatResponse.SenderInfo(otherUser.getName(), otherUserId, latestMessage.getContent()));
+					response.setReceiverInfo(null);
+				} else {
+					response.setSenderInfo(null);
+					response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName()));
+				}
+			} else {
+				response.setId(null);
+				response.setTimeStamp(null);
+				response.setSenderInfo(null);
+				response.setReceiverInfo(null);
+			}
+
+			responses.add(response);
+		}
+
+		responses.sort((r1, r2) -> {
+			if (r1.getTimeStamp() == null && r2.getTimeStamp() == null)
+				return 0;
+			if (r1.getTimeStamp() == null)
+				return 1;
+			if (r2.getTimeStamp() == null)
+				return -1;
+			return r2.getTimeStamp().compareTo(r1.getTimeStamp());
+		});
+
+		return responses;
+
+	}
+
+	private List<ChatResponse> getChatResponseFromUser(String userId) {
+		List<ChatResponse> responses = new ArrayList<>();
+
+		List<User> allUsers = userRepository.findAll();
+
+		CompletableFuture<Map<String, User>> nameFutures = CompletableFuture.supplyAsync(() -> allUsers.isEmpty()
+				? new HashMap<>()
+				: allUsers.stream().collect(
+						Collectors.toMap(User::getId, Function.identity(), (existing, replacement) -> existing)),
+				executors);
+
+		CompletableFuture<List<ChatMessage>> senderMessagesFuture = CompletableFuture
+				.supplyAsync(() -> chatMessageRepository.findBySender(userId), executors);
+
+		CompletableFuture<List<ChatMessage>> receiverMessagesFuture = CompletableFuture
+				.supplyAsync(() -> chatMessageRepository.findByReceiver(userId), executors);
+
+		CompletableFuture<Map<String, ChatMessage>> latestMessageFuture = CompletableFuture.supplyAsync(() -> {
+			List<ChatMessage> messages = chatMessageRepository.findAllConversationsWithLatestMessage(userId);
+			if (messages.isEmpty()) {
+				return new HashMap<>();
+			}
+			return messages.stream()
+					.collect(Collectors.toMap(
+							msg -> msg.getSender().equals(userId) ? msg.getReceiver() : msg.getSender(),
+							Function.identity(), (existing, replacement) -> existing));
+		}, executors);
+
+		CompletableFuture.allOf(nameFutures, senderMessagesFuture, receiverMessagesFuture, latestMessageFuture).join();
+
+		Map<String, User> userMap = nameFutures.join();
+		Map<String, ChatMessage> latestMessageMap = latestMessageFuture.join();
+		List<ChatMessage> senderMessages = senderMessagesFuture.join();
+		List<ChatMessage> receiverMessages = receiverMessagesFuture.join();
+
+		// Build a composite key map for O(1) lookups: "sender_receiver" or
+		// "receiver_sender"
+		Map<String, ChatMessage> messageLookupMap = buildMessageLookupMap(senderMessages, receiverMessages);
+
+		List<String> allUserId = allUsers.stream().map(User::getId).collect(Collectors.toList());
+
+		for (String otherUserId : allUserId) {
+			User otherUser = userMap.get(otherUserId);
+			if (otherUser == null)
+				continue;
+
+			ChatResponse response = new ChatResponse();
+
+			User currentUser = userMap.get(userId);
+			response.setSenderId(userId);
+			response.setSenderName(currentUser != null ? currentUser.getName() : "Unknown");
+
+			// O(1) lookup instead of O(n) iteration
+			ChatMessage latestMessage = getLatestMessageFromMap(userId, otherUserId, messageLookupMap,
+					latestMessageMap);
+
+			if (latestMessage != null) {
+				response.setId(latestMessage.getId());
+				response.setTimeStamp(latestMessage.getTimeStamp());
+
+				boolean isCurrentUserSender = latestMessage.getSender().equals(userId);
+
+				if (isCurrentUserSender) {
+					response.setSenderInfo(
+							new ChatResponse.SenderInfo(otherUser.getName(), otherUserId, latestMessage.getContent()));
+					response.setReceiverInfo(null);
+				} else {
+					response.setSenderInfo(null);
+					response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName()));
+				}
+			} else {
+				response.setId(null);
+				response.setTimeStamp(null);
+				response.setSenderInfo(null);
+				response.setReceiverInfo(null);
+			}
+
+			responses.add(response);
+		}
+
+		responses.sort((r1, r2) -> {
+			if (r1.getTimeStamp() == null && r2.getTimeStamp() == null)
+				return 0;
+			if (r1.getTimeStamp() == null)
+				return 1;
+			if (r2.getTimeStamp() == null)
+				return -1;
+			return r2.getTimeStamp().compareTo(r1.getTimeStamp());
+		});
+
+		return responses;
+	}
+
+	// Build a map with composite key for O(1) lookups
+	private Map<String, ChatMessage> buildMessageLookupMap(List<ChatMessage> senderMessages,
+			List<ChatMessage> receiverMessages) {
+		Map<String, ChatMessage> lookupMap = new HashMap<>();
+
+		// Add sender messages with composite key "sender_receiver"
+		for (ChatMessage msg : senderMessages) {
+			String key = msg.getSender() + "_" + msg.getReceiver();
+			ChatMessage existing = lookupMap.get(key);
+			if (existing == null || msg.getTimeStamp().isAfter(existing.getTimeStamp())) {
+				lookupMap.put(key, msg);
+			}
+		}
+
+		// Add receiver messages with composite key "sender_receiver" (swap to maintain
+		// consistency)
+		for (ChatMessage msg : receiverMessages) {
+			String key = msg.getSender() + "_" + msg.getReceiver();
+			ChatMessage existing = lookupMap.get(key);
+			if (existing == null || msg.getTimeStamp().isAfter(existing.getTimeStamp())) {
+				lookupMap.put(key, msg);
+			}
+		}
+
+		return lookupMap;
+	}
+
+	// O(1) lookup using composite key
+	private ChatMessage getLatestMessageFromMap(String userId, String otherUserId,
+			Map<String, ChatMessage> messageLookupMap, Map<String, ChatMessage> latestMessageMap) {
+		// First try to get from pre-computed latestMessageMap (most efficient)
+		ChatMessage latestMessage = latestMessageMap.get(otherUserId);
+		if (latestMessage != null) {
+			return latestMessage;
+		}
+
+		// Fallback to composite key lookup
+		String key1 = userId + "_" + otherUserId;
+		String key2 = otherUserId + "_" + userId;
+
+		ChatMessage msg1 = messageLookupMap.get(key1);
+		ChatMessage msg2 = messageLookupMap.get(key2);
+
+		if (msg1 == null)
+			return msg2;
+		if (msg2 == null)
+			return msg1;
+
+		// Return the most recent one
+		return msg1.getTimeStamp().isAfter(msg2.getTimeStamp()) ? msg1 : msg2;
 	}
 
 }

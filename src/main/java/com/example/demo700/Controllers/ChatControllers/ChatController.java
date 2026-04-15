@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo700.DTOFiles.ChatResponse;
 import com.example.demo700.Model.ChatModels.ChatMessage;
 import com.example.demo700.Services.ChatServices.ChatService;
 
@@ -170,6 +171,63 @@ public class ChatController {
 		} catch (Exception e) {
 			System.out.println("Error editing message via WebSocket: " + e.getMessage());
 		}
+	}
+	
+	/**
+	 * ✅ REST API: Get all users chat list for a specific user
+	 */
+	@GetMapping("/users/{userId}")
+	public ResponseEntity<?> getAllUsersChatList(@PathVariable String userId) {
+	    try {
+	        List<ChatResponse> chatList = chatService.getAllUsersChatList(userId);
+	        if (chatList.isEmpty()) {
+	            return new ResponseEntity<>("No chat history found for this user", HttpStatus.NOT_FOUND);
+	        }
+	        return new ResponseEntity<>(chatList, HttpStatus.OK);
+	    } catch (NoSuchElementException e) {
+	        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>("Error fetching chat list: " + e.getMessage(), 
+	                                   HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	}
+
+	/**
+	 * ✅ REST API: Get all admins chat list for a specific user
+	 */
+	@GetMapping("/admins/{userId}")
+	public ResponseEntity<?> getAllAdminsChatList(@PathVariable String userId) {
+	    try {
+	        List<ChatResponse> chatList = chatService.getAllAdminsChatList(userId);
+	        if (chatList.isEmpty()) {
+	            return new ResponseEntity<>("No admin chat history found for this user", HttpStatus.NOT_FOUND);
+	        }
+	        return new ResponseEntity<>(chatList, HttpStatus.OK);
+	    } catch (NoSuchElementException e) {
+	        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>("Error fetching admin chat list: " + e.getMessage(), 
+	                                   HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	}
+
+	/**
+	 * ✅ REST API: Get all center admins chat list for a specific user
+	 */
+	@GetMapping("/center-admins/{userId}")
+	public ResponseEntity<?> getAllCenterAdminChatList(@PathVariable String userId) {
+	    try {
+	        List<ChatResponse> chatList = chatService.getAllCenterAdminChatList(userId);
+	        if (chatList.isEmpty()) {
+	            return new ResponseEntity<>("No center admin chat history found for this user", HttpStatus.NOT_FOUND);
+	        }
+	        return new ResponseEntity<>(chatList, HttpStatus.OK);
+	    } catch (NoSuchElementException e) {
+	        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>("Error fetching center admin chat list: " + e.getMessage(), 
+	                                   HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
 	}
 
 }
