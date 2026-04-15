@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -277,11 +278,14 @@ public class ChatServiceImpl implements ChatService {
 
 		List<ChatResponse> responses = new ArrayList<>();
 
-		CompletableFuture<Map<String, User>> nameFutures = CompletableFuture.supplyAsync(() -> allUsers.isEmpty()
-				? new HashMap<>()
-				: allUsers.stream().collect(
-						Collectors.toMap(User::getId, Function.identity(), (existing, replacement) -> existing)),
-				executors);
+		CompletableFuture<Map<String, User>> nameFutures = CompletableFuture
+				.supplyAsync(
+						() -> allUsers
+								.isEmpty()
+										? new HashMap<>()
+										: allUsers.stream().filter(Objects::nonNull).collect(Collectors.toMap(
+												User::getId, Function.identity(), (existing, replacement) -> existing)),
+						executors);
 
 		CompletableFuture<List<ChatMessage>> senderMessagesFuture = CompletableFuture
 				.supplyAsync(() -> chatMessageRepository.findBySender(userId), executors);
@@ -291,13 +295,34 @@ public class ChatServiceImpl implements ChatService {
 
 		CompletableFuture<Map<String, ChatMessage>> latestMessageFuture = CompletableFuture.supplyAsync(() -> {
 			List<ChatMessage> messages = chatMessageRepository.findAllConversationsWithLatestMessage(userId);
-			if (messages.isEmpty()) {
+			if (messages == null || messages.isEmpty()) {
 				return new HashMap<>();
 			}
-			return messages.stream()
-					.collect(Collectors.toMap(
-							msg -> msg.getSender().equals(userId) ? msg.getReceiver() : msg.getSender(),
-							Function.identity(), (existing, replacement) -> existing));
+
+			return messages.stream().filter(Objects::nonNull).filter(msg -> {
+				// Check for null sender or receiver
+				if (msg.getSender() == null || msg.getReceiver() == null) {
+					System.err.println("Skipping message with null sender/receiver: " + msg.getId());
+					return false;
+				}
+				return true;
+			}).collect(Collectors.toMap(msg -> {
+				// Safe equals check with null handling
+				String sender = msg.getSender();
+				String receiver = msg.getReceiver();
+				String otherUserId;
+
+				if (userId != null && userId.equals(sender)) {
+					otherUserId = receiver;
+				} else {
+					otherUserId = sender;
+				}
+
+				return otherUserId != null ? otherUserId : "unknown_" + System.currentTimeMillis();
+			}, Function.identity(), (existing, replacement) -> {
+				// Keep the existing message (or you can compare timestamps)
+				return existing;
+			}));
 		}, executors);
 
 		CompletableFuture.allOf(nameFutures, senderMessagesFuture, receiverMessagesFuture, latestMessageFuture).join();
@@ -311,7 +336,8 @@ public class ChatServiceImpl implements ChatService {
 		// "receiver_sender"
 		Map<String, ChatMessage> messageLookupMap = buildMessageLookupMap(senderMessages, receiverMessages);
 
-		List<String> allUserId = allUsers.stream().map(User::getId).collect(Collectors.toList());
+		List<String> allUserId = allUsers.stream().filter(Objects::nonNull).map(User::getId)
+				.collect(Collectors.toList());
 
 		for (String otherUserId : allUserId) {
 
@@ -407,11 +433,14 @@ public class ChatServiceImpl implements ChatService {
 
 		List<User> allUsers = userRepository.findAll();
 
-		CompletableFuture<Map<String, User>> nameFutures = CompletableFuture.supplyAsync(() -> allUsers.isEmpty()
-				? new HashMap<>()
-				: allUsers.stream().collect(
-						Collectors.toMap(User::getId, Function.identity(), (existing, replacement) -> existing)),
-				executors);
+		CompletableFuture<Map<String, User>> nameFutures = CompletableFuture
+				.supplyAsync(
+						() -> allUsers
+								.isEmpty()
+										? new HashMap<>()
+										: allUsers.stream().filter(Objects::nonNull).collect(Collectors.toMap(
+												User::getId, Function.identity(), (existing, replacement) -> existing)),
+						executors);
 
 		CompletableFuture<List<ChatMessage>> senderMessagesFuture = CompletableFuture
 				.supplyAsync(() -> chatMessageRepository.findBySender(userId), executors);
@@ -421,13 +450,34 @@ public class ChatServiceImpl implements ChatService {
 
 		CompletableFuture<Map<String, ChatMessage>> latestMessageFuture = CompletableFuture.supplyAsync(() -> {
 			List<ChatMessage> messages = chatMessageRepository.findAllConversationsWithLatestMessage(userId);
-			if (messages.isEmpty()) {
+			if (messages == null || messages.isEmpty()) {
 				return new HashMap<>();
 			}
-			return messages.stream()
-					.collect(Collectors.toMap(
-							msg -> msg.getSender().equals(userId) ? msg.getReceiver() : msg.getSender(),
-							Function.identity(), (existing, replacement) -> existing));
+
+			return messages.stream().filter(Objects::nonNull).filter(msg -> {
+				// Check for null sender or receiver
+				if (msg.getSender() == null || msg.getReceiver() == null) {
+					System.err.println("Skipping message with null sender/receiver: " + msg.getId());
+					return false;
+				}
+				return true;
+			}).collect(Collectors.toMap(msg -> {
+				// Safe equals check with null handling
+				String sender = msg.getSender();
+				String receiver = msg.getReceiver();
+				String otherUserId;
+
+				if (userId != null && userId.equals(sender)) {
+					otherUserId = receiver;
+				} else {
+					otherUserId = sender;
+				}
+
+				return otherUserId != null ? otherUserId : "unknown_" + System.currentTimeMillis();
+			}, Function.identity(), (existing, replacement) -> {
+				// Keep the existing message (or you can compare timestamps)
+				return existing;
+			}));
 		}, executors);
 
 		CompletableFuture.allOf(nameFutures, senderMessagesFuture, receiverMessagesFuture, latestMessageFuture).join();
