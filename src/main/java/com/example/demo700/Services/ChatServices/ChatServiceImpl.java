@@ -314,53 +314,89 @@ public class ChatServiceImpl implements ChatService {
 		List<String> allUserId = allUsers.stream().map(User::getId).collect(Collectors.toList());
 
 		for (String otherUserId : allUserId) {
-			User otherUser = userMap.get(otherUserId);
-			if (otherUser == null)
-				continue;
 
-			ChatResponse response = new ChatResponse();
+			try {
 
-			User currentUser = userMap.get(userId);
-			response.setSenderId(userId);
-			response.setSenderName(currentUser != null ? currentUser.getName() : "Unknown");
+				User otherUser = userMap.get(otherUserId);
+				if (otherUser == null)
+					continue;
 
-			// O(1) lookup instead of O(n) iteration
-			ChatMessage latestMessage = getLatestMessageFromMap(userId, otherUserId, messageLookupMap,
-					latestMessageMap);
+				ChatResponse response = new ChatResponse();
 
-			if (latestMessage != null) {
-				response.setId(latestMessage.getId());
-				response.setTimeStamp(latestMessage.getTimeStamp());
+				User currentUser = userMap.get(userId);
 
-				boolean isCurrentUserSender = latestMessage.getSender().equals(userId);
+				try {
 
-				if (isCurrentUserSender) {
-					response.setSenderInfo(
-							new ChatResponse.SenderInfo(otherUser.getName(), otherUserId, latestMessage.getContent()));
-					response.setReceiverInfo(null);
-				} else {
-					response.setSenderInfo(null);
-					response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName()));
+					response.setSenderId(userId);
+					response.setSenderName(currentUser != null ? currentUser.getName() : "Unknown");
+
+				} catch (Exception e) {
+
 				}
-			} else {
-				response.setId(null);
-				response.setTimeStamp(null);
-				response.setSenderInfo(null);
-				response.setReceiverInfo(null);
+
+				// O(1) lookup instead of O(n) iteration
+				ChatMessage latestMessage = getLatestMessageFromMap(userId, otherUserId, messageLookupMap,
+						latestMessageMap);
+
+				if (latestMessage != null) {
+					response.setId(latestMessage.getId());
+					response.setTimeStamp(latestMessage.getTimeStamp());
+
+					try {
+
+						boolean isCurrentUserSender = latestMessage.getSender().equals(userId);
+
+						if (isCurrentUserSender) {
+							response.setSenderInfo(new ChatResponse.SenderInfo(otherUser.getName(), otherUserId,
+									latestMessage.getContent()));
+							response.setReceiverInfo(null);
+						} else {
+							response.setSenderInfo(null);
+							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName()));
+						}
+
+					} catch (Exception e) {
+
+					}
+
+				} else {
+
+					try {
+
+						response.setId(null);
+						response.setTimeStamp(null);
+						response.setSenderInfo(new ChatResponse.SenderInfo(otherUser.getName(), otherUserId, ""));
+						response.setReceiverInfo(null);
+
+					} catch (Exception e) {
+
+					}
+
+				}
+
+				responses.add(response);
+
+			} catch (Exception e) {
+
 			}
 
-			responses.add(response);
 		}
 
-		responses.sort((r1, r2) -> {
-			if (r1.getTimeStamp() == null && r2.getTimeStamp() == null)
-				return 0;
-			if (r1.getTimeStamp() == null)
-				return 1;
-			if (r2.getTimeStamp() == null)
-				return -1;
-			return r2.getTimeStamp().compareTo(r1.getTimeStamp());
-		});
+		try {
+
+			responses.sort((r1, r2) -> {
+				if (r1.getTimeStamp() == null && r2.getTimeStamp() == null)
+					return 0;
+				if (r1.getTimeStamp() == null)
+					return 1;
+				if (r2.getTimeStamp() == null)
+					return -1;
+				return r2.getTimeStamp().compareTo(r1.getTimeStamp());
+			});
+
+		} catch (Exception e) {
+
+		}
 
 		return responses;
 
@@ -408,53 +444,96 @@ public class ChatServiceImpl implements ChatService {
 		List<String> allUserId = allUsers.stream().map(User::getId).collect(Collectors.toList());
 
 		for (String otherUserId : allUserId) {
-			User otherUser = userMap.get(otherUserId);
-			if (otherUser == null)
-				continue;
 
-			ChatResponse response = new ChatResponse();
+			try {
 
-			User currentUser = userMap.get(userId);
-			response.setSenderId(userId);
-			response.setSenderName(currentUser != null ? currentUser.getName() : "Unknown");
+				User otherUser = userMap.get(otherUserId);
+				if (otherUser == null)
+					continue;
 
-			// O(1) lookup instead of O(n) iteration
-			ChatMessage latestMessage = getLatestMessageFromMap(userId, otherUserId, messageLookupMap,
-					latestMessageMap);
+				ChatResponse response = new ChatResponse();
 
-			if (latestMessage != null) {
-				response.setId(latestMessage.getId());
-				response.setTimeStamp(latestMessage.getTimeStamp());
+				User currentUser = userMap.get(userId);
 
-				boolean isCurrentUserSender = latestMessage.getSender().equals(userId);
+				try {
 
-				if (isCurrentUserSender) {
-					response.setSenderInfo(
-							new ChatResponse.SenderInfo(otherUser.getName(), otherUserId, latestMessage.getContent()));
-					response.setReceiverInfo(null);
-				} else {
-					response.setSenderInfo(null);
-					response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName()));
+					response.setSenderId(userId);
+					response.setSenderName(currentUser != null ? currentUser.getName() : "Unknown");
+
+				} catch (Exception e) {
+
 				}
-			} else {
-				response.setId(null);
-				response.setTimeStamp(null);
-				response.setSenderInfo(null);
-				response.setReceiverInfo(null);
+
+				// O(1) lookup instead of O(n) iteration
+				ChatMessage latestMessage = getLatestMessageFromMap(userId, otherUserId, messageLookupMap,
+						latestMessageMap);
+
+				if (latestMessage != null) {
+
+					try {
+
+						response.setId(latestMessage.getId());
+						response.setTimeStamp(latestMessage.getTimeStamp());
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
+						boolean isCurrentUserSender = latestMessage.getSender().equals(userId);
+
+						if (isCurrentUserSender) {
+							response.setSenderInfo(new ChatResponse.SenderInfo(otherUser.getName(), otherUserId,
+									latestMessage.getContent()));
+							response.setReceiverInfo(null);
+						} else {
+							response.setSenderInfo(null);
+							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName()));
+						}
+
+					} catch (Exception e) {
+
+					}
+
+				} else {
+
+					try {
+
+						response.setId(null);
+						response.setTimeStamp(null);
+						response.setSenderInfo(new ChatResponse.SenderInfo(otherUser.getName(), otherUserId, ""));
+						response.setReceiverInfo(null);
+
+					} catch (Exception e) {
+
+					}
+
+				}
+
+				responses.add(response);
+
+			} catch (Exception e) {
+
 			}
 
-			responses.add(response);
 		}
 
-		responses.sort((r1, r2) -> {
-			if (r1.getTimeStamp() == null && r2.getTimeStamp() == null)
-				return 0;
-			if (r1.getTimeStamp() == null)
-				return 1;
-			if (r2.getTimeStamp() == null)
-				return -1;
-			return r2.getTimeStamp().compareTo(r1.getTimeStamp());
-		});
+		try {
+
+			responses.sort((r1, r2) -> {
+				if (r1.getTimeStamp() == null && r2.getTimeStamp() == null)
+					return 0;
+				if (r1.getTimeStamp() == null)
+					return 1;
+				if (r2.getTimeStamp() == null)
+					return -1;
+				return r2.getTimeStamp().compareTo(r1.getTimeStamp());
+			});
+
+		} catch (Exception e) {
+
+		}
 
 		return responses;
 	}
