@@ -14,5 +14,6 @@ public interface ChatService {
     public List<ChatResponse> getAllUsersChatList(String userId);
     public List<ChatResponse> getAllAdminsChatList(String userId);
     public List<ChatResponse> getAllCenterAdminChatList(String userId);
+    public List<ChatResponse> getAllAdminsChatListFromDistrict(String district, String userId);
     
 }

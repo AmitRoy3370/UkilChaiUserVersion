@@ -28,6 +28,7 @@ import com.example.demo700.Repositories.AdminRepositories.AdminRepository;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.ChatRepositories.ChatMessageRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
+import com.example.demo700.Services.AdminServices.CenterAdminService;
 import com.example.demo700.Services.NotificationServices.NotificationService;
 
 @Service
@@ -50,6 +51,9 @@ public class ChatServiceImpl implements ChatService {
 
 	@Autowired
 	private CenterAdminRepository centerAdminRepository;
+
+	@Autowired
+	private CenterAdminService centerAdminService;
 
 	@Override
 	public ChatMessage saveMessage(ChatMessage message) {
@@ -244,6 +248,42 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
+	public List<ChatResponse> getAllAdminsChatListFromDistrict(String district, String userId) {
+
+		try {
+
+			List<Admin> admins = centerAdminService.findAdminByDistricts(district);
+
+			if (admins.isEmpty()) {
+
+				throw new Exception("No such admin present at here...");
+
+			}
+
+			List<String> allUserIds = admins.stream().filter(Objects::nonNull).map(Admin::getUserId)
+					.collect(Collectors.toList());
+
+			List<User> users = userRepository.findAllById(allUserIds);
+
+			List<ChatResponse> list = getChatResponseFromListUser(userId, users);
+
+			if (list.isEmpty()) {
+
+				throw new Exception("No such element find at here...");
+
+			}
+
+			return list;
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException(e.getMessage());
+
+		}
+
+	}
+
+	@Override
 	public List<ChatResponse> getAllCenterAdminChatList(String userId) {
 
 		try {
@@ -378,7 +418,8 @@ public class ChatServiceImpl implements ChatService {
 							response.setReceiverInfo(null);
 						} else {
 							response.setSenderInfo(null);
-							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName(), latestMessage.getContent()));
+							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName(),
+									latestMessage.getContent()));
 						}
 
 					} catch (Exception e) {
@@ -539,7 +580,8 @@ public class ChatServiceImpl implements ChatService {
 							response.setReceiverInfo(null);
 						} else {
 							response.setSenderInfo(null);
-							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName(), latestMessage.getContent()));
+							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName(),
+									latestMessage.getContent()));
 						}
 
 					} catch (Exception e) {

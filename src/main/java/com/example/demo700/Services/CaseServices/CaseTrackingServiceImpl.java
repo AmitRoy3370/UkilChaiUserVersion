@@ -13,12 +13,16 @@ import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.CaseModels.Case;
 import com.example.demo700.Model.CaseModels.CaseTracking;
+import com.example.demo700.Model.ChatModels.ChatMessage;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
 import com.example.demo700.Repositories.CaseRepositories.CaseRepository;
 import com.example.demo700.Repositories.CaseRepositories.CaseTrackingRepository;
+import com.example.demo700.Repositories.NotificationRepository.NotificationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
+import com.example.demo700.Services.ChatServices.ChatService;
+import com.example.demo700.Services.NotificationServices.NotificationService;
 
 @Service
 public class CaseTrackingServiceImpl implements CaseTrackingService {
@@ -39,6 +43,12 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	private CenterAdminRepository centerAdminRepository;
 
 	@Autowired
+	private NotificationService notificationService;
+
+	@Autowired
+	private ChatService chatService;
+
+	@Autowired
 	private Cleaner cleaner;
 
 	@Override
@@ -49,6 +59,8 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 			throw new NullPointerException("False request....");
 
 		}
+
+		String advocateName, userName;
 
 		try {
 
@@ -75,6 +87,8 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 				throw new Exception();
 
 			}
+
+			advocateName = user.getName();
 
 			Case acceptedCase = caseRepository.findById(caseTracking.getCaseId()).get();
 
@@ -141,6 +155,19 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 		}
 
+		Case _case = caseRepository.findById(caseTracking.getCaseId()).get();
+
+		User caseUser = userRepository.findById(_case.getUserId()).get();
+
+		userName = caseUser.getName();
+
+		String message = "Hi " + userName + ", your case " + _case.getCaseName() + " case stage "
+				+ caseTracking.getCaseStage() + " will be setted at " + caseTracking.getTrackingTime() + " by the "
+				+ advocateName;
+
+		notificationService.sendNotification(caseUser.getId(), message);
+		chatService.saveMessage(new ChatMessage(userId, caseUser.getId(), message));
+
 		return caseTracking;
 
 	}
@@ -153,6 +180,8 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 			throw new NullPointerException("False request....");
 
 		}
+
+		String userName, advocateName;
 
 		try {
 
@@ -197,6 +226,8 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 				throw new Exception();
 
 			}
+
+			advocateName = user.getName();
 
 			Case acceptedCase = caseRepository.findById(caseTracking.getCaseId()).get();
 
@@ -258,6 +289,19 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 			throw new ArithmeticException("Case tracking is not added at here....");
 
 		}
+
+		Case _case = caseRepository.findById(caseTracking.getCaseId()).get();
+
+		User caseUser = userRepository.findById(_case.getUserId()).get();
+
+		userName = caseUser.getName();
+
+		String message = "Hi " + userName + ", your case " + _case.getCaseName() + " case stage "
+				+ caseTracking.getCaseStage() + " will be setted at " + caseTracking.getTrackingTime() + " by the "
+				+ advocateName;
+
+		notificationService.sendNotification(caseUser.getId(), message);
+		chatService.saveMessage(new ChatMessage(userId, caseUser.getId(), message));
 
 		return caseTracking;
 	}

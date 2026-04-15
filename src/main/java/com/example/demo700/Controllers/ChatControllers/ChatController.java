@@ -230,4 +230,22 @@ public class ChatController {
 	    }
 	}
 
+	/**
+	 * ✅ REST API: Get all center admins chat list for a specific user based on district
+	 */
+	@GetMapping("/admins/{userId}/district/{district}")
+	public ResponseEntity<?> getAllAdminByDistrictChatList(@PathVariable String district, @PathVariable String userId) {
+		
+		try {
+			
+			return ResponseEntity.status(200).body(chatService.getAllAdminsChatListFromDistrict(district, userId));
+			
+		} catch(Exception e) {
+			
+			return ResponseEntity.status(404).body(e.getMessage());
+			
+		}
+		
+	}
+	
 }
