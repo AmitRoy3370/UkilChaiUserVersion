@@ -86,6 +86,14 @@ public class ChatResponse {
 			this.senderName = senderName;
 		}
 
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
 		@Override
 		public String toString() {
 			return "ReceiverInfo [senderId=" + senderId + ", senderName=" + senderName + ", message=" + message + "]";
