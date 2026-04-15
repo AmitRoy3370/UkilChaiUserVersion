@@ -378,7 +378,7 @@ public class ChatServiceImpl implements ChatService {
 							response.setReceiverInfo(null);
 						} else {
 							response.setSenderInfo(null);
-							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName()));
+							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName(), latestMessage.getContent()));
 						}
 
 					} catch (Exception e) {
@@ -539,7 +539,7 @@ public class ChatServiceImpl implements ChatService {
 							response.setReceiverInfo(null);
 						} else {
 							response.setSenderInfo(null);
-							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName()));
+							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName(), latestMessage.getContent()));
 						}
 
 					} catch (Exception e) {
