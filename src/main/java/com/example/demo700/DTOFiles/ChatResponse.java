@@ -155,4 +155,11 @@ public class ChatResponse {
 	public void setTimeStamp(Instant timeStamp) {
 		this.timeStamp = timeStamp;
 	}
+
+	@Override
+	public String toString() {
+		return "ChatResponse [id=" + id + ", senderId=" + senderId + ", senderName=" + senderName + ", senderInfo="
+				+ senderInfo + ", receiverInfo=" + receiverInfo + ", timeStamp=" + timeStamp + "]";
+	}
+
 }
