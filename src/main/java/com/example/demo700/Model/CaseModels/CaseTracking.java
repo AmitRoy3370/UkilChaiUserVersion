@@ -20,7 +20,7 @@ public class CaseTracking {
 	@NonNull
 	private CasePayment caseStage;
 
-	private Instant trackingTime = Instant.now();
+	private Instant trackingTime;
 	
 	private int stageNumber = 1;
 
