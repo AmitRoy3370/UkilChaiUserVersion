@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo700.DTOFiles.PostResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdvocateModels.AdvocatePost;
 import com.example.demo700.Services.AdvocateServices.AdvocatePostService;
@@ -59,7 +60,7 @@ public class AdvocatePostController {
 	@GetMapping("/all")
 	public ResponseEntity<?> seeAll() {
 		try {
-			List<AdvocatePost> list = advocatePostService.seeAll();
+			List<PostResponse> list = advocatePostService.seeAll();
 			return ResponseEntity.ok(list);
 
 		} catch (Exception e) {
@@ -157,7 +158,7 @@ public class AdvocatePostController {
 
 		try {
 
-			AdvocatePost post = advocatePostService.searchPost(postId);
+			PostResponse post = advocatePostService.searchPost(postId);
 
 			if (post == null) {
 

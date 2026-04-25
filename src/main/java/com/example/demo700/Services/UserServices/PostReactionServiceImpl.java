@@ -1,12 +1,22 @@
 package com.example.demo700.Services.UserServices;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.PostReactionResponse;
 import com.example.demo700.ENums.PostReactions;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.AdvocatePost;
@@ -164,7 +174,7 @@ public class PostReactionServiceImpl implements PostReactionService {
 	}
 
 	@Override
-	public List<PostReaction> findByUserId(String userId) {
+	public List<PostReactionResponse> findByUserId(String userId) {
 
 		if (userId == null) {
 
@@ -180,11 +190,11 @@ public class PostReactionServiceImpl implements PostReactionService {
 
 		}
 
-		return list;
+		return getPostReactionResponseFromPostReactionList(list);
 	}
 
 	@Override
-	public List<PostReaction> findByAdvocatePostId(String advocatePostId) {
+	public List<PostReactionResponse> findByAdvocatePostId(String advocatePostId) {
 
 		if (advocatePostId == null) {
 
@@ -200,11 +210,12 @@ public class PostReactionServiceImpl implements PostReactionService {
 
 		}
 
-		return list;
+		return getPostReactionResponseFromPostReactionList(list);
 	}
 
 	@Override
-	public List<PostReaction> findByAdvocatePostIdAndPostReaction(String advocatePostId, PostReactions postReaction) {
+	public List<PostReactionResponse> findByAdvocatePostIdAndPostReaction(String advocatePostId,
+			PostReactions postReaction) {
 
 		if (advocatePostId == null || postReaction == null) {
 
@@ -221,11 +232,11 @@ public class PostReactionServiceImpl implements PostReactionService {
 
 		}
 
-		return list;
+		return getPostReactionResponseFromPostReactionList(list);
 	}
 
 	@Override
-	public List<PostReaction> findByCommentContainingIgnoreCase(String comment) {
+	public List<PostReactionResponse> findByCommentContainingIgnoreCase(String comment) {
 
 		if (comment == null) {
 
@@ -241,11 +252,11 @@ public class PostReactionServiceImpl implements PostReactionService {
 
 		}
 
-		return list;
+		return getPostReactionResponseFromPostReactionList(list);
 	}
 
 	@Override
-	public List<PostReaction> findAll() {
+	public List<PostReactionResponse> findAll() {
 
 		List<PostReaction> list = postReactionRepository.findAll();
 
@@ -255,11 +266,11 @@ public class PostReactionServiceImpl implements PostReactionService {
 
 		}
 
-		return list;
+		return getPostReactionResponseFromPostReactionList(list);
 	}
 
 	@Override
-	public PostReaction findById(String id) {
+	public PostReactionResponse findById(String id) {
 
 		try {
 
@@ -271,7 +282,7 @@ public class PostReactionServiceImpl implements PostReactionService {
 
 			}
 
-			return postReaction;
+			return getPostReactionResponseFromPostReaction(postReaction);
 
 		} catch (Exception e) {
 
@@ -281,6 +292,29 @@ public class PostReactionServiceImpl implements PostReactionService {
 
 	}
 
+	@Override
+	public List<PostReactionResponse> findByAdvocateIdIn(List<String> advocatePostIds) {
+		
+		try {
+			
+			List<PostReaction> list = postReactionRepository.findByAdocatePostIdIn(advocatePostIds);
+			
+			if(list.isEmpty()) {
+				
+				throw new Exception();
+				
+			}
+			
+			return getPostReactionResponseFromPostReactionList(list);
+			
+		} catch(Exception e) {
+			
+			return new ArrayList<>();
+			
+		}
+		
+	}
+	
 	@Override
 	public boolean removePostReaction(String id, String userId) {
 
@@ -345,6 +379,87 @@ public class PostReactionServiceImpl implements PostReactionService {
 		cleaner.removePostReaction(id);
 
 		return count != postReactionRepository.count();
+	}
+
+	ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+	private PostReactionResponse getPostReactionResponseFromPostReaction(PostReaction reaction) {
+
+		List<PostReaction> list = new ArrayList<>();
+
+		list.add(reaction);
+
+		return getPostReactionResponseFromPostReactionList(list).get(0);
+
+	}
+
+	private List<PostReactionResponse> getPostReactionResponseFromPostReactionList(List<PostReaction> reactions) {
+
+		List<PostReactionResponse> responses = new ArrayList<>();
+
+		List<User> users = userRepository.findAll();
+
+		CompletableFuture<Map<String, User>> userFuture = CompletableFuture.supplyAsync(() -> users.isEmpty()
+				? new HashMap<>()
+				: users.stream().filter(Objects::nonNull).filter(user -> user.getName() != null).collect(
+						Collectors.toMap(User::getId, Function.identity(), (existing, replacement) -> existing)),
+				executor);
+
+		CompletableFuture.allOf(userFuture).join();
+
+		Map<String, User> userMap = userFuture.join();
+
+		for (PostReaction reaction : reactions) {
+
+			try {
+
+				PostReactionResponse response = new PostReactionResponse();
+
+				response.setId(reaction.getId());
+
+				try {
+
+					response.setUserId(reaction.getUserId());
+					response.setUserName(userMap.get(reaction.getUserId()).getName());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setAdvocatePostId(reaction.getAdvocatePostId());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setComment(reaction.getComment());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setPostReaction(reaction.getPostReaction());
+
+				} catch (Exception e) {
+
+				}
+
+				responses.add(response);
+
+			} catch (Exception e) {
+
+			}
+
+		}
+
+		return responses;
+
 	}
 
 }

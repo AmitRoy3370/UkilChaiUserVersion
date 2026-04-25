@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo700.DTOFiles.AnswerResponse;
 import com.example.demo700.Model.QNAModels.AnswerQuestion;
 
 public interface AnswerQuestionService {
@@ -13,21 +14,23 @@ public interface AnswerQuestionService {
 
 	public AnswerQuestion updateAnswer(AnswerQuestion answerQuestion, String userID, String answerId, MultipartFile file);
 
-	public List<AnswerQuestion> findByAdvocateId(String advocateId);
+	public List<AnswerResponse> findByAdvocateId(String advocateId);
 
-	public List<AnswerQuestion> findByQuestionId(String questionId);
+	public List<AnswerResponse> findByQuestionId(String questionId);
 
-	public List<AnswerQuestion> findByMessageContainingIgnoreCase(String keyword);
+	public List<AnswerResponse> findByMessageContainingIgnoreCase(String keyword);
 
-	public List<AnswerQuestion> findByTimeAfter(Instant time);
+	public List<AnswerResponse> findByTimeAfter(Instant time);
 
-	public List<AnswerQuestion> findByTimeBefore(Instant time);
+	public List<AnswerResponse> findByTimeBefore(Instant time);
 
-	public List<AnswerQuestion> findByTimeBetween(Instant startTime, Instant endTime);
+	public List<AnswerResponse> findByTimeBetween(Instant startTime, Instant endTime);
 	
-	public List<AnswerQuestion> findAll();
+	public List<AnswerResponse> findByQuestionIdIn(List<String> questionIds);
 	
-	public AnswerQuestion findByAnswerId(String answerId);
+	public List<AnswerResponse> findAll();
+	
+	public AnswerResponse findByAnswerId(String answerId);
 	
 	public boolean deleteAnswer(String answerId, String userId);
 

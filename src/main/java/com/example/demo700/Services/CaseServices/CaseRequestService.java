@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo700.DTOFiles.CaseRequestResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.CaseModels.Case;
 import com.example.demo700.Model.CaseModels.CaseRequest;
@@ -16,21 +17,21 @@ public interface CaseRequestService {
 	public CaseRequest updateCaseRequest(CaseRequest caseRequest, String userId, String caseRequestId,
 			MultipartFile files[]);
 
-	public List<CaseRequest> findByCaseNameContainingIgnoreCase(String caseName);
+	public List<CaseRequestResponse> findByCaseNameContainingIgnoreCase(String caseName);
 
-	public List<CaseRequest> findByUserId(String userId);
+	public List<CaseRequestResponse> findByUserId(String userId);
 
-	public List<CaseRequest> findByCaseType(AdvocateSpeciality caseType);
+	public List<CaseRequestResponse> findByCaseType(AdvocateSpeciality caseType);
 
-	public List<CaseRequest> findByIssuedTimeAfter(Instant issuedTime);
+	public List<CaseRequestResponse> findByIssuedTimeAfter(Instant issuedTime);
 
-	public List<CaseRequest> findByIssuedTimeBefore(Instant issuedTime);
+	public List<CaseRequestResponse> findByIssuedTimeBefore(Instant issuedTime);
 
-	public CaseRequest findById(String caseRequestId);
+	public CaseRequestResponse findById(String caseRequestId);
 
-	public List<CaseRequest> allCaseRequest();
+	public List<CaseRequestResponse> allCaseRequest();
 
-	public List<CaseRequest> findByRequestedAdvocateId(String requestedAdvocateId);
+	public List<CaseRequestResponse> findByRequestedAdvocateId(String requestedAdvocateId);
 
 	public boolean removeCaseRequest(String caseRequestId, String userId);
 

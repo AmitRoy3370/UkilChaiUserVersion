@@ -10,21 +10,23 @@ public class ChatResponse {
 	private SenderInfo senderInfo;
 	private ReceiverInfo receiverInfo;
 	private Instant timeStamp;
-
+	
 	// Nested DTO for sender information
 	public static class SenderInfo {
 		private String receiverName;
 		private String receiverId;
 		private String message;
+		private boolean readChat;
 
 		// Constructors
 		public SenderInfo() {
 		}
 
-		public SenderInfo(String receiverName, String receiverId, String message) {
+		public SenderInfo(String receiverName, String receiverId, String message, boolean readChat) {
 			this.receiverName = receiverName;
 			this.receiverId = receiverId;
 			this.message = message;
+			this.readChat = readChat;
 		}
 
 		// Getters and Setters
@@ -58,15 +60,17 @@ public class ChatResponse {
 		private String senderId;
 		private String senderName;
 		private String message;
+		private boolean readChat;
 
 		// Constructors
 		public ReceiverInfo() {
 		}
 
-		public ReceiverInfo(String senderId, String senderName, String message) {
+		public ReceiverInfo(String senderId, String senderName, String message, boolean readChat) {
 			this.senderId = senderId;
 			this.senderName = senderName;
 			this.message = message;
+			this.readChat = readChat;
 		}
 
 		// Getters and Setters

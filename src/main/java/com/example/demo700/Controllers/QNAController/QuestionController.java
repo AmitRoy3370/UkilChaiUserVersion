@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo700.DTOFiles.QuestionResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.QNAModels.AskQuestion;
 import com.example.demo700.Services.AdvocateServices.PostContentService;
@@ -137,7 +138,7 @@ public class QuestionController {
 	@GetMapping("/all")
 	public ResponseEntity<?> getAll() {
 		try {
-			List<AskQuestion> list = questionService.seeAll();
+			List<QuestionResponse> list = questionService.seeAll();
 			return ResponseEntity.ok(list);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(e.getMessage());

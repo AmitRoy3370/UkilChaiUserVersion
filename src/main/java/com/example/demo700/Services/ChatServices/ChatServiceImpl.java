@@ -23,10 +23,12 @@ import com.example.demo700.DTOFiles.ChatResponse;
 import com.example.demo700.Model.AdminModels.Admin;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.ChatModels.ChatMessage;
+import com.example.demo700.Model.ChatModels.ReadableChat;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Repositories.AdminRepositories.AdminRepository;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.ChatRepositories.ChatMessageRepository;
+import com.example.demo700.Repositories.ChatRepositories.ReadableChatRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 import com.example.demo700.Services.AdminServices.CenterAdminService;
 import com.example.demo700.Services.NotificationServices.NotificationService;
@@ -37,6 +39,9 @@ public class ChatServiceImpl implements ChatService {
 	@Autowired
 	private ChatMessageRepository chatMessageRepository;
 
+	@Autowired
+	private ReadableChatRepository readChatRepository;
+	
 	@Autowired
 	private NotificationService notificationService;
 
@@ -318,6 +323,12 @@ public class ChatServiceImpl implements ChatService {
 
 		List<ChatResponse> responses = new ArrayList<>();
 
+
+		CompletableFuture<Map<String, Boolean>> readChatFuture = CompletableFuture.supplyAsync(() -> readChatRepository.findByRead(false).stream().collect(Collectors.toMap(ReadableChat::getChatId, readChat -> readChat.isRead(), (existing, replacement) -> existing)) , executors);
+		
+		Map<String, Boolean> readChat = readChatFuture.join();
+		
+		
 		CompletableFuture<Map<String, User>> nameFutures = CompletableFuture
 				.supplyAsync(
 						() -> allUsers
@@ -414,12 +425,12 @@ public class ChatServiceImpl implements ChatService {
 
 						if (isCurrentUserSender) {
 							response.setSenderInfo(new ChatResponse.SenderInfo(otherUser.getName(), otherUserId,
-									latestMessage.getContent()));
+									latestMessage.getContent(), readChat.getOrDefault(latestMessage.getId(), true)));
 							response.setReceiverInfo(null);
 						} else {
 							response.setSenderInfo(null);
 							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName(),
-									latestMessage.getContent()));
+									latestMessage.getContent(), readChat.getOrDefault(latestMessage.getId(), true)));
 						}
 
 					} catch (Exception e) {
@@ -432,7 +443,7 @@ public class ChatServiceImpl implements ChatService {
 
 						response.setId(null);
 						response.setTimeStamp(null);
-						response.setSenderInfo(new ChatResponse.SenderInfo(otherUser.getName(), otherUserId, ""));
+						response.setSenderInfo(new ChatResponse.SenderInfo(otherUser.getName(), otherUserId, "", true));
 						response.setReceiverInfo(null);
 
 					} catch (Exception e) {
@@ -474,6 +485,10 @@ public class ChatServiceImpl implements ChatService {
 
 		List<User> allUsers = userRepository.findAll();
 
+		CompletableFuture<Map<String, Boolean>> readChatFuture = CompletableFuture.supplyAsync(() -> readChatRepository.findByRead(false).stream().collect(Collectors.toMap(ReadableChat::getChatId, readChat -> readChat.isRead(), (existing, replacement) -> existing)) , executors);
+		
+		Map<String, Boolean> readChat = readChatFuture.join();
+		
 		CompletableFuture<Map<String, User>> nameFutures = CompletableFuture
 				.supplyAsync(
 						() -> allUsers
@@ -489,6 +504,7 @@ public class ChatServiceImpl implements ChatService {
 		CompletableFuture<List<ChatMessage>> receiverMessagesFuture = CompletableFuture
 				.supplyAsync(() -> chatMessageRepository.findByReceiver(userId), executors);
 
+		
 		CompletableFuture<Map<String, ChatMessage>> latestMessageFuture = CompletableFuture.supplyAsync(() -> {
 			List<ChatMessage> messages = chatMessageRepository.findAllConversationsWithLatestMessage(userId);
 			if (messages == null || messages.isEmpty()) {
@@ -576,12 +592,12 @@ public class ChatServiceImpl implements ChatService {
 
 						if (isCurrentUserSender) {
 							response.setSenderInfo(new ChatResponse.SenderInfo(otherUser.getName(), otherUserId,
-									latestMessage.getContent()));
+									latestMessage.getContent(), readChat.getOrDefault(latestMessage.getId(), readChat.getOrDefault(latestMessage.getId(), true))));
 							response.setReceiverInfo(null);
 						} else {
 							response.setSenderInfo(null);
 							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName(),
-									latestMessage.getContent()));
+									latestMessage.getContent(), readChat.getOrDefault(latestMessage.getId(), readChat.getOrDefault(latestMessage.getId(), true))));
 						}
 
 					} catch (Exception e) {
@@ -594,7 +610,7 @@ public class ChatServiceImpl implements ChatService {
 
 						response.setId(null);
 						response.setTimeStamp(null);
-						response.setSenderInfo(new ChatResponse.SenderInfo(otherUser.getName(), otherUserId, ""));
+						response.setSenderInfo(new ChatResponse.SenderInfo(otherUser.getName(), otherUserId, "", true));
 						response.setReceiverInfo(null);
 
 					} catch (Exception e) {

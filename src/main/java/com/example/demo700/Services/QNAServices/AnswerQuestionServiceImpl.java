@@ -2,13 +2,24 @@ package com.example.demo700.Services.QNAServices;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.AdvocateResponse;
+import com.example.demo700.DTOFiles.AnswerResponse;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.QNAModels.AnswerQuestion;
@@ -19,6 +30,7 @@ import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositorie
 import com.example.demo700.Repositories.QNARepositories.AnswerRepository;
 import com.example.demo700.Repositories.QNARepositories.QuestionRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
+import com.example.demo700.Services.AdvocateServices.AdvocateService;
 import com.example.demo700.Services.AdvocateServices.PostContentService;
 
 @Service
@@ -29,6 +41,9 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 
 	@Autowired
 	private AdvocateRepositories advocateRepository;
+
+	@Autowired
+	private AdvocateService advocateService;
 
 	@Autowired
 	private PostContentService postContentService;
@@ -223,7 +238,7 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 	}
 
 	@Override
-	public List<AnswerQuestion> findByAdvocateId(String advocateId) {
+	public List<AnswerResponse> findByAdvocateId(String advocateId) {
 
 		if (advocateId == null) {
 
@@ -239,11 +254,11 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 
 		}
 
-		return list;
+		return getAnswerResponseFromAnswerList(list);
 	}
 
 	@Override
-	public List<AnswerQuestion> findByQuestionId(String questionId) {
+	public List<AnswerResponse> findByQuestionId(String questionId) {
 
 		if (questionId == null) {
 
@@ -259,11 +274,11 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 
 		}
 
-		return list;
+		return getAnswerResponseFromAnswerList(list);
 	}
 
 	@Override
-	public List<AnswerQuestion> findByMessageContainingIgnoreCase(String keyword) {
+	public List<AnswerResponse> findByMessageContainingIgnoreCase(String keyword) {
 
 		if (keyword == null) {
 
@@ -279,11 +294,11 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 
 		}
 
-		return list;
+		return getAnswerResponseFromAnswerList(list);
 	}
 
 	@Override
-	public List<AnswerQuestion> findByTimeAfter(Instant time) {
+	public List<AnswerResponse> findByTimeAfter(Instant time) {
 
 		if (time == null) {
 
@@ -299,11 +314,11 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 
 		}
 
-		return list;
+		return getAnswerResponseFromAnswerList(list);
 	}
 
 	@Override
-	public List<AnswerQuestion> findByTimeBefore(Instant time) {
+	public List<AnswerResponse> findByTimeBefore(Instant time) {
 
 		if (time == null) {
 
@@ -319,11 +334,11 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 
 		}
 
-		return list;
+		return getAnswerResponseFromAnswerList(list);
 	}
 
 	@Override
-	public List<AnswerQuestion> findByTimeBetween(Instant startTime, Instant endTime) {
+	public List<AnswerResponse> findByTimeBetween(Instant startTime, Instant endTime) {
 
 		if (startTime == null | endTime == null) {
 
@@ -339,11 +354,11 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 
 		}
 
-		return list;
+		return getAnswerResponseFromAnswerList(list);
 	}
 
 	@Override
-	public List<AnswerQuestion> findAll() {
+	public List<AnswerResponse> findAll() {
 
 		List<AnswerQuestion> list = answerRepository.findAll();
 
@@ -353,11 +368,34 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 
 		}
 
-		return list;
+		return getAnswerResponseFromAnswerList(list);
 	}
 
 	@Override
-	public AnswerQuestion findByAnswerId(String answerId) {
+	public List<AnswerResponse> findByQuestionIdIn(List<String> questionId) {
+
+		try {
+
+			List<AnswerQuestion> list = answerRepository.findByQuestionIdIn(questionId);
+
+			if (list.isEmpty()) {
+
+				throw new Exception();
+
+			}
+
+			return getAnswerResponseFromAnswerList(list);
+
+		} catch (Exception e) {
+
+			return new ArrayList<>();
+
+		}
+
+	}
+
+	@Override
+	public AnswerResponse findByAnswerId(String answerId) {
 
 		if (answerId == null) {
 
@@ -375,7 +413,7 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 
 			}
 
-			return answer;
+			return getAnswerResponseFromAnswer(answer);
 
 		} catch (Exception e) {
 
@@ -463,6 +501,87 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 		cleaner.removeAnswer(answerId);
 
 		return count != answerRepository.count();
+	}
+
+	private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+	private AnswerResponse getAnswerResponseFromAnswer(AnswerQuestion answer) {
+
+		List<AnswerQuestion> list = new ArrayList<>();
+
+		list.add(answer);
+
+		return getAnswerResponseFromAnswerList(list).get(0);
+
+	}
+
+	private List<AnswerResponse> getAnswerResponseFromAnswerList(List<AnswerQuestion> answers) {
+
+		List<AnswerResponse> responses = new ArrayList<>();
+
+		CompletableFuture<Map<String, AdvocateResponse>> advocateFuture = CompletableFuture
+				.supplyAsync(() -> advocateService.seeAllAdvocate().isEmpty() ? new HashMap<>()
+						: advocateService.seeAllAdvocate().stream().filter(Objects::nonNull)
+								.filter(advocateResponse -> advocateResponse.getName() != null)
+								.collect(Collectors.toMap(AdvocateResponse::getId, Function.identity(),
+										(existing, replacement) -> existing)),
+						executor);
+
+		CompletableFuture.allOf(advocateFuture).join();
+
+		Map<String, AdvocateResponse> advocateMap = advocateFuture.join();
+
+		for (AnswerQuestion answer : answers) {
+
+			try {
+
+				AnswerResponse response = new AnswerResponse();
+
+				response.setId(answer.getId());
+
+				try {
+
+					response.setMessage(answer.getMessage());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setQuestionId(answer.getQuestionId());
+					response.setAdvocateName(advocateMap.get(answer.getAdvocateId()).getName());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setAdvocateId(answer.getAdvocateId());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setAttachmentId(answer.getAttachmentId());
+
+				} catch (Exception e) {
+
+				}
+
+				responses.add(response);
+
+			} catch (Exception e) {
+
+			}
+
+		}
+
+		return responses;
+
 	}
 
 }

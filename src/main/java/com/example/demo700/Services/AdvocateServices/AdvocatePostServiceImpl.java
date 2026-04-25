@@ -1,13 +1,26 @@
 package com.example.demo700.Services.AdvocateServices;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.AdvocateResponse;
+import com.example.demo700.DTOFiles.PostReactionResponse;
+import com.example.demo700.DTOFiles.PostResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
@@ -17,6 +30,7 @@ import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
 import com.example.demo700.Repositories.AdvocateRepositories.PostRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
+import com.example.demo700.Services.UserServices.PostReactionService;
 
 @Service
 public class AdvocatePostServiceImpl implements AdvocatePostService {
@@ -28,10 +42,16 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	private AdvocateRepositories advocateRepository;
 
 	@Autowired
+	private AdvocateService advocateService;
+
+	@Autowired
 	private UserRepository userRepository;
 
 	@Autowired
 	private PostContentService postContentService;
+
+	@Autowired
+	private PostReactionService postReactionService;
 
 	@Autowired
 	private CenterAdminRepository centralAdminRepository;
@@ -106,7 +126,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 
 	@Override
-	public List<AdvocatePost> findByAdvocateId(String advocateId) {
+	public List<PostResponse> findByAdvocateId(String advocateId) {
 
 		if (advocateId == null) {
 
@@ -122,11 +142,11 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 		}
 
-		return list;
+		return getPostResponseFromPostList(list);
 	}
 
 	@Override
-	public List<AdvocatePost> findByPostType(AdvocateSpeciality postType) {
+	public List<PostResponse> findByPostType(AdvocateSpeciality postType) {
 
 		if (postType == null) {
 
@@ -142,11 +162,11 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 		}
 
-		return list;
+		return getPostResponseFromPostList(list);
 	}
 
 	@Override
-	public List<AdvocatePost> findByAdvocateIdAndPostType(String advocateId, AdvocateSpeciality postType) {
+	public List<PostResponse> findByAdvocateIdAndPostType(String advocateId, AdvocateSpeciality postType) {
 
 		if (advocateId == null || postType == null) {
 
@@ -162,11 +182,11 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 		}
 
-		return list;
+		return getPostResponseFromPostList(list);
 	}
 
 	@Override
-	public List<AdvocatePost> findByPostContentContainingIgnoreCase(String keyword) {
+	public List<PostResponse> findByPostContentContainingIgnoreCase(String keyword) {
 
 		if (keyword == null) {
 
@@ -182,11 +202,11 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 		}
 
-		return list;
+		return getPostResponseFromPostList(list);
 	}
 
 	@Override
-	public List<AdvocatePost> findLatestPosts() {
+	public List<PostResponse> findLatestPosts() {
 
 		List<AdvocatePost> list = advocatePostRepository.findLatestPosts();
 
@@ -196,11 +216,11 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 		}
 
-		return list;
+		return getPostResponseFromPostList(list);
 	}
 
 	@Override
-	public List<AdvocatePost> findByAttachmentIdIsNotNull() {
+	public List<PostResponse> findByAttachmentIdIsNotNull() {
 
 		List<AdvocatePost> list = advocatePostRepository.findByAttachmentIdIsNotNull();
 
@@ -210,7 +230,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 		}
 
-		return list;
+		return getPostResponseFromPostList(list);
 	}
 
 	@Override
@@ -387,7 +407,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 
 	@Override
-	public List<AdvocatePost> seeAll() {
+	public List<PostResponse> seeAll() {
 
 		List<AdvocatePost> list = advocatePostRepository.findAll();
 
@@ -397,36 +417,142 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 		}
 
-		return list;
+		return getPostResponseFromPostList(list);
 	}
 
 	@Override
-	public AdvocatePost searchPost(String postId) {
-		
-		if(postId == null) {
-			
+	public PostResponse searchPost(String postId) {
+
+		if (postId == null) {
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			AdvocatePost post = advocatePostRepository.findById(postId).get();
-			
-			if(post == null) {
-				
+
+			if (post == null) {
+
 				throw new Exception();
-				
+
 			}
-			
-			return post;
-			
-		} catch(Exception e) {
-			
+
+			return getPostResponseFromPost(post);
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException("No Such advocate find at here...");
-			
+
 		}
-		
+
+	}
+
+	private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+	private PostResponse getPostResponseFromPost(AdvocatePost post) {
+
+		List<AdvocatePost> list = new ArrayList<>();
+
+		list.add(post);
+
+		return getPostResponseFromPostList(list).get(0);
+
+	}
+
+	private List<PostResponse> getPostResponseFromPostList(List<AdvocatePost> posts) {
+
+		List<PostResponse> responses = new ArrayList<>();
+
+		List<String> allPostId = posts.stream().map(AdvocatePost::getId).collect(Collectors.toList());
+
+		List<PostReactionResponse> reactions = postReactionService.findByAdvocateIdIn(allPostId);
+
+		List<AdvocateResponse> users = advocateService.seeAllAdvocate();
+
+		CompletableFuture<Map<String, AdvocateResponse>> userFuture = CompletableFuture.supplyAsync(() -> {
+			if (users == null || users.isEmpty()) {
+				return new HashMap<>(); // ✅ HashMap টাইপ ইনফার করতে পারে
+			}
+
+			return users.stream().filter(Objects::nonNull).filter(user -> user.getId() != null).collect(Collectors
+					.toMap(AdvocateResponse::getId, Function.identity(), (existing, replacement) -> existing));
+		}, executor);
+
+		CompletableFuture<Map<String, List<PostReactionResponse>>> reactionFuture = CompletableFuture
+				.supplyAsync(() -> {
+
+					if (reactions.isEmpty()) {
+
+						return new HashMap<>();
+
+					}
+
+					return reactions.stream().filter(Objects::nonNull)
+							.filter(postReaction -> postReaction.getAdvocatePostId() != null)
+							.collect(Collectors.groupingBy(PostReactionResponse::getAdvocatePostId, HashMap::new,
+									Collectors.toList()));
+
+				}, executor);
+
+		CompletableFuture.allOf(userFuture, reactionFuture).join();
+
+		Map<String, AdvocateResponse> userMap = userFuture.join();
+		Map<String, List<PostReactionResponse>> postReactionMap = reactionFuture.join();
+
+		for (AdvocatePost post : posts) {
+
+			try {
+
+				PostResponse response = new PostResponse();
+
+				response.setId(post.getId());
+				response.setAdvocateId(post.getAdvocateId());
+				response.setPostType(post.getPostType());
+
+				try {
+
+					response.setPostContent(post.getPostContent());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setAttachmentId(post.getAttachmentId());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setReactions(postReactionMap.get(post.getId()));
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setAdvocateName(userMap.get(post.getAdvocateId()).getName());
+
+				} catch (Exception e) {
+
+				}
+
+				responses.add(response);
+
+			} catch (Exception e) {
+
+			}
+
+		}
+
+		return responses;
+
 	}
 
 }

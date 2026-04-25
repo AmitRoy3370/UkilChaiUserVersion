@@ -2,13 +2,24 @@ package com.example.demo700.Services.QNAServices;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.AnswerResponse;
+import com.example.demo700.DTOFiles.QuestionResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.QNAModels.AskQuestion;
@@ -32,6 +43,9 @@ public class QuestionServiceImpl implements QuestionService {
 
 	@Autowired
 	private PostContentService postContentService;
+
+	@Autowired
+	private AnswerQuestionService answerQuestionService;
 
 	@Autowired
 	private Cleaner cleaner;
@@ -92,13 +106,13 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	@Override
-	public List<AskQuestion> seeAll() {
+	public List<QuestionResponse> seeAll() {
 
-		return questionRepository.findAll();
+		return getQuestionResponseFromQuestionList(questionRepository.findAll());
 	}
 
 	@Override
-	public List<AskQuestion> findByUserId(String userId) {
+	public List<QuestionResponse> findByUserId(String userId) {
 
 		if (userId == null) {
 
@@ -114,11 +128,11 @@ public class QuestionServiceImpl implements QuestionService {
 
 		}
 
-		return list;
+		return getQuestionResponseFromQuestionList(list);
 	}
 
 	@Override
-	public List<AskQuestion> findByMessageContainingIgnoreCase(String keyWord) {
+	public List<QuestionResponse> findByMessageContainingIgnoreCase(String keyWord) {
 
 		if (keyWord == null) {
 
@@ -134,11 +148,11 @@ public class QuestionServiceImpl implements QuestionService {
 
 		}
 
-		return list;
+		return getQuestionResponseFromQuestionList(list);
 	}
 
 	@Override
-	public List<AskQuestion> findByPostTimeAfter(Instant time) {
+	public List<QuestionResponse> findByPostTimeAfter(Instant time) {
 
 		if (time == null) {
 
@@ -154,11 +168,11 @@ public class QuestionServiceImpl implements QuestionService {
 
 		}
 
-		return list;
+		return getQuestionResponseFromQuestionList(list);
 	}
 
 	@Override
-	public List<AskQuestion> findByPostTimeBefore(Instant time) {
+	public List<QuestionResponse> findByPostTimeBefore(Instant time) {
 
 		if (time == null) {
 
@@ -174,11 +188,11 @@ public class QuestionServiceImpl implements QuestionService {
 
 		}
 
-		return list;
+		return getQuestionResponseFromQuestionList(list);
 	}
 
 	@Override
-	public List<AskQuestion> findByPostTimeBetween(Instant start, Instant end) {
+	public List<QuestionResponse> findByPostTimeBetween(Instant start, Instant end) {
 
 		if (start == null || end == null) {
 
@@ -194,11 +208,11 @@ public class QuestionServiceImpl implements QuestionService {
 
 		}
 
-		return list;
+		return getQuestionResponseFromQuestionList(list);
 	}
 
 	@Override
-	public List<AskQuestion> findByQuestionType(AdvocateSpeciality questionType) {
+	public List<QuestionResponse> findByQuestionType(AdvocateSpeciality questionType) {
 
 		if (questionType == null) {
 
@@ -214,32 +228,32 @@ public class QuestionServiceImpl implements QuestionService {
 
 		}
 
-		return list;
+		return getQuestionResponseFromQuestionList(list);
 	}
 
 	@Override
-	public AskQuestion findByQuestionId(String questionId) {
-		
+	public QuestionResponse findByQuestionId(String questionId) {
+
 		try {
-			
+
 			AskQuestion question = questionRepository.findById(questionId).get();
-			
-			if(question == null) {
-				
+
+			if (question == null) {
+
 				throw new Exception();
-				
+
 			}
-			
-			return question;
-			
-		} catch(Exception e) {
-			
+
+			return getQuestionResponseFromQuestion(question);
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException("No such question find at here..");
-			
+
 		}
-		
+
 	}
-	
+
 	@Override
 	public AskQuestion updateQuestion(AskQuestion askQuestion, String userId, String questionId, MultipartFile file) {
 
@@ -383,6 +397,120 @@ public class QuestionServiceImpl implements QuestionService {
 		cleaner.removeQuestion(questionId);
 
 		return count != questionRepository.count();
+	}
+
+	private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+	private QuestionResponse getQuestionResponseFromQuestion(AskQuestion question) {
+
+		List<AskQuestion> list = new ArrayList<>();
+
+		list.add(question);
+
+		return getQuestionResponseFromQuestionList(list).get(0);
+
+	}
+
+	private List<QuestionResponse> getQuestionResponseFromQuestionList(List<AskQuestion> questions) {
+
+		List<QuestionResponse> responses = new ArrayList<>();
+
+		CompletableFuture<Map<String, User>> userFuture = CompletableFuture.supplyAsync(
+				() -> userRepository.findAll().isEmpty() ? new HashMap<>()
+						: userRepository.findAll().stream().filter(Objects::nonNull).collect(Collectors
+								.toMap(User::getId, Function.identity(), (existing, replacement) -> existing)),
+				executor);
+
+		List<String> allQuestionId = questions.stream().map(AskQuestion::getId).collect(Collectors.toList());
+
+		List<AnswerResponse> answers = answerQuestionService.findByQuestionIdIn(allQuestionId);
+
+		CompletableFuture<Map<String, List<AnswerResponse>>> answerFuture = CompletableFuture.supplyAsync(() -> {
+
+			if (answers.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return answers.stream().filter(Objects::nonNull)
+					.filter(answerResponse -> answerResponse.getQuestionId() != null)
+					.collect(Collectors.groupingBy(AnswerResponse::getQuestionId, HashMap::new, Collectors.toList()));
+
+		}, executor);
+
+		CompletableFuture.allOf(userFuture, answerFuture).join();
+
+		Map<String, User> userMap = userFuture.join();
+		Map<String, List<AnswerResponse>> answerMap = answerFuture.join();
+
+		for (AskQuestion question : questions) {
+
+			try {
+
+				QuestionResponse response = new QuestionResponse();
+
+				try {
+
+					response.setId(question.getId());
+
+					try {
+
+						response.setMessage(question.getMessage());
+
+					} catch (Exception e) {
+
+					}
+
+					response.setPostTime(question.getPostTime());
+
+					try {
+
+						response.setAttachmentId(question.getAttachmentId());
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
+						response.setQuestionType(question.getQuestionType());
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
+						response.setUserId(question.getUserId());
+						response.setUserName(userMap.get(question.getUserId()).getName());
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
+						response.setAnswers(answerMap.get(question.getId()));
+
+					} catch (Exception e) {
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				responses.add(response);
+
+			} catch (Exception e) {
+
+			}
+
+		}
+
+		return responses;
+
 	}
 
 }

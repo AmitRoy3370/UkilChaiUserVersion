@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo700.DTOFiles.PostResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdvocateModels.AdvocatePost;
 
@@ -12,29 +13,29 @@ public interface AdvocatePostService {
 
 	public AdvocatePost uploadPost(AdvocatePost advocatePost, String userId, MultipartFile file);
 
-	List<AdvocatePost> seeAll();
+	List<PostResponse> seeAll();
 	
-	List<AdvocatePost> findByAdvocateId(String advocateId);
+	List<PostResponse> findByAdvocateId(String advocateId);
 
 	// Post Type দিয়ে posts
-	List<AdvocatePost> findByPostType(AdvocateSpeciality postType);
+	List<PostResponse> findByPostType(AdvocateSpeciality postType);
 
 	// Advocate ID + Post Type
-	List<AdvocatePost> findByAdvocateIdAndPostType(String advocateId, AdvocateSpeciality postType);
+	List<PostResponse> findByAdvocateIdAndPostType(String advocateId, AdvocateSpeciality postType);
 
 	// Post Content এ keyword search (case insensitive)
-	List<AdvocatePost> findByPostContentContainingIgnoreCase(String keyword);
+	List<PostResponse> findByPostContentContainingIgnoreCase(String keyword);
 
 	// Latest posts (descending order)
 	@Query(value = "{}", sort = "{ 'id' : -1 }")
-	List<AdvocatePost> findLatestPosts();
+	List<PostResponse> findLatestPosts();
 
 	// Has attachment posts
-	List<AdvocatePost> findByAttachmentIdIsNotNull();
+	List<PostResponse> findByAttachmentIdIsNotNull();
 	
 	public AdvocatePost updateAdvocatePost(String postId, String userId, AdvocatePost advocatePost, MultipartFile file);
 	
-	public AdvocatePost searchPost(String advocateId);
+	public PostResponse searchPost(String advocateId);
 	
 	public boolean deleteAdvocatePost(String postId, String userId);
 

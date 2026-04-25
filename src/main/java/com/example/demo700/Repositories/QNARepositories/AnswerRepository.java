@@ -15,6 +15,8 @@ public interface AnswerRepository extends MongoRepository<AnswerQuestion, String
 	
 	List<AnswerQuestion> findByQuestionId(String questionId);
 	
+	List<AnswerQuestion> findByQuestionIdIn(List<String> questionIds);
+	
 	List<AnswerQuestion> findByMessageContainingIgnoreCase(String keyword);
 	
 	List<AnswerQuestion> findByTimeAfter(Instant time);

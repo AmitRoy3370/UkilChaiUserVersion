@@ -2,8 +2,16 @@ package com.example.demo700.Services.CaseServices;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.bson.types.ObjectId;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.CaseResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
@@ -23,6 +32,7 @@ import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
 import com.example.demo700.Repositories.CaseRepositories.CaseRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
+import com.example.demo700.Services.AdvocateServices.AdvocateJoinRequestService;
 import com.example.demo700.Services.AdvocateServices.CVUploadService;
 import com.example.demo700.Services.UserServices.ImageService;
 
@@ -92,7 +102,8 @@ public class CaseServiceImpl implements CaseService {
 
 						throw new ArithmeticException();
 
-					};
+					}
+					;
 
 				}
 
@@ -231,7 +242,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
-	public Case findByCaseNameIgnoreCase(String caseName) {
+	public CaseResponse findByCaseNameIgnoreCase(String caseName) {
 
 		if (caseName == null) {
 
@@ -249,7 +260,7 @@ public class CaseServiceImpl implements CaseService {
 
 			}
 
-			return acceptedCase;
+			return getCaseResponseFromCase(acceptedCase);
 
 		} catch (Exception e) {
 
@@ -260,7 +271,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
-	public List<Case> findByCaseNameContainingIgnoreCase(String caseName) {
+	public List<CaseResponse> findByCaseNameContainingIgnoreCase(String caseName) {
 
 		if (caseName == null) {
 
@@ -276,11 +287,11 @@ public class CaseServiceImpl implements CaseService {
 
 		}
 
-		return list;
+		return getCaseResponseFromCaseList(list);
 	}
 
 	@Override
-	public List<Case> findByUserId(String userId) {
+	public List<CaseResponse> findByUserId(String userId) {
 
 		if (userId == null) {
 
@@ -296,12 +307,12 @@ public class CaseServiceImpl implements CaseService {
 
 		}
 
-		return list;
+		return getCaseResponseFromCaseList(list);
 
 	}
 
 	@Override
-	public List<Case> findByCaseType(AdvocateSpeciality caseType) {
+	public List<CaseResponse> findByCaseType(AdvocateSpeciality caseType) {
 
 		if (caseType == null) {
 
@@ -317,11 +328,11 @@ public class CaseServiceImpl implements CaseService {
 
 		}
 
-		return list;
+		return getCaseResponseFromCaseList(list);
 	}
 
 	@Override
-	public List<Case> findByAdvocateId(String advocateId) {
+	public List<CaseResponse> findByAdvocateId(String advocateId) {
 
 		if (advocateId == null) {
 
@@ -337,11 +348,11 @@ public class CaseServiceImpl implements CaseService {
 
 		}
 
-		return list;
+		return getCaseResponseFromCaseList(list);
 	}
 
 	@Override
-	public List<Case> findByIssuedTimeAfter(Instant issuedTime) {
+	public List<CaseResponse> findByIssuedTimeAfter(Instant issuedTime) {
 
 		if (issuedTime == null) {
 
@@ -357,11 +368,11 @@ public class CaseServiceImpl implements CaseService {
 
 		}
 
-		return list;
+		return getCaseResponseFromCaseList(list);
 	}
 
 	@Override
-	public List<Case> findByIssuedTimeBefore(Instant issuedTime) {
+	public List<CaseResponse> findByIssuedTimeBefore(Instant issuedTime) {
 
 		if (issuedTime == null) {
 
@@ -377,11 +388,11 @@ public class CaseServiceImpl implements CaseService {
 
 		}
 
-		return list;
+		return getCaseResponseFromCaseList(list);
 	}
 
 	@Override
-	public List<Case> findAllCase() {
+	public List<CaseResponse> findAllCase() {
 
 		List<Case> list = caseRepository.findAll();
 
@@ -391,11 +402,11 @@ public class CaseServiceImpl implements CaseService {
 
 		}
 
-		return list;
+		return getCaseResponseFromCaseList(list);
 	}
 
 	@Override
-	public Case findById(String caseId) {
+	public CaseResponse findById(String caseId) {
 
 		if (caseId == null) {
 
@@ -405,7 +416,7 @@ public class CaseServiceImpl implements CaseService {
 
 		try {
 
-			return caseRepository.findById(caseId).get();
+			return getCaseResponseFromCase(caseRepository.findById(caseId).get());
 
 		} catch (Exception e) {
 
@@ -415,8 +426,6 @@ public class CaseServiceImpl implements CaseService {
 
 	}
 
-	
-	
 	@Override
 	public boolean removeCase(String caseId, String userId) {
 
@@ -509,6 +518,90 @@ public class CaseServiceImpl implements CaseService {
 		cleaner.removeCase(caseId);
 
 		return count != caseRepository.count();
+	}
+
+	private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+	private CaseResponse getCaseResponseFromCase(Case _case) {
+
+		List<Case> cases = new ArrayList<>();
+
+		cases.add(_case);
+
+		return getCaseResponseFromCaseList(cases).get(0);
+
+	}
+
+	private List<CaseResponse> getCaseResponseFromCaseList(List<Case> cases) {
+
+		List<CaseResponse> responses = new ArrayList<>();
+
+		List<String> allUserId = cases.stream().filter(Objects::nonNull).distinct().map(Case::getUserId)
+				.collect(Collectors.toList());
+
+		List<String> getAdvocatesId = cases.stream().filter(Objects::nonNull).distinct().map(Case::getAdvocateId)
+				.collect(Collectors.toList());
+
+		List<Advocate> advocates = advocateRepository.findAllById(getAdvocatesId);
+
+		List<String> allAdvocateUserId = advocates.stream().map(Advocate::getUserId).collect(Collectors.toList());
+
+		for (String i : allAdvocateUserId) {
+
+			if (!allUserId.contains(i)) {
+
+				allUserId.add(i);
+
+			}
+
+		}
+
+		CompletableFuture<Map<String, String>> advocateFuture = CompletableFuture
+				.supplyAsync(() -> advocates.isEmpty() ? new HashMap<>()
+						: advocates.stream().filter(Objects::nonNull).filter(advocate -> advocate.getUserId() != null)
+								.collect(Collectors.toMap(Advocate::getId, advocate -> advocate.getUserId(),
+										(existing, replacement) -> existing)),
+						executor);
+
+		List<User> users = userRepository.findAllById(allUserId);
+
+		CompletableFuture<Map<String, User>> userFuture = CompletableFuture.supplyAsync(() -> users.isEmpty()
+				? new HashMap<>()
+				: users.stream().filter(Objects::nonNull).collect(
+						Collectors.toMap(User::getId, Function.identity(), (existing, replacement) -> existing)),
+				executor);
+
+		CompletableFuture.allOf(userFuture, advocateFuture).join();
+
+		Map<String, User> userMap = userFuture.join();
+		Map<String, String> advocateMap = advocateFuture.join();
+
+		for (Case _case : cases) {
+
+			try {
+
+				CaseResponse response = new CaseResponse();
+
+				response.setId(_case.getId());
+				response.setAdvocateId(_case.getAdvocateId());
+				response.setCaseName(_case.getCaseName());
+				response.setCaseType(_case.getCaseType());
+				response.setIssuedTime(_case.getIssuedTime());
+				response.setUserId(_case.getUserId());
+				response.setAttachmentsId(_case.getAttachmentsId());
+				response.setUserName(userMap.get(_case.getUserId()).getName());
+				response.setAdvocateName(userMap.get(advocateMap.get(_case.getAdvocateId())).getName());
+
+				responses.add(response);
+
+			} catch (Exception e) {
+
+			}
+
+		}
+
+		return responses;
+
 	}
 
 }

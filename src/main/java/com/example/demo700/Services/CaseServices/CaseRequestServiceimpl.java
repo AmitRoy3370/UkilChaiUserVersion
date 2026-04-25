@@ -2,8 +2,16 @@ package com.example.demo700.Services.CaseServices;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.bson.types.ObjectId;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.CaseRequestResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
@@ -402,7 +411,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 	}
 
 	@Override
-	public List<CaseRequest> findByCaseNameContainingIgnoreCase(String caseName) {
+	public List<CaseRequestResponse> findByCaseNameContainingIgnoreCase(String caseName) {
 
 		if (caseName == null) {
 
@@ -418,11 +427,11 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 		}
 
-		return list;
+		return getCaseRequestResponseFromCaseRequest(list);
 	}
 
 	@Override
-	public List<CaseRequest> findByUserId(String userId) {
+	public List<CaseRequestResponse> findByUserId(String userId) {
 
 		if (userId == null) {
 
@@ -438,11 +447,11 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 		}
 
-		return list;
+		return getCaseRequestResponseFromCaseRequest(list);
 	}
 
 	@Override
-	public List<CaseRequest> findByCaseType(AdvocateSpeciality caseType) {
+	public List<CaseRequestResponse> findByCaseType(AdvocateSpeciality caseType) {
 
 		if (caseType == null) {
 
@@ -458,11 +467,11 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 		}
 
-		return list;
+		return getCaseRequestResponseFromCaseRequest(list);
 	}
 
 	@Override
-	public List<CaseRequest> findByIssuedTimeAfter(Instant issuedTime) {
+	public List<CaseRequestResponse> findByIssuedTimeAfter(Instant issuedTime) {
 
 		if (issuedTime == null) {
 
@@ -478,11 +487,11 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 		}
 
-		return list;
+		return getCaseRequestResponseFromCaseRequest(list);
 	}
 
 	@Override
-	public List<CaseRequest> findByIssuedTimeBefore(Instant issuedTime) {
+	public List<CaseRequestResponse> findByIssuedTimeBefore(Instant issuedTime) {
 
 		if (issuedTime == null) {
 
@@ -498,11 +507,11 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 		}
 
-		return list;
+		return getCaseRequestResponseFromCaseRequest(list);
 	}
 
 	@Override
-	public CaseRequest findById(String caseRequestId) {
+	public CaseRequestResponse findById(String caseRequestId) {
 
 		if (caseRequestId == null) {
 
@@ -512,7 +521,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 		try {
 
-			return caseRequestRepository.findById(caseRequestId).get();
+			return getCaseRequestResponseFromCaseRequest(caseRequestRepository.findById(caseRequestId).get());
 
 		} catch (Exception e) {
 
@@ -523,7 +532,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 	}
 
 	@Override
-	public List<CaseRequest> allCaseRequest() {
+	public List<CaseRequestResponse> allCaseRequest() {
 
 		List<CaseRequest> list = caseRequestRepository.findAll();
 
@@ -533,7 +542,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 		}
 
-		return list;
+		return getCaseRequestResponseFromCaseRequest(list);
 	}
 
 	@Override
@@ -727,7 +736,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 	}
 
 	@Override
-	public List<CaseRequest> findByRequestedAdvocateId(String requestedAdvocateId) {
+	public List<CaseRequestResponse> findByRequestedAdvocateId(String requestedAdvocateId) {
 
 		if (requestedAdvocateId == null) {
 
@@ -745,13 +754,109 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 			}
 
-			return list;
+			return getCaseRequestResponseFromCaseRequest(list);
 
 		} catch (Exception e) {
 
 			throw new NoSuchElementException("No such case request find at here...");
 
 		}
+
+	}
+
+	private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+	private CaseRequestResponse getCaseRequestResponseFromCaseRequest(CaseRequest caseRequest) {
+
+		List<CaseRequest> list = new ArrayList<>();
+
+		list.add(caseRequest);
+
+		return getCaseRequestResponseFromCaseRequest(list).get(0);
+
+	}
+
+	private List<CaseRequestResponse> getCaseRequestResponseFromCaseRequest(List<CaseRequest> requests) {
+
+		List<CaseRequestResponse> responses = new ArrayList<>();
+
+		List<String> allUserId = requests.stream().map(CaseRequest::getUserId).collect(Collectors.toList());
+
+		List<String> allAdvocateId = requests.stream().filter(Objects::nonNull)
+				.filter(caseRequest -> caseRequest.getRequestedAdvocateId() != null)
+				.map(CaseRequest::getRequestedAdvocateId).collect(Collectors.toList());
+
+		List<Advocate> advocates = advocateRepository.findAllById(allAdvocateId);
+
+		for (Advocate advocate : advocates) {
+
+			if (!allUserId.contains(advocate.getUserId())) {
+
+				allUserId.add(advocate.getUserId());
+
+			}
+
+		}
+
+		CompletableFuture<Map<String, String>> advocateFuture = CompletableFuture
+				.supplyAsync(
+						() -> advocates.isEmpty() ? new HashMap<>()
+								: advocates.stream().collect(Collectors.toMap(Advocate::getId,
+										advocate -> advocate.getUserId(), (existing, replacement) -> existing)),
+						executor);
+
+		List<User> users = userRepository.findAllById(allUserId);
+
+		CompletableFuture<Map<String, User>> userFuture = CompletableFuture.supplyAsync(() -> users.isEmpty()
+				? new HashMap<>()
+				: users.stream().collect(
+						Collectors.toMap(User::getId, Function.identity(), (existing, replacement) -> existing)),
+				executor);
+
+		CompletableFuture.allOf(advocateFuture, userFuture).join();
+
+		Map<String, User> userMap = userFuture.join();
+		Map<String, String> advocateMap = advocateFuture.join();
+
+		for (CaseRequest request : requests) {
+
+			try {
+
+				CaseRequestResponse response = new CaseRequestResponse();
+
+				response.setId(request.getId());
+				response.setCaseName(request.getCaseName());
+				response.setCaseType(request.getCaseType());
+				response.setRequestDate(request.getRequestDate());
+
+				if (request.getRequestedAdvocateId() != null) {
+
+					response.setRequestedAdvocateId(request.getRequestedAdvocateId());
+					response.setRequestAdvocateName(
+							userMap.get(advocateMap.get(request.getRequestedAdvocateId())).getName());
+
+				}
+
+				try {
+
+					response.setUserId(request.getUserId());
+					response.setUserName(userMap.get(request.getUserId()).getName());
+
+				} catch (Exception e) {
+
+				}
+
+				response.setAttachmentId(request.getAttachmentId());
+
+				responses.add(response);
+
+			} catch (Exception e) {
+
+			}
+
+		}
+
+		return responses;
 
 	}
 
