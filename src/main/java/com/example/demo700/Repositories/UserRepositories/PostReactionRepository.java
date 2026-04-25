@@ -17,7 +17,7 @@ public interface PostReactionRepository extends MongoRepository<PostReaction, St
 	
 	public List<PostReaction> findByAdvocatePostIdAndPostReaction(String advocatePostId, PostReactions postReaction);
 	
-	public List<PostReaction> findByAdocatePostIdIn(List<String> advocatePostIds);
+	public List<PostReaction> findByAdvocatePostIdIn(List<String> advocatePostIds);
 	
 	public List<PostReaction> findByCommentContainingIgnoreCase(String comment);
 	
