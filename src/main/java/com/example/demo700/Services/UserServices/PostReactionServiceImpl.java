@@ -297,7 +297,7 @@ public class PostReactionServiceImpl implements PostReactionService {
 		
 		try {
 			
-			List<PostReaction> list = postReactionRepository.findByAdocatePostIdIn(advocatePostIds);
+			List<PostReaction> list = postReactionRepository.findByAdvocatePostIdIn(advocatePostIds);
 			
 			if(list.isEmpty()) {
 				
