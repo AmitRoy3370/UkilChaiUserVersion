@@ -25,8 +25,7 @@ import com.example.demo700.Utils.FileHexConverter;
 import com.mongodb.client.gridfs.model.GridFSFile;
 
 import io.jsonwebtoken.io.IOException;
-import tools.jackson.databind.ObjectMapper;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 @RestController
 @RequestMapping("/api/case")
 public class CaseController {

@@ -1,7 +1,7 @@
 package com.example.demo700.Security;
 
 
-import org.springframework.boot.security.autoconfigure.SecurityProperties;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

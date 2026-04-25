@@ -22,7 +22,7 @@ import com.example.demo700.Services.UserServices.ImageService;
 import com.example.demo700.Utils.FileHexConverter;
 import com.mongodb.client.gridfs.model.GridFSFile;
 
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/advocateJoinRequest")
@@ -50,12 +50,30 @@ public class AdvocateJoinRequestController {
 		request.setUserId(userId);
 
 		ObjectMapper mapper = new ObjectMapper();
-		String[] degrees = mapper.readValue(degreesJson, String[].class);
-		String[] workingExperiences = mapper.readValue(workJson, String[].class);
-
-		String _advocateSpeciality[] = mapper.readValue(advocateSpeciality, String[].class);
 
 		try {
+
+			String[] degrees = mapper.readValue(degreesJson, String[].class);
+
+			request.setDegrees(degrees);
+
+		} catch (Exception e) {
+
+		}
+
+		try {
+
+			String[] workingExperiences = mapper.readValue(workJson, String[].class);
+
+			request.setWorkingExperiences(workingExperiences);
+
+		} catch (Exception e) {
+
+		}
+
+		try {
+
+			String _advocateSpeciality[] = mapper.readValue(advocateSpeciality, String[].class);
 
 			Set<AdvocateSpeciality> set = new HashSet<>();
 
@@ -84,8 +102,8 @@ public class AdvocateJoinRequestController {
 		}
 
 		request.setLicenseKey(licenseKey);
-		request.setDegrees(degrees);
-		request.setWorkingExperiences(workingExperiences);
+		// request.setDegrees(degrees);
+		// request.setWorkingExperiences(workingExperiences);
 
 		try {
 
@@ -123,12 +141,30 @@ public class AdvocateJoinRequestController {
 		request.setUserId(userId);
 
 		ObjectMapper mapper = new ObjectMapper();
-		String[] degrees = mapper.readValue(degreesJson, String[].class);
-		String[] workingExperiences = mapper.readValue(workJson, String[].class);
-
-		String[] specialities = mapper.readValue(advocateSpeciality, String[].class);
 
 		try {
+
+			String[] degrees = mapper.readValue(degreesJson, String[].class);
+
+			request.setDegrees(degrees);
+
+		} catch (Exception e) {
+
+		}
+
+		try {
+
+			String[] workingExperiences = mapper.readValue(workJson, String[].class);
+
+			request.setWorkingExperiences(workingExperiences);
+
+		} catch (Exception e) {
+
+		}
+
+		try {
+
+			String[] specialities = mapper.readValue(advocateSpeciality, String[].class);
 
 			Set<AdvocateSpeciality> set = new HashSet<>();
 
@@ -155,8 +191,8 @@ public class AdvocateJoinRequestController {
 		}
 
 		request.setLicenseKey(licenseKey);
-		request.setDegrees(degrees);
-		request.setWorkingExperiences(workingExperiences);
+		// request.setDegrees(degrees);
+		//request.setWorkingExperiences(workingExperiences);
 
 		try {
 

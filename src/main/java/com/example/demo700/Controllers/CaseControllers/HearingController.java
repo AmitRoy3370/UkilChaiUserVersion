@@ -20,8 +20,7 @@ import com.example.demo700.Services.UserServices.ImageService;
 import com.mongodb.client.gridfs.model.GridFSFile;
 
 import io.jsonwebtoken.io.IOException;
-import tools.jackson.databind.ObjectMapper;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 @RestController
 @RequestMapping("/hearing")
 public class HearingController {

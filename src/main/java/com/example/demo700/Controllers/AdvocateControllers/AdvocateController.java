@@ -24,7 +24,7 @@ import com.example.demo700.Services.UserServices.ImageService;
 import com.example.demo700.Utils.FileHexConverter;
 import com.mongodb.client.gridfs.model.GridFSFile;
 
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/advocate")
