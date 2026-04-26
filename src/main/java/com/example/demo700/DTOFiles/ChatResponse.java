@@ -10,7 +10,7 @@ public class ChatResponse {
 	private SenderInfo senderInfo;
 	private ReceiverInfo receiverInfo;
 	private Instant timeStamp;
-	
+
 	// Nested DTO for sender information
 	public static class SenderInfo {
 		private String receiverName;
@@ -53,6 +53,21 @@ public class ChatResponse {
 		public void setMessage(String message) {
 			this.message = message;
 		}
+
+		public boolean isReadChat() {
+			return readChat;
+		}
+
+		public void setReadChat(boolean readChat) {
+			this.readChat = readChat;
+		}
+
+		@Override
+		public String toString() {
+			return "SenderInfo [receiverName=" + receiverName + ", receiverId=" + receiverId + ", message=" + message
+					+ ", readChat=" + readChat + "]";
+		}
+
 	}
 
 	// Nested DTO for receiver information
@@ -98,9 +113,18 @@ public class ChatResponse {
 			this.message = message;
 		}
 
+		public boolean isReadChat() {
+			return readChat;
+		}
+
+		public void setReadChat(boolean readChat) {
+			this.readChat = readChat;
+		}
+
 		@Override
 		public String toString() {
-			return "ReceiverInfo [senderId=" + senderId + ", senderName=" + senderName + ", message=" + message + "]";
+			return "ReceiverInfo [senderId=" + senderId + ", senderName=" + senderName + ", message=" + message
+					+ ", readChat=" + readChat + "]";
 		}
 
 	}
