@@ -471,30 +471,43 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 		List<AdvocateResponse> users = advocateService.seeAllAdvocate();
 
-		CompletableFuture<Map<String, AdvocateResponse>> userFuture = CompletableFuture.supplyAsync(() -> {
-			if (users == null || users.isEmpty()) {
-				return new HashMap<>(); // ✅ HashMap টাইপ ইনফার করতে পারে
-			}
+		CompletableFuture<Map<String, AdvocateResponse>> userFuture =
+		        CompletableFuture.supplyAsync(() -> {
 
-			return users.stream().filter(Objects::nonNull).filter(user -> user.getId() != null).collect(Collectors
-					.toMap(AdvocateResponse::getId, Function.identity(), (existing, replacement) -> existing));
-		}, executor);
+		            Map<String, AdvocateResponse> map = new HashMap<>();
 
-		CompletableFuture<Map<String, List<PostReactionResponse>>> reactionFuture = CompletableFuture
-				.supplyAsync(() -> {
+		            if (users == null || users.isEmpty()) {
+		                return map;
+		            }
 
-					if (reactions.isEmpty()) {
+		            return users.stream()
+		                    .filter(Objects::nonNull)
+		                    .filter(user -> user.getId() != null)
+		                    .collect(Collectors.toMap(
+		                            AdvocateResponse::getId,
+		                            Function.identity(),
+		                            (existing, replacement) -> existing
+		                    ));
 
-						return new HashMap<>();
+		        }, executor);
 
-					}
+		CompletableFuture<Map<String, List<PostReactionResponse>>> reactionFuture =
+		        CompletableFuture.supplyAsync(() -> {
 
-					return reactions.stream().filter(Objects::nonNull)
-							.filter(postReaction -> postReaction.getAdvocatePostId() != null)
-							.collect(Collectors.groupingBy(PostReactionResponse::getAdvocatePostId, HashMap::new,
-									Collectors.toList()));
+		            Map<String, List<PostReactionResponse>> map = new HashMap<>();
 
-				}, executor);
+		            if (reactions == null || reactions.isEmpty()) {
+		                return map;
+		            }
+
+		            return reactions.stream()
+		                    .filter(Objects::nonNull)
+		                    .filter(postReaction -> postReaction.getAdvocatePostId() != null)
+		                    .collect(Collectors.groupingBy(
+		                            PostReactionResponse::getAdvocatePostId
+		                    ));
+
+		        }, executor);
 
 		CompletableFuture.allOf(userFuture, reactionFuture).join();
 

@@ -415,29 +415,51 @@ public class QuestionServiceImpl implements QuestionService {
 
 		List<QuestionResponse> responses = new ArrayList<>();
 
-		CompletableFuture<Map<String, User>> userFuture = CompletableFuture.supplyAsync(
-				() -> userRepository.findAll().isEmpty() ? new HashMap<>()
-						: userRepository.findAll().stream().filter(Objects::nonNull).collect(Collectors
-								.toMap(User::getId, Function.identity(), (existing, replacement) -> existing)),
-				executor);
+		CompletableFuture<Map<String, User>> userFuture =
+		        CompletableFuture.supplyAsync(() -> {
+
+		            List<User> users = userRepository.findAll();
+
+		            if (users == null || users.isEmpty()) {
+
+		                return new HashMap<String, User>();
+
+		            }
+
+		            return users.stream()
+		                    .filter(Objects::nonNull)
+		                    .filter(user -> user.getId() != null)
+		                    .collect(Collectors.toMap(
+		                            User::getId,
+		                            Function.identity(),
+		                            (existing, replacement) -> existing
+		                    ));
+
+		        }, executor);
 
 		List<String> allQuestionId = questions.stream().map(AskQuestion::getId).collect(Collectors.toList());
 
 		List<AnswerResponse> answers = answerQuestionService.findByQuestionIdIn(allQuestionId);
 
-		CompletableFuture<Map<String, List<AnswerResponse>>> answerFuture = CompletableFuture.supplyAsync(() -> {
+		CompletableFuture<Map<String, List<AnswerResponse>>> answerFuture =
+		        CompletableFuture.supplyAsync(() -> {
 
-			if (answers.isEmpty()) {
+		            if (answers == null || answers.isEmpty()) {
 
-				return new HashMap<>();
+		                return new HashMap<String, List<AnswerResponse>>();
 
-			}
+		            }
 
-			return answers.stream().filter(Objects::nonNull)
-					.filter(answerResponse -> answerResponse.getQuestionId() != null)
-					.collect(Collectors.groupingBy(AnswerResponse::getQuestionId, HashMap::new, Collectors.toList()));
+		            return answers.stream()
+		                    .filter(Objects::nonNull)
+		                    .filter(answerResponse -> answerResponse.getQuestionId() != null)
+		                    .collect(Collectors.groupingBy(
+		                            AnswerResponse::getQuestionId,
+		                            HashMap::new,
+		                            Collectors.toList()
+		                    ));
 
-		}, executor);
+		        }, executor);
 
 		CompletableFuture.allOf(userFuture, answerFuture).join();
 
