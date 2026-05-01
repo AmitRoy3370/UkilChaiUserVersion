@@ -64,13 +64,15 @@ public class QuestionController {
 	public ResponseEntity<?> updateQuestion(@RequestPart("questionId") String questionId,
 			@RequestPart("usersId") String usersId, @RequestPart("userId") String userId,
 			@RequestPart("message") String message, @RequestPart("questionType") String questionType,
-			@RequestPart("attachmentId") String attachmentId,
+			@RequestPart(value = "attachmentId", required = false) String attachmentId,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 		try {
 			AskQuestion question = new AskQuestion();
 			question.setUserId(userId);
 			question.setMessage(message);
-			question.setAttachmentId(attachmentId);
+			if (attachmentId != null && !attachmentId.isEmpty()) {
+				question.setAttachmentId(attachmentId);
+			}
 			question.setQuestionType(AdvocateSpeciality.valueOf(questionType));
 
 			AskQuestion updated = questionService.updateQuestion(question, usersId, questionId, file);
