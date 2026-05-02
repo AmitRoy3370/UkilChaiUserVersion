@@ -33,38 +33,80 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 	@Override
 	public UserContactInfo addUserContactInfo(UserContactInfo userContactInfo, String userId) {
 
-		if (userContactInfo == null || userId == null) {
+		if (userContactInfo == null || userId == null || userContactInfo.getUserId() == null) {
 
 			throw new NullPointerException("False request...");
 
 		}
 
-		if (userContactInfo.getEmail() == null || userContactInfo.getPhone() == null) {
+		try {
 
-			throw new NullPointerException("Have to put all the data perfectly at here...");
+			User user = userRepository.findById(userId).get();
+
+			if (user == null) {
+
+				throw new Exception();
+
+			}
+
+			if (!userContactInfo.getUserId().equals(user.getId())) {
+
+				throw new ArithmeticException("Only you can add your contact information, not the others....");
+
+			}
+
+		} catch (ArithmeticException e) {
+
+			throw new NullPointerException(e.getMessage());
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such user find at here...");
 
 		}
 
-		phoneValidator = new PhoneValidator(userContactInfo.getPhone());
-		emailValidator = new EmailValidator();
+		if (userContactInfo.getEmail() == null && userContactInfo.getPhone() == null) {
 
-		if (!phoneValidator.isValid()) {
+			throw new NullPointerException(
+					"Have to put all the data perfectly at here to take registration in contact info section...");
 
-			throw new ArithmeticException("Phone number is not valid...");
+		}
 
-		} else if (!emailValidator.isValidEmail(userContactInfo.getEmail())) {
+		if (userContactInfo.getPhone() != null) {
 
-			throw new ArithmeticException("Email adress is not valid...");
+			phoneValidator = new PhoneValidator(userContactInfo.getPhone());
+
+			if (!phoneValidator.isValid()) {
+
+				throw new ArithmeticException("Phone number is not valid...");
+
+			}
+
+		}
+
+		if (userContactInfo.getEmail() != null) {
+
+			emailValidator = new EmailValidator();
+
+			if (!emailValidator.isValidEmail(userContactInfo.getEmail())) {
+
+				throw new ArithmeticException("Email adress is not valid...");
+
+			}
 
 		}
 
 		try {
 
-			UserContactInfo _userContactInfo = userContactInfoRepository.findByEmail(userContactInfo.getEmail());
+			if (userContactInfo.getEmail() != null) {
 
-			if (_userContactInfo != null) {
+				UserContactInfo _userContactInfo = userContactInfoRepository.findByEmail(userContactInfo.getEmail());
 
-				throw new ArithmeticException();
+				if (_userContactInfo != null) {
+
+					throw new ArithmeticException();
+
+				}
 
 			}
 
@@ -78,11 +120,15 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 
 		try {
 
-			UserContactInfo _userContactInfo = userContactInfoRepository.findByPhone(userContactInfo.getPhone());
+			if (userContactInfo.getPhone() != null) {
 
-			if (_userContactInfo != null) {
+				UserContactInfo _userContactInfo = userContactInfoRepository.findByPhone(userContactInfo.getPhone());
 
-				throw new ArithmeticException();
+				if (_userContactInfo != null) {
+
+					throw new ArithmeticException();
+
+				}
 
 			}
 
@@ -109,21 +155,21 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 			throw new NoSuchElementException("No such exist at here...");
 
 		}
-		
+
 		try {
-			
+
 			UserContactInfo _userContactInfo = userContactInfoRepository.findByUserId(userContactInfo.getUserId());
-			
-			if(_userContactInfo != null) {
-				
+
+			if (_userContactInfo != null) {
+
 				throw new Exception();
-				
+
 			}
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			throw new ArithmeticException("This user is already add in the contact info");
-			
+
 		}
 
 		userContactInfo = userContactInfoRepository.save(userContactInfo);
@@ -175,7 +221,7 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 		}
 
 		System.out.println("searching phone :- " + phone);
-		
+
 		UserContactInfo userContactInfo = userContactInfoRepository.findByPhone(phone);
 
 		if (userContactInfo == null) {
@@ -211,62 +257,103 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 	public UserContactInfo updateUserContactInfo(String userContactInfoId, String userId,
 			UserContactInfo userContactInfo) {
 
-		if (userContactInfo == null || userId == null) {
+		if (userContactInfo == null || userId == null || userContactInfo.getUserId() == null) {
 
 			throw new NullPointerException("False request...");
 
 		}
 
-		if (userContactInfo.getEmail() == null || userContactInfo.getPhone() == null) {
+		try {
+
+			User user = userRepository.findById(userId).get();
+
+			if (user == null) {
+
+				throw new Exception();
+
+			}
+
+			if (!userContactInfo.getUserId().equals(user.getId())) {
+
+				throw new ArithmeticException("Only you can add your contact information, not the others....");
+
+			}
+
+		} catch (ArithmeticException e) {
+
+			throw new NullPointerException(e.getMessage());
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such user find at here...");
+
+		}
+
+		if (userContactInfo.getEmail() == null && userContactInfo.getPhone() == null) {
 
 			throw new NullPointerException("Have to put all the data perfectly at here...");
 
 		}
-		
+
 		try {
-			
+
 			UserContactInfo _userContactInfo = userContactInfoRepository.findById(userContactInfoId).get();
-			
-			if(_userContactInfo == null) {
-				
+
+			if (_userContactInfo == null) {
+
 				throw new Exception();
-				
+
 			}
-			
-			if(!_userContactInfo.getUserId().equals(userId)) {
-				
+
+			if (!_userContactInfo.getUserId().equals(userId)) {
+
 				throw new Exception();
-				
+
 			}
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException("No such user conatct info exiat at here...");
-			
+
 		}
 
-		phoneValidator = new PhoneValidator(userContactInfo.getPhone());
-		emailValidator = new EmailValidator();
+		if (userContactInfo.getPhone() != null) {
 
-		if (!phoneValidator.isValid()) {
+			phoneValidator = new PhoneValidator(userContactInfo.getPhone());
 
-			throw new ArithmeticException("Phone number is not valid...");
+			if (!phoneValidator.isValid()) {
 
-		} else if (!emailValidator.isValidEmail(userContactInfo.getEmail())) {
+				throw new ArithmeticException("Phone number is not valid...");
 
-			throw new ArithmeticException("Email adress is not valid...");
+			}
+
+		}
+
+		if (userContactInfo.getEmail() != null) {
+
+			emailValidator = new EmailValidator();
+
+			if (!emailValidator.isValidEmail(userContactInfo.getEmail())) {
+
+				throw new ArithmeticException("Email adress is not valid...");
+
+			}
 
 		}
 
 		try {
 
-			UserContactInfo _userContactInfo = userContactInfoRepository.findByEmail(userContactInfo.getEmail());
+			if (userContactInfo.getEmail() != null) {
 
-			if (_userContactInfo != null) {
+				UserContactInfo _userContactInfo = userContactInfoRepository.findByEmail(userContactInfo.getEmail());
 
-				if (!_userContactInfo.getUserId().equals(userId)) {
+				if (_userContactInfo != null) {
 
-					throw new ArithmeticException();
+					if (!_userContactInfo.getId().equals(userContactInfoId)) {
+
+						throw new ArithmeticException();
+
+					}
 
 				}
 
@@ -282,13 +369,17 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 
 		try {
 
-			UserContactInfo _userContactInfo = userContactInfoRepository.findByPhone(userContactInfo.getPhone());
+			if (userContactInfo.getPhone() != null) {
 
-			if (_userContactInfo != null) {
+				UserContactInfo _userContactInfo = userContactInfoRepository.findByPhone(userContactInfo.getPhone());
 
-				if (!_userContactInfo.getUserId().equals(userId)) {
+				if (_userContactInfo != null) {
 
-					throw new ArithmeticException();
+					if (!_userContactInfo.getId().equals(userContactInfoId)) {
+
+						throw new ArithmeticException();
+
+					}
 
 				}
 
@@ -319,27 +410,27 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 		}
 
 		try {
-			
+
 			UserContactInfo _userContactInfo = userContactInfoRepository.findByUserId(userId);
-			
-			if(_userContactInfo == null) {
-				
+
+			if (_userContactInfo == null) {
+
 				throw new Exception();
-				
+
 			}
-			
-			if(!_userContactInfo.getId().equals(userContactInfoId)) {
-				
+
+			if (!_userContactInfo.getId().equals(userContactInfoId)) {
+
 				throw new Exception();
-				
+
 			}
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			throw new ArithmeticException("You can only update yourself...");
-			
+
 		}
-		
+
 		userContactInfo.setId(userContactInfoId);
 
 		userContactInfo = userContactInfoRepository.save(userContactInfo);
@@ -350,39 +441,39 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 
 	@Override
 	public boolean deleteUserContactInfo(String userContactInfoId, String userId) {
-		
-		if(userContactInfoId == null || userId == null) {
-			
+
+		if (userContactInfoId == null || userId == null) {
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			UserContactInfo userContactInfo = userContactInfoRepository.findById(userContactInfoId).get();
-			
-			if(userContactInfo == null) {
-				
+
+			if (userContactInfo == null) {
+
 				throw new Exception();
-				
+
 			}
-			
-			if(!userContactInfo.getUserId().equals(userId)) {
-				
+
+			if (!userContactInfo.getUserId().equals(userId)) {
+
 				throw new Exception();
-				
+
 			}
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			throw new ArithmeticException("In valid credintial...");
-			
+
 		}
-		
+
 		long count = userContactInfoRepository.count();
-		
+
 		cleaner.removeUserContactInfo(userContactInfoId);
-		
+
 		return count != userContactInfoRepository.count();
 	}
 

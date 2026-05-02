@@ -14,10 +14,8 @@ public class UserContactInfo {
 	@NonNull
 	private String userId;
 
-	@NonNull
 	private String email;
 
-	@NonNull
 	private String phone;
 
 	public UserContactInfo(String userId, String email, String phone) {
