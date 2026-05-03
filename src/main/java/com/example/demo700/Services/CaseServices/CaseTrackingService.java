@@ -14,6 +14,8 @@ public interface CaseTrackingService {
 	public List<CaseTracking> swapOrder(String caseTrackingId1, String caseTrackingId2);
 	
 	public List<CaseTracking> findAll();
+	
+	public List<CaseTracking> findByVisibility(boolean visibility);
 
 	public List<CaseTracking> findByCaseId(String caseId);
 

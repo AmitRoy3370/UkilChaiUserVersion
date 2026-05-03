@@ -91,6 +91,22 @@ public class CaseTrackingController {
 		}
 	}
 
+	// ================ FIND BY VISIBILITY ===============
+	@GetMapping("/visibility")
+	public ResponseEntity<?> findByVisibility(@RequestParam boolean visibility) {
+
+		try {
+
+			return ResponseEntity.status(200).body(caseTrackingService.findByVisibility(visibility));
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(404).body(e.getMessage());
+
+		}
+
+	}
+
 	// ================= FIND BY CASE ID =================
 	@GetMapping("/case/{caseId}")
 	public ResponseEntity<?> findByCaseId(@PathVariable String caseId) {

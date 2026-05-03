@@ -41,7 +41,7 @@ public class ChatServiceImpl implements ChatService {
 
 	@Autowired
 	private ReadableChatRepository readChatRepository;
-	
+
 	@Autowired
 	private NotificationService notificationService;
 
@@ -95,6 +95,12 @@ public class ChatServiceImpl implements ChatService {
 
 		message.setTimeStamp(Instant.now());
 		ChatMessage saved = chatMessageRepository.save(message);
+
+		if (saved != null) {
+
+			readChatRepository.save(new ReadableChat(saved.getId(), false));
+
+		}
 
 		User user = userRepository.findById(message.getSender()).get();
 
@@ -168,6 +174,7 @@ public class ChatServiceImpl implements ChatService {
 		return count != chatMessageRepository.count();
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public ChatMessage editChatMessage(String sender, String chatId, String newContent) {
 
@@ -196,6 +203,38 @@ public class ChatServiceImpl implements ChatService {
 
 		// Optional: Notify receiver about edit
 		notificationService.sendNotification(message.getReceiver(), "Message edited by " + name);
+
+		try {
+
+			if (updated != null) {
+
+				ReadableChat readChat = null;
+
+				try {
+
+					readChatRepository.findByChatId(updated.getId());
+
+				} catch (Exception e) {
+
+				}
+
+				if (readChat != null) {
+
+					readChat.setRead(false);
+
+					readChatRepository.save(readChat);
+
+				} else {
+
+					readChatRepository.save(new ReadableChat(updated.getId(), false));
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
 
 		return updated;
 	}
@@ -323,12 +362,13 @@ public class ChatServiceImpl implements ChatService {
 
 		List<ChatResponse> responses = new ArrayList<>();
 
+		CompletableFuture<Map<String, Boolean>> readChatFuture = CompletableFuture.supplyAsync(
+				() -> readChatRepository.findByRead(false).stream().collect(Collectors.toMap(ReadableChat::getChatId,
+						readChat -> readChat.isRead(), (existing, replacement) -> existing)),
+				executors);
 
-		CompletableFuture<Map<String, Boolean>> readChatFuture = CompletableFuture.supplyAsync(() -> readChatRepository.findByRead(false).stream().collect(Collectors.toMap(ReadableChat::getChatId, readChat -> readChat.isRead(), (existing, replacement) -> existing)) , executors);
-		
 		Map<String, Boolean> readChat = readChatFuture.join();
-		
-		
+
 		CompletableFuture<Map<String, User>> nameFutures = CompletableFuture
 				.supplyAsync(
 						() -> allUsers
@@ -485,10 +525,13 @@ public class ChatServiceImpl implements ChatService {
 
 		List<User> allUsers = userRepository.findAll();
 
-		CompletableFuture<Map<String, Boolean>> readChatFuture = CompletableFuture.supplyAsync(() -> readChatRepository.findByRead(false).stream().collect(Collectors.toMap(ReadableChat::getChatId, readChat -> readChat.isRead(), (existing, replacement) -> existing)) , executors);
-		
+		CompletableFuture<Map<String, Boolean>> readChatFuture = CompletableFuture.supplyAsync(
+				() -> readChatRepository.findByRead(false).stream().collect(Collectors.toMap(ReadableChat::getChatId,
+						readChat -> readChat.isRead(), (existing, replacement) -> existing)),
+				executors);
+
 		Map<String, Boolean> readChat = readChatFuture.join();
-		
+
 		CompletableFuture<Map<String, User>> nameFutures = CompletableFuture
 				.supplyAsync(
 						() -> allUsers
@@ -504,7 +547,6 @@ public class ChatServiceImpl implements ChatService {
 		CompletableFuture<List<ChatMessage>> receiverMessagesFuture = CompletableFuture
 				.supplyAsync(() -> chatMessageRepository.findByReceiver(userId), executors);
 
-		
 		CompletableFuture<Map<String, ChatMessage>> latestMessageFuture = CompletableFuture.supplyAsync(() -> {
 			List<ChatMessage> messages = chatMessageRepository.findAllConversationsWithLatestMessage(userId);
 			if (messages == null || messages.isEmpty()) {
@@ -592,12 +634,14 @@ public class ChatServiceImpl implements ChatService {
 
 						if (isCurrentUserSender) {
 							response.setSenderInfo(new ChatResponse.SenderInfo(otherUser.getName(), otherUserId,
-									latestMessage.getContent(), readChat.getOrDefault(latestMessage.getId(), readChat.getOrDefault(latestMessage.getId(), true))));
+									latestMessage.getContent(), readChat.getOrDefault(latestMessage.getId(),
+											readChat.getOrDefault(latestMessage.getId(), true))));
 							response.setReceiverInfo(null);
 						} else {
 							response.setSenderInfo(null);
 							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName(),
-									latestMessage.getContent(), readChat.getOrDefault(latestMessage.getId(), readChat.getOrDefault(latestMessage.getId(), true))));
+									latestMessage.getContent(), readChat.getOrDefault(latestMessage.getId(),
+											readChat.getOrDefault(latestMessage.getId(), true))));
 						}
 
 					} catch (Exception e) {

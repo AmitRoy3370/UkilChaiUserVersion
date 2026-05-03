@@ -12,12 +12,15 @@ import com.example.demo700.Model.CaseModels.CaseTracking;
 public interface CaseTrackingRepository extends MongoRepository<CaseTracking, String> {
 
 	public List<CaseTracking> findByCaseId(String caseId);
+
 	public List<CaseTracking> findByCaseStage(CasePayment caseStage);
-	
+
 	public CaseTracking findByCaseIdAndStageNumber(String caseId, int stageNumber);
-	
+
 	public CaseTracking findByCaseIdAndCaseStage(String caseId, CasePayment caseStage);
-	
+
 	public List<CaseTracking> findByCaseIdAndStageNumberGreaterThan(String caseId, int stageNumber);
-	
+
+	public List<CaseTracking> findByVisibility(boolean visibility);
+
 }

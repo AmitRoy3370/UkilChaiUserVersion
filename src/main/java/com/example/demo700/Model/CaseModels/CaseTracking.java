@@ -21,14 +21,17 @@ public class CaseTracking {
 	private CasePayment caseStage;
 
 	private Instant trackingTime;
-	
+
 	private int stageNumber = 1;
 
-	public CaseTracking(String caseId, CasePayment caseStage, Instant trackingTime) {
+	private boolean visibility = false;
+
+	public CaseTracking(String caseId, CasePayment caseStage, Instant trackingTime, boolean visibility) {
 		super();
 		this.caseId = caseId;
 		this.caseStage = caseStage;
 		this.trackingTime = trackingTime;
+		this.visibility = visibility;
 	}
 
 	public CaseTracking() {
@@ -75,10 +78,18 @@ public class CaseTracking {
 		this.trackingTime = trackingTime;
 	}
 
+	public boolean isVisibility() {
+		return visibility;
+	}
+
+	public void setVisibility(boolean visibility) {
+		this.visibility = visibility;
+	}
+
 	@Override
 	public String toString() {
 		return "CaseTracking [id=" + id + ", caseId=" + caseId + ", caseStage=" + caseStage + ", trackingTime="
-				+ trackingTime + ", stageNumber=" + stageNumber + "]";
+				+ trackingTime + ", stageNumber=" + stageNumber + ", visibility=" + visibility + "]";
 	}
 
 }

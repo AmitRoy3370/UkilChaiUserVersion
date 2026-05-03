@@ -375,6 +375,8 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 
 				if (_userContactInfo != null) {
 
+					System.out.println(_userContactInfo.toString());
+					
 					if (!_userContactInfo.getId().equals(userContactInfoId)) {
 
 						throw new ArithmeticException();

@@ -1,6 +1,9 @@
 package com.example.demo700.Model.UserActiveModel;
 
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.mongodb.lang.NonNull;
@@ -15,11 +18,16 @@ public class UserActive {
 	private String userId;
 
 	private boolean active;
+	
+	@SuppressWarnings("removal")
+	@Indexed(expireAfterSeconds = 60)
+	private Date lastActivity;
 
 	public UserActive(String userId, boolean active) {
 		super();
 		this.userId = userId;
 		this.active = active;
+		this.lastActivity = new Date();
 	}
 
 	public UserActive() {

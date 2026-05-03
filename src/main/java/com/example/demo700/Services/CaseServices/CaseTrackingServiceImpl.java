@@ -404,6 +404,29 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	}
 
 	@Override
+	public List<CaseTracking> findByVisibility(boolean visibility) {
+
+		try {
+
+			List<CaseTracking> list = caseTrackingRepository.findByVisibility(visibility);
+
+			if (list.isEmpty()) {
+
+				throw new NoSuchElementException("No such case tracking present at here...");
+
+			}
+
+			return list;
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException(e.getMessage());
+
+		}
+
+	}
+
+	@Override
 	public List<CaseTracking> findByCaseId(String caseId) {
 
 		if (caseId == null) {
