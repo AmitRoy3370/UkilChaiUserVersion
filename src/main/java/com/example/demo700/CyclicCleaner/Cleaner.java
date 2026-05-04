@@ -432,7 +432,7 @@ public class Cleaner {
 
 			if (count != userContactInfoRepository.count()) {
 
-				removeUser(userContactInfo.getUserId());
+				//removeUser(userContactInfo.getUserId());
 
 			}
 
