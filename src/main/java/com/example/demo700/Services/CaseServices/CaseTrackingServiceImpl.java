@@ -155,7 +155,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 		}
 
-                if(caseTracking.getVisibility()) {
+                if(caseTracking.isVisibility()) {
 
 		Case _case = caseRepository.findById(caseTracking.getCaseId()).get();
 
@@ -295,7 +295,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 		}
 
 
-                if(caseTracking.getVisibility()) {
+                if(caseTracking.isVisibility()) {
 
 		Case _case = caseRepository.findById(caseTracking.getCaseId()).get();
 
