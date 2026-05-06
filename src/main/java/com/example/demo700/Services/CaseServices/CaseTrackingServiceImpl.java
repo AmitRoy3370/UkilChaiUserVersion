@@ -155,6 +155,8 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 		}
 
+                if(caseTracking.visibility) {
+
 		Case _case = caseRepository.findById(caseTracking.getCaseId()).get();
 
 		User caseUser = userRepository.findById(_case.getUserId()).get();
@@ -167,6 +169,8 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 		notificationService.sendNotification(caseUser.getId(), message);
 		chatService.saveMessage(new ChatMessage(userId, caseUser.getId(), message));
+
+                }
 
 		return caseTracking;
 
@@ -290,6 +294,9 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 		}
 
+
+                if(caseTracking.visibility) {
+
 		Case _case = caseRepository.findById(caseTracking.getCaseId()).get();
 
 		User caseUser = userRepository.findById(_case.getUserId()).get();
@@ -302,6 +309,8 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 		notificationService.sendNotification(caseUser.getId(), message);
 		chatService.saveMessage(new ChatMessage(userId, caseUser.getId(), message));
+
+                }
 
 		return caseTracking;
 	}
