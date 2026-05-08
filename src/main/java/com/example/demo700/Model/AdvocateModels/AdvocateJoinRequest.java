@@ -27,15 +27,14 @@ public class AdvocateJoinRequest {
 	@NonNull
 	private String licenseKey;
 
-	@JsonIgnore
 	private String cvHexKey;
 
 	private String degrees[];
 
 	private String workingExperiences[];
 
-	public AdvocateJoinRequest(String userId, Set<AdvocateSpeciality> advocateSpeciality, int experience, String licenseKey,
-			String cvHexKey, String[] degrees, String[] workingExperiences) {
+	public AdvocateJoinRequest(String userId, Set<AdvocateSpeciality> advocateSpeciality, int experience,
+			String licenseKey, String cvHexKey, String[] degrees, String[] workingExperiences) {
 		super();
 		this.userId = userId;
 		this.advocateSpeciality = advocateSpeciality;

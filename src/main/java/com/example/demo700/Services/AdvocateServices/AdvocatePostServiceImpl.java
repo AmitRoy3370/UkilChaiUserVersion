@@ -293,6 +293,12 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 			if (file != null && !file.isEmpty()) {
 
+				if(advocatePost.getAttachmentId() != null) {
+					
+					postContentService.delete(advocatePost.getAttachmentId());
+					
+				}
+				
 				String attachmentId = postContentService.upload(file);
 
 				advocatePost.setAttachmentId(attachmentId);
@@ -471,43 +477,33 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 		List<AdvocateResponse> users = advocateService.seeAllAdvocate();
 
-		CompletableFuture<Map<String, AdvocateResponse>> userFuture =
-		        CompletableFuture.supplyAsync(() -> {
+		CompletableFuture<Map<String, AdvocateResponse>> userFuture = CompletableFuture.supplyAsync(() -> {
 
-		            Map<String, AdvocateResponse> map = new HashMap<>();
+			Map<String, AdvocateResponse> map = new HashMap<>();
 
-		            if (users == null || users.isEmpty()) {
-		                return map;
-		            }
+			if (users == null || users.isEmpty()) {
+				return map;
+			}
 
-		            return users.stream()
-		                    .filter(Objects::nonNull)
-		                    .filter(user -> user.getId() != null)
-		                    .collect(Collectors.toMap(
-		                            AdvocateResponse::getId,
-		                            Function.identity(),
-		                            (existing, replacement) -> existing
-		                    ));
+			return users.stream().filter(Objects::nonNull).filter(user -> user.getId() != null).collect(Collectors
+					.toMap(AdvocateResponse::getId, Function.identity(), (existing, replacement) -> existing));
 
-		        }, executor);
+		}, executor);
 
-		CompletableFuture<Map<String, List<PostReactionResponse>>> reactionFuture =
-		        CompletableFuture.supplyAsync(() -> {
+		CompletableFuture<Map<String, List<PostReactionResponse>>> reactionFuture = CompletableFuture
+				.supplyAsync(() -> {
 
-		            Map<String, List<PostReactionResponse>> map = new HashMap<>();
+					Map<String, List<PostReactionResponse>> map = new HashMap<>();
 
-		            if (reactions == null || reactions.isEmpty()) {
-		                return map;
-		            }
+					if (reactions == null || reactions.isEmpty()) {
+						return map;
+					}
 
-		            return reactions.stream()
-		                    .filter(Objects::nonNull)
-		                    .filter(postReaction -> postReaction.getAdvocatePostId() != null)
-		                    .collect(Collectors.groupingBy(
-		                            PostReactionResponse::getAdvocatePostId
-		                    ));
+					return reactions.stream().filter(Objects::nonNull)
+							.filter(postReaction -> postReaction.getAdvocatePostId() != null)
+							.collect(Collectors.groupingBy(PostReactionResponse::getAdvocatePostId));
 
-		        }, executor);
+				}, executor);
 
 		CompletableFuture.allOf(userFuture, reactionFuture).join();
 

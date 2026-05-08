@@ -11,7 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.demo700.CyclicCleaner.Cleaner;
 import com.example.demo700.DTOFiles.JwtResponse;
 import com.example.demo700.DTOFiles.LoginRequest;
+import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.UserModels.User;
+import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 import com.example.demo700.Security.JwtUtil;
 
@@ -20,6 +22,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserRepository userRepository;
+
+	@Autowired
+	private CenterAdminRepository centerAdminRepository;
 
 	@Autowired
 	private JwtUtil jwtUtil;
@@ -187,7 +192,7 @@ public class UserServiceImpl implements UserService {
 			if (file != null && !file.isEmpty()) {
 
 				System.out.println("files find at here....");
-				
+
 				String contentType = file.getContentType();
 
 				if (contentType == null || !contentType.startsWith("image/")) {
@@ -195,21 +200,21 @@ public class UserServiceImpl implements UserService {
 				}
 
 				System.out.println("This is a valid image....");
-				
+
 				// user already has an image → update
 				if (user.getProfileImageId() != null) {
 
 					System.out.println("Updating profile image.....");
-					
+
 					String newImageId = imageService.update(user.getProfileImageId(), file);
 					user.setProfileImageId(newImageId);
 
 				}
 				// user has no image → upload
 				else {
-					
+
 					System.out.println("Uploading profile image....");
-					
+
 					String newImageId = imageService.upload(file);
 					user.setProfileImageId(newImageId);
 				}
@@ -218,7 +223,7 @@ public class UserServiceImpl implements UserService {
 		} catch (Exception e) {
 
 			System.out.println("error message :- " + e.getMessage());
-			
+
 		}
 
 		user.setId(userId);
@@ -236,6 +241,24 @@ public class UserServiceImpl implements UserService {
 		if (userId == null || tryingToDelete == null) {
 
 			throw new NullPointerException("False request...");
+
+		}
+
+		try {
+
+			CenterAdmin centerAdmin = centerAdminRepository.findByUserId(tryingToDelete);
+
+			if (centerAdmin != null) {
+
+				long count = userRepository.count();
+
+				userCleaner.removeUser(userId);
+
+				return count != userRepository.count();
+
+			}
+
+		} catch (Exception e) {
 
 		}
 

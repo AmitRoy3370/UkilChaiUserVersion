@@ -506,6 +506,28 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 			}
 
+			try {
+
+				CenterAdmin centerAdmin = centerAdminRepository.findByUserId(user.getId());
+
+				if (centerAdmin != null) {
+
+					if (centerAdmin.getAdvocates().contains(advocateId)) {
+
+						long count = advocateRepository.count();
+
+						cleaner.removeAdvocate(advocateId);
+
+						return count != advocateRepository.count();
+
+					}
+
+				}
+
+			} catch (Exception e) {
+
+			}
+
 			Advocate advocate = advocateRepository.findById(advocateId).get();
 
 			if (advocate == null) {
@@ -517,24 +539,6 @@ public class AdvocateServiceImpl implements AdvocateService {
 			if (!advocate.getUserId().equals(user.getId())) {
 
 				throw new Exception();
-
-			}
-
-			try {
-
-				CenterAdmin centerAdmin = centerAdminRepository.findByUserId(user.getId());
-
-				if (centerAdmin != null) {
-
-					long count = advocateRepository.count();
-
-					cleaner.removeAdvocate(advocateId);
-
-					return count != advocateRepository.count();
-
-				}
-
-			} catch (Exception e) {
 
 			}
 
