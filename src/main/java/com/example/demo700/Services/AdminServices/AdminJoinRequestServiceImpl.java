@@ -1,13 +1,22 @@
 package com.example.demo700.Services.AdminServices;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.AdminJoinRequestDTO;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.ENums.RequestResponse;
 import com.example.demo700.Model.AdminModels.Admin;
@@ -141,14 +150,14 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 	}
 
 	@Override
-	public List<AdminJoinRequest> seeAll() {
+	public List<AdminJoinRequestDTO> seeAll() {
 
-		return adminJoinRequestRepository.findAll();
+		return getAdminJoinRequestResponse(adminJoinRequestRepository.findAll());
 
 	}
 
 	@Override
-	public AdminJoinRequest findByUserId(String userId) {
+	public AdminJoinRequestDTO findByUserId(String userId) {
 
 		if (userId == null) {
 
@@ -166,7 +175,7 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 
 			}
 
-			return admin;
+			return getAdminJoinRequestResponse(admin);
 
 		} catch (Exception e) {
 
@@ -176,7 +185,7 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 	}
 
 	@Override
-	public List<AdminJoinRequest> findByAdvocateSpecialityContainingIgnoreCase(String advocateSpeciality) {
+	public List<AdminJoinRequestDTO> findByAdvocateSpecialityContainingIgnoreCase(String advocateSpeciality) {
 
 		if (advocateSpeciality == null) {
 
@@ -195,7 +204,7 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 
 			}
 
-			return list;
+			return getAdminJoinRequestResponse(list);
 
 		} catch (Exception e) {
 
@@ -513,6 +522,75 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 			throw new ArithmeticException("False request...");
 
 		}
+
+	}
+
+	private ExecutorService executors = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+	private AdminJoinRequestDTO getAdminJoinRequestResponse(AdminJoinRequest request) {
+
+		List<AdminJoinRequest> list = new ArrayList<>();
+
+		list.add(request);
+
+		return getAdminJoinRequestResponse(list).get(0);
+
+	}
+
+	private List<AdminJoinRequestDTO> getAdminJoinRequestResponse(List<AdminJoinRequest> list) {
+
+		List<AdminJoinRequestDTO> responses = new ArrayList<>();
+
+		CompletableFuture<List<String>> allUserIdFuture = CompletableFuture.supplyAsync(() -> list.stream()
+				.map(AdminJoinRequest::getUserId).distinct().filter(Objects::nonNull).collect(Collectors.toList()),
+				executors);
+
+		CompletableFuture<Map<String, User>> userNameFuture = allUserIdFuture.thenApplyAsync(usersId -> {
+
+			if (usersId.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return userRepository.findAllById(usersId).stream()
+					.collect(Collectors.toMap(User::getId, Function.identity()));
+
+		}, executors);
+
+		CompletableFuture.allOf(allUserIdFuture, userNameFuture).join();
+
+		List<String> allUserId = allUserIdFuture.join();
+
+		Map<String, User> userMap = userNameFuture.join();
+
+		for (AdminJoinRequest adminJoinRequest : list) {
+
+			try {
+
+				AdminJoinRequestDTO response = new AdminJoinRequestDTO();
+
+				response.setId(adminJoinRequest.getId());
+				response.setUserId(adminJoinRequest.getUserId());
+
+				try {
+
+					response.setProfileImageId(userMap.get(adminJoinRequest.getUserId()).getProfileImageId());
+
+				} catch (Exception e) {
+
+				}
+
+				response.setUserName(userMap.get(adminJoinRequest.getUserId()).getName());
+				response.setAdvocateSpeciality(adminJoinRequest.getAdvocateSpeciality());
+
+			} catch (Exception e) {
+
+			}
+
+		}
+
+		return responses;
 
 	}
 

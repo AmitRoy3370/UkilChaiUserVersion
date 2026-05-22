@@ -1,13 +1,25 @@
 package com.example.demo700.Services.AdminServices;
 
 import java.util.ArrayList;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.AdminDTO;
+import com.example.demo700.DTOFiles.AdvocateResponse;
+import com.example.demo700.DTOFiles.CenterAdminDTO;
 import com.example.demo700.Model.AdminModels.Admin;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
@@ -16,6 +28,7 @@ import com.example.demo700.Repositories.AdminRepositories.AdminRepository;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
+import com.example.demo700.Services.AdvocateServices.AdvocateService;
 
 @Service
 public class CenterAdminServiceImpl implements CenterAdminService {
@@ -31,6 +44,12 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 
 	@Autowired
 	private AdvocateRepositories advocateRepository;
+
+	@Autowired
+	private AdminService adminService;
+
+	@Autowired
+	private AdvocateService advocateService;
 
 	@Autowired
 	private Cleaner cleaner;
@@ -166,13 +185,13 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 	}
 
 	@Override
-	public List<CenterAdmin> seeAll() {
+	public List<CenterAdminDTO> seeAll() {
 
-		return centerAdminRepository.findAll();
+		return getCenterAdminResponse(centerAdminRepository.findAll());
 	}
 
 	@Override
-	public CenterAdmin findByUserId(String userId) {
+	public CenterAdminDTO findByUserId(String userId) {
 
 		if (userId == null) {
 
@@ -190,7 +209,7 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 
 			}
 
-			return centerAdmin;
+			return getCenterAdminResponse(centerAdmin);
 
 		} catch (Exception e) {
 
@@ -201,7 +220,7 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 	}
 
 	@Override
-	public CenterAdmin findByAdminsContainingIgnoreCase(String admin) {
+	public CenterAdminDTO findByAdminsContainingIgnoreCase(String admin) {
 
 		if (admin == null) {
 
@@ -219,7 +238,7 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 
 			}
 
-			return centerAdmin;
+			return getCenterAdminResponse(centerAdmin);
 
 		} catch (Exception e) {
 
@@ -230,7 +249,7 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 	}
 
 	@Override
-	public List<CenterAdmin> findByDistrictsContainingIgnoreCase(String districts) {
+	public List<CenterAdminDTO> findByDistrictsContainingIgnoreCase(String districts) {
 
 		if (districts == null) {
 
@@ -246,11 +265,11 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 
 		}
 
-		return list;
+		return getCenterAdminResponse(list);
 	}
 
 	@Override
-	public CenterAdmin findByAdvocatesContainingIgnoreCase(String advocates) {
+	public CenterAdminDTO findByAdvocatesContainingIgnoreCase(String advocates) {
 
 		if (advocates == null) {
 
@@ -266,7 +285,7 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 
 		}
 
-		return centerAdmin;
+		return getCenterAdminResponse(centerAdmin);
 	}
 
 	@Override
@@ -509,6 +528,144 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 		}
 
 		return list;
+	}
+
+	private ExecutorService executors = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+	private CenterAdminDTO getCenterAdminResponse(CenterAdmin centerAdmin) {
+
+		List<CenterAdmin> list = new ArrayList<>();
+
+		list.add(centerAdmin);
+
+		return getCenterAdminResponse(list).get(0);
+
+	}
+
+	private List<CenterAdminDTO> getCenterAdminResponse(List<CenterAdmin> list) {
+
+		List<CenterAdminDTO> responses = new ArrayList<>();
+
+		CompletableFuture<List<String>> allUserIdFuture = CompletableFuture.supplyAsync(() -> list.stream()
+				.map(CenterAdmin::getUserId).distinct().filter(Objects::nonNull).collect(Collectors.toList()),
+				executors);
+
+		CompletableFuture<Map<String, User>> userNameFuture = allUserIdFuture.thenApplyAsync(usersId -> {
+
+			if (usersId.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return userRepository.findAllById(usersId).stream()
+					.collect(Collectors.toMap(User::getId, Function.identity()));
+
+		}, executors);
+
+		CompletableFuture<Map<String, List<String>>> adminFuture = CompletableFuture.supplyAsync(() -> {
+
+			if (list == null || list.isEmpty()) {
+				return new HashMap<String, List<String>>();
+			}
+
+			return list.stream().filter(Objects::nonNull)
+					.filter(admin -> admin.getAdmins() != null && !admin.getAdmins().isEmpty())
+					.collect(Collectors.toMap(CenterAdmin::getId, // Key: admin ID
+							admin -> {
+								try {
+									// Pass List<String> to seeAllAdvocate
+									List<AdminDTO> advocateResponses = adminService.seeAll(admin.getAdmins());
+									return advocateResponses.stream().filter(Objects::nonNull)
+											.map(AdminDTO::getUserName).filter(Objects::nonNull)
+											.collect(Collectors.toList());
+								} catch (Exception e) {
+									return new ArrayList<String>();
+								}
+							}));
+
+		}, executors);
+
+		// If seeAllAdvocate() returns List<AdvocateResponse>
+		CompletableFuture<Map<String, List<String>>> advocateFuture = CompletableFuture.supplyAsync(() -> {
+
+			if (list == null || list.isEmpty()) {
+				return new HashMap<String, List<String>>();
+			}
+
+			return list.stream().filter(Objects::nonNull)
+					.filter(admin -> admin.getAdvocates() != null && !admin.getAdvocates().isEmpty())
+					.collect(Collectors.toMap(CenterAdmin::getId, // Key: admin ID
+							admin -> {
+								try {
+									// Pass List<String> to seeAllAdvocate
+									List<AdvocateResponse> advocateResponses = advocateService
+											.seeAllAdvocate(admin.getAdvocates());
+									return advocateResponses.stream().filter(Objects::nonNull)
+											.map(AdvocateResponse::getName).filter(Objects::nonNull)
+											.collect(Collectors.toList());
+								} catch (Exception e) {
+									return new ArrayList<String>();
+								}
+							}));
+
+		}, executors);
+
+		CompletableFuture.allOf(allUserIdFuture, userNameFuture, adminFuture, advocateFuture).join();
+
+		Map<String, List<String>> adminMap = adminFuture.join();
+		Map<String, List<String>> advocateMap = advocateFuture.join();
+		List<String> allUserId = allUserIdFuture.join();
+		Map<String, User> userMap = userNameFuture.join();
+
+		for (CenterAdmin centerAdmin : list) {
+
+			try {
+
+				CenterAdminDTO response = new CenterAdminDTO();
+
+				response.setId(centerAdmin.getId());
+				response.setUserId(centerAdmin.getUserId());
+				response.setUserName(userMap.get(centerAdmin.getUserId()).getName());
+
+				try {
+
+					response.setProfileImageId(userMap.get(centerAdmin.getUserId()).getProfileImageId());
+
+				} catch (Exception e) {
+
+				}
+
+				response.setAdmins(centerAdmin.getAdmins());
+				response.setAdvocates(centerAdmin.getAdvocates());
+				response.setDistricts(centerAdmin.getDistricts());
+
+				try {
+
+					response.setAdvocatesName(advocateMap.get(centerAdmin.getId()));
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setAdminsName(adminMap.get(centerAdmin.getId()));
+
+				} catch (Exception e) {
+
+				}
+
+				responses.add(response);
+
+			} catch (Exception e) {
+
+			}
+
+		}
+
+		return responses;
+
 	}
 
 }

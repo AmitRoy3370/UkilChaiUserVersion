@@ -1,14 +1,26 @@
 package com.example.demo700.Services.AdminServices;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.AdminDTO;
+import com.example.demo700.DTOFiles.AdminJoinRequestDTO;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdminModels.Admin;
+import com.example.demo700.Model.AdminModels.AdminJoinRequest;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Repositories.AdminRepositories.AdminRepository;
@@ -109,7 +121,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public List<Admin> seeAll() {
+	public List<AdminDTO> seeAll() {
 
 		List<Admin> list = adminRepository.findAll();
 
@@ -119,11 +131,11 @@ public class AdminServiceImpl implements AdminService {
 
 		}
 
-		return list;
+		return getAdminResponse(list);
 	}
 
 	@Override
-	public Admin findByUserId(String userId) {
+	public AdminDTO findByUserId(String userId) {
 
 		if (userId == null) {
 
@@ -141,7 +153,7 @@ public class AdminServiceImpl implements AdminService {
 
 			}
 
-			return admin;
+			return getAdminResponse(admin);
 
 		} catch (Exception e) {
 
@@ -152,7 +164,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public List<Admin> findByAdvocateSpecialityContainingIgnoreCase(String advocateSpeciality) {
+	public List<AdminDTO> findByAdvocateSpecialityContainingIgnoreCase(String advocateSpeciality) {
 
 		if (advocateSpeciality == null) {
 
@@ -170,7 +182,7 @@ public class AdminServiceImpl implements AdminService {
 
 			}
 
-			return list;
+			return getAdminResponse(list);
 
 		} catch (Exception e) {
 
@@ -180,6 +192,15 @@ public class AdminServiceImpl implements AdminService {
 
 	}
 
+	@Override
+	public List<AdminDTO> seeAll(List<String> list) {
+		
+		List<Admin> admins = adminRepository.findAllById(list);
+		
+		return getAdminResponse(admins);
+		
+	}
+	
 	@Override
 	public Admin updateAdmin(Admin admin, String userId, String adminId) {
 
@@ -262,7 +283,7 @@ public class AdminServiceImpl implements AdminService {
 		}
 
 		admin.setId(adminId);
-		
+
 		admin = adminRepository.save(admin);
 
 		return admin;
@@ -322,6 +343,75 @@ public class AdminServiceImpl implements AdminService {
 		cleaner.removeAdmin(adminId);
 
 		return adminRepository.count() != count;
+
+	}
+
+	private ExecutorService executors = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+	private AdminDTO getAdminResponse(Admin admin) {
+
+		List<Admin> list = new ArrayList<>();
+
+		list.add(admin);
+
+		return getAdminResponse(list).get(0);
+
+	}
+
+	private List<AdminDTO> getAdminResponse(List<Admin> list) {
+
+		CompletableFuture<List<String>> allUserIdFuture = CompletableFuture.supplyAsync(() -> list.stream()
+				.map(Admin::getUserId).distinct().filter(Objects::nonNull).collect(Collectors.toList()), executors);
+
+		CompletableFuture<Map<String, User>> userNameFuture = allUserIdFuture.thenApplyAsync(usersId -> {
+
+			if (usersId.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return userRepository.findAllById(usersId).stream()
+					.collect(Collectors.toMap(User::getId, Function.identity()));
+
+		}, executors);
+
+		CompletableFuture.allOf(allUserIdFuture, userNameFuture).join();
+
+		List<String> allUserId = allUserIdFuture.join();
+
+		Map<String, User> userMap = userNameFuture.join();
+
+		List<AdminDTO> responses = new ArrayList<>();
+
+		for (Admin admin : list) {
+
+			try {
+
+				AdminDTO adminDTO = new AdminDTO();
+
+				adminDTO.setId(admin.getId());
+				adminDTO.setUserId(admin.getUserId());
+				adminDTO.setAdvocateSpeciality(admin.getAdvocateSpeciality());
+				adminDTO.setUserName(userMap.get(admin.getUserId()).getName());
+
+				try {
+					
+					adminDTO.setProfileImageId(userMap.get(admin.getUserId()).getProfileImageId());
+					
+				} catch(Exception e) {
+					
+				}
+				
+				responses.add(adminDTO);
+
+			} catch (Exception e) {
+
+			}
+
+		}
+
+		return responses;
 
 	}
 

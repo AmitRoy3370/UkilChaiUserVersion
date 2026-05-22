@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo700.DTOFiles.CenterAdminDTO;
 import com.example.demo700.Model.AdminModels.Admin;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Services.AdminServices.CenterAdminService;
@@ -35,7 +36,7 @@ public class CenterAdminController {
 	@GetMapping("/all")
 	public ResponseEntity<?> getAllCenterAdmins() {
 		try {
-			List<CenterAdmin> list = centerAdminService.seeAll();
+			List<CenterAdminDTO> list = centerAdminService.seeAll();
 			return new ResponseEntity<>(list, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -46,7 +47,7 @@ public class CenterAdminController {
 	@GetMapping("/by-user/{userId}")
 	public ResponseEntity<?> findByUserId(@PathVariable String userId) {
 		try {
-			CenterAdmin centerAdmin = centerAdminService.findByUserId(userId);
+			CenterAdminDTO centerAdmin = centerAdminService.findByUserId(userId);
 			return new ResponseEntity<>(centerAdmin, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -57,7 +58,7 @@ public class CenterAdminController {
 	@GetMapping("/by-admin/{adminId}")
 	public ResponseEntity<?> findByAdmin(@PathVariable String adminId) {
 		try {
-			CenterAdmin centerAdmin = centerAdminService.findByAdminsContainingIgnoreCase(adminId);
+			CenterAdminDTO centerAdmin = centerAdminService.findByAdminsContainingIgnoreCase(adminId);
 			return new ResponseEntity<>(centerAdmin, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -68,7 +69,7 @@ public class CenterAdminController {
 	@GetMapping("/by-district/{district}")
 	public ResponseEntity<?> findByDistrict(@PathVariable String district) {
 		try {
-			List<CenterAdmin> list = centerAdminService.findByDistrictsContainingIgnoreCase(district);
+			List<CenterAdminDTO> list = centerAdminService.findByDistrictsContainingIgnoreCase(district);
 			return new ResponseEntity<>(list, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -79,7 +80,7 @@ public class CenterAdminController {
 	@GetMapping("/by-advocate/{advocateId}")
 	public ResponseEntity<?> findByAdvocate(@PathVariable String advocateId) {
 		try {
-			CenterAdmin centerAdmin = centerAdminService.findByAdvocatesContainingIgnoreCase(advocateId);
+			CenterAdminDTO centerAdmin = centerAdminService.findByAdvocatesContainingIgnoreCase(advocateId);
 			return new ResponseEntity<>(centerAdmin, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

@@ -13,6 +13,7 @@ public interface AdvocateService {
 	public Advocate addVocate(Advocate advocate, String userId, MultipartFile file);
 	public AdvocateResponse findById(String advocateId);
 	public List<AdvocateResponse> seeAllAdvocate();
+	public List<AdvocateResponse> seeAllAdvocate(List<String> list);
 	public AdvocateResponse findByUserId(String userId);
 	public List<AdvocateResponse> findByAdvocateSpeciality(AdvocateSpeciality AdvocateSpeciality);
 	public AdvocateResponse findByLicenseKey(String licenseKey);

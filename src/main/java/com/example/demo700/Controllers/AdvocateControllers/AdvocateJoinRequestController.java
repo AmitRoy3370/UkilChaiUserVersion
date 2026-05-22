@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo700.DTOFiles.AdvocateJoinRequestDTO;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
@@ -259,7 +260,7 @@ public class AdvocateJoinRequestController {
 
 		try {
 
-			List<AdvocateJoinRequest> list = advocateJoinRequestService.seeAllAdvocate();
+			List<AdvocateJoinRequestDTO> list = advocateJoinRequestService.seeAllAdvocate();
 
 			if (list.isEmpty()) {
 
@@ -284,7 +285,7 @@ public class AdvocateJoinRequestController {
 
 		try {
 
-			AdvocateJoinRequest user = advocateJoinRequestService.findByUserId(userId);
+			AdvocateJoinRequestDTO user = advocateJoinRequestService.findByUserId(userId);
 
 			if (user == null) {
 
@@ -379,7 +380,7 @@ public class AdvocateJoinRequestController {
 
 		try {
 
-			List<AdvocateJoinRequest> list = advocateJoinRequestService
+			List<AdvocateJoinRequestDTO> list = advocateJoinRequestService
 					.findByWorkingExperiencesContainingIgnoreCase(experience);
 
 			return ResponseEntity.ok(list);
@@ -398,7 +399,7 @@ public class AdvocateJoinRequestController {
 
 		try {
 
-			AdvocateJoinRequest advocate = advocateJoinRequestService.findByUserId(advocateId);
+			AdvocateJoinRequestDTO advocate = advocateJoinRequestService.findByUserId(advocateId);
 
 			if (advocate.getCvHexKey() == null)
 				return ResponseEntity.badRequest().body("No CV uploaded");

@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo700.DTOFiles.AdminJoinRequestDTO;
 import com.example.demo700.Model.AdminModels.Admin;
 import com.example.demo700.Model.AdminModels.AdminJoinRequest;
 import com.example.demo700.Services.AdminServices.AdminJoinRequestService;
@@ -44,7 +45,7 @@ public class AdminJoinRequestController {
 	@GetMapping("/findByUser/{userId}")
 	public ResponseEntity<?> findByUserId(@PathVariable String userId) {
 		try {
-			AdminJoinRequest admin = adminJoinRequestService.findByUserId(userId);
+			AdminJoinRequestDTO admin = adminJoinRequestService.findByUserId(userId);
 			return ResponseEntity.ok(admin);
 
 		} catch (Exception e) {
@@ -56,7 +57,7 @@ public class AdminJoinRequestController {
 	@GetMapping("/search/{speciality}")
 	public ResponseEntity<?> searchBySpeciality(@PathVariable String speciality) {
 		try {
-			List<AdminJoinRequest> list = adminJoinRequestService
+			List<AdminJoinRequestDTO> list = adminJoinRequestService
 					.findByAdvocateSpecialityContainingIgnoreCase(speciality);
 			return ResponseEntity.ok(list);
 

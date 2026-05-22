@@ -150,7 +150,17 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 		return getAdvocateResponseFromAdvocateList(advocateRepository.findAll());
 	}
+	
+	@Override
+	public List<AdvocateResponse> seeAllAdvocate(List<String> list) {
+	
+		List<Advocate> advocates = advocateRepository.findAllById(list);
+		
+		return getAdvocateResponseFromAdvocateList(advocates);
+		
+	}
 
+	
 	@Override
 	public AdvocateResponse findByUserId(String userId) {
 

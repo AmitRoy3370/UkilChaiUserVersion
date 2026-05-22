@@ -1,16 +1,25 @@
 package com.example.demo700.Services.AdvocateServices;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.AdvocateJoinRequestDTO;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdminModels.Admin;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
@@ -32,9 +41,6 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 	@Autowired
 	private AdvocateRepositories advocateRepository;
-
-	@Autowired
-	private AdvocateService advocateService;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -184,7 +190,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
-	public List<AdvocateJoinRequest> seeAllAdvocate() {
+	public List<AdvocateJoinRequestDTO> seeAllAdvocate() {
 
 		List<AdvocateJoinRequest> list = advocateJoinRequestRepository.findAll();
 
@@ -194,11 +200,11 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 		}
 
-		return list;
+		return getAdvocateJoinRequestResponse(list);
 	}
 
 	@Override
-	public AdvocateJoinRequest findByUserId(String userId) {
+	public AdvocateJoinRequestDTO findByUserId(String userId) {
 
 		if (userId == null) {
 
@@ -216,7 +222,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 			}
 
-			return advocate;
+			return getAdvocateJoinRequestResponse(advocate);
 
 		} catch (Exception e) {
 
@@ -227,7 +233,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
-	public List<AdvocateJoinRequest> findByAdvocateSpeciality(String advocateSpeciality) {
+	public List<AdvocateJoinRequestDTO> findByAdvocateSpeciality(String advocateSpeciality) {
 
 		if (advocateSpeciality == null) {
 
@@ -268,7 +274,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 			}
 
-			return list;
+			return getAdvocateJoinRequestResponse(list);
 
 		} catch (Exception e) {
 
@@ -279,7 +285,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
-	public AdvocateJoinRequest findByLicenseKey(String licenseKey) {
+	public AdvocateJoinRequestDTO findByLicenseKey(String licenseKey) {
 
 		if (licenseKey == null) {
 
@@ -297,7 +303,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 			}
 
-			return advocate;
+			return getAdvocateJoinRequestResponse(advocate);
 
 		} catch (Exception e) {
 
@@ -308,7 +314,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
-	public List<AdvocateJoinRequest> findByExperienceGreaterThan(int experience) {
+	public List<AdvocateJoinRequestDTO> findByExperienceGreaterThan(int experience) {
 
 		try {
 
@@ -320,7 +326,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 			}
 
-			return list;
+			return getAdvocateJoinRequestResponse(list);
 
 		} catch (Exception e) {
 
@@ -331,7 +337,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
-	public List<AdvocateJoinRequest> findByDegreesContainingIgnoreCase(String degree) {
+	public List<AdvocateJoinRequestDTO> findByDegreesContainingIgnoreCase(String degree) {
 
 		if (degree == null) {
 
@@ -347,11 +353,11 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 		}
 
-		return list;
+		return getAdvocateJoinRequestResponse(list);
 	}
 
 	@Override
-	public List<AdvocateJoinRequest> findByWorkingExperiencesContainingIgnoreCase(String experience) {
+	public List<AdvocateJoinRequestDTO> findByWorkingExperiencesContainingIgnoreCase(String experience) {
 		if (experience == null) {
 
 			throw new NullPointerException("False request...");
@@ -367,7 +373,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 		}
 
-		return list;
+		return getAdvocateJoinRequestResponse(list);
 	}
 
 	@Override
@@ -760,6 +766,80 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 			throw new ArithmeticException(e.getMessage());
 
 		}
+
+	}
+
+	private ExecutorService executors = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+	private AdvocateJoinRequestDTO getAdvocateJoinRequestResponse(AdvocateJoinRequest advocateJoinRequest) {
+
+		List<AdvocateJoinRequest> list = new ArrayList<>();
+
+		list.add(advocateJoinRequest);
+
+		return getAdvocateJoinRequestResponse(list).get(0);
+
+	}
+
+	private List<AdvocateJoinRequestDTO> getAdvocateJoinRequestResponse(List<AdvocateJoinRequest> list) {
+
+		CompletableFuture<List<String>> allUserIdFuture = CompletableFuture.supplyAsync(() -> list.stream()
+				.map(AdvocateJoinRequest::getUserId).distinct().filter(Objects::nonNull).collect(Collectors.toList()),
+				executors);
+
+		CompletableFuture<Map<String, User>> userNameFuture = allUserIdFuture.thenApplyAsync(usersId -> {
+
+			if (usersId.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return userRepository.findAllById(usersId).stream()
+					.collect(Collectors.toMap(User::getId, Function.identity()));
+
+		}, executors);
+
+		CompletableFuture.allOf(allUserIdFuture, userNameFuture).join();
+
+		List<String> allUserId = allUserIdFuture.join();
+
+		Map<String, User> userMap = userNameFuture.join();
+
+		List<AdvocateJoinRequestDTO> responses = new ArrayList<>();
+
+		for (AdvocateJoinRequest request : list) {
+
+			try {
+
+				AdvocateJoinRequestDTO response = new AdvocateJoinRequestDTO();
+
+				response.setId(request.getId());
+				response.setAdvocateSpeciality(request.getAdvocateSpeciality());
+				response.setCvHexKey(request.getCvHexKey());
+				response.setDegrees(request.getDegrees());
+				response.setExperience(request.getExperience());
+				response.setUserId(request.getUserId());
+				response.setUserName(userMap.get(request.getUserId()).getName());
+
+				try {
+
+					response.setProfileImageId(userMap.get(request.getUserId()).getProfileImageId());
+
+				} catch (Exception e) {
+
+				}
+
+				response.setLicenseKey(request.getLicenseKey());
+				response.setWorkingExperiences(request.getWorkingExperiences());
+
+			} catch (Exception e) {
+
+			}
+
+		}
+
+		return responses;
 
 	}
 
