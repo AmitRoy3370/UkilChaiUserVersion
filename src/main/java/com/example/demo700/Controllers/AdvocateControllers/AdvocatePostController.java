@@ -181,8 +181,8 @@ public class AdvocatePostController {
 	// -------------------------------------------------
 	@PutMapping(value = "/update/{postId}/{userId}", consumes = "multipart/form-data")
 	public ResponseEntity<?> updatePost(@PathVariable String postId, @PathVariable String userId,
-			@RequestPart("advocateId") String advocateId, @RequestPart("postContent") String postContent,
-			@RequestPart("postType") String postType, @RequestPart("attachmentId") String attachmentId,
+			@RequestPart("advocateId") String advocateId, @RequestPart(value="postContent", required = false) String postContent,
+			@RequestPart("postType") String postType, @RequestPart(value="attachmentId", required=false) String attachmentId,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 
 		try {
