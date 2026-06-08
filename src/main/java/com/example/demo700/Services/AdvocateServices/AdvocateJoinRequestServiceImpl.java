@@ -574,34 +574,33 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 	@Override
 	public List<AdvocateJoinRequestDTO> findByDistrict(String district) {
-		
-		if(district == null) {
-			
+
+		if (district == null) {
+
 			throw new NullPointerException("False request....");
-			
+
 		}
-		
+
 		try {
-			
+
 			List<AdvocateJoinRequest> list = advocateJoinRequestRepository.findByDistrictContainingIgnoreCase(district);
-			
-			if(list.isEmpty()) {
-				
+
+			if (list.isEmpty()) {
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return getAdvocateJoinRequestResponse(list);
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException("No such advocate request find at here...");
-			
+
 		}
-		
+
 	}
-	
-	
+
 	@Override
 	public boolean deleteAdvocate(String userId, String advocateId) {
 
@@ -875,7 +874,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 		Map<String, UserContactInfo> contactMap = contactInfoFuture.join();
 
 		Map<String, UserLocation> locationMap = locationFuture.join();
-		
+
 		List<AdvocateJoinRequestDTO> responses = new ArrayList<>();
 
 		for (AdvocateJoinRequest request : list) {
@@ -885,14 +884,63 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 				AdvocateJoinRequestDTO response = new AdvocateJoinRequestDTO();
 
 				response.setId(request.getId());
-				response.setAdvocateSpeciality(request.getAdvocateSpeciality());
-				response.setCvHexKey(request.getCvHexKey());
-				response.setDegrees(request.getDegrees());
-				response.setExperience(request.getExperience());
-				response.setUserId(request.getUserId());
-				response.setDistrict(request.getDistrict());
-				//response.setProfileImageId(userMap.get(request.getUserId()).getProfileImageId());
-				response.setUserName(userMap.get(request.getUserId()).getName());
+
+				try {
+
+					response.setAdvocateSpeciality(request.getAdvocateSpeciality());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setCvHexKey(request.getCvHexKey());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setDegrees(request.getDegrees());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setExperience(request.getExperience());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setUserId(request.getUserId());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setDistrict(request.getDistrict());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					// response.setProfileImageId(userMap.get(request.getUserId()).getProfileImageId());
+					response.setUserName(userMap.get(request.getUserId()).getName());
+
+				} catch (Exception e) {
+
+				}
 
 				try {
 
@@ -913,7 +961,15 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 					}
 
 					response.setUserContactInfoId(contactInfo.getId());
-					response.setEmail(contactInfo.getEmail());
+
+					try {
+
+						response.setEmail(contactInfo.getEmail());
+
+					} catch (Exception e) {
+
+					}
+
 					response.setPhone(contactInfo.getPhone());
 
 				} catch (Exception e) {
@@ -921,28 +977,53 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 				}
 
 				try {
-					
+
 					UserLocation location = locationMap.get(request.getUserId());
-					
-					if(location == null) {
-						
+
+					if (location == null) {
+
 						throw new Exception();
-						
+
 					}
-					
+
 					response.setUserLocationId(location.getId());
-					response.setLocationName(location.getLocationName());
+
+					try {
+
+						response.setLocationName(location.getLocationName());
+
+					} catch (Exception e) {
+
+					}
+
 					response.setLattitude(location.getLattitude());
 					response.setLogitude(location.getLongitude());
-					
-				} catch(Exception e) {
-					
+
+				} catch (Exception e) {
+
 				}
-				
-				response.setLicenseKey(request.getLicenseKey());
-				response.setWorkingExperiences(request.getWorkingExperiences());
+
+				try {
+
+					response.setLicenseKey(request.getLicenseKey());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setWorkingExperiences(request.getWorkingExperiences());
+
+				} catch (Exception e) {
+
+				}
+
+				responses.add(response);
 
 			} catch (Exception e) {
+
+				System.out.println(e);
 
 			}
 
