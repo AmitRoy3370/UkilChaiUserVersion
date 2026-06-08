@@ -5,6 +5,7 @@ import java.util.Date;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import com.mongodb.lang.NonNull;
 
@@ -18,9 +19,8 @@ public class UserActive {
 	private String userId;
 
 	private boolean active;
-	
-	@SuppressWarnings("removal")
-	@Indexed(expireAfterSeconds = 60)
+
+	@Field("lastActivity")
 	private Date lastActivity;
 
 	public UserActive(String userId, boolean active) {
@@ -58,9 +58,18 @@ public class UserActive {
 		this.active = active;
 	}
 
+	public Date getLastActivity() {
+		return lastActivity;
+	}
+
+	public void setLastActivity(Date lastActivity) {
+		this.lastActivity = lastActivity;
+	}
+
 	@Override
 	public String toString() {
-		return "UserActive [id=" + id + ", userId=" + userId + ", active=" + active + "]";
+		return "UserActive [id=" + id + ", userId=" + userId + ", active=" + active + ", lastActivity=" + lastActivity
+				+ "]";
 	}
 
 }

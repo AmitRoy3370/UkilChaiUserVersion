@@ -1,5 +1,6 @@
 package com.example.demo700.Controllers.UserActiveControllers;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo700.Model.UserActiveModel.UserActive;
+import com.example.demo700.Repositories.UserActiveRepositories.UserActiveRepository;
 import com.example.demo700.Services.UserActiveServices.UserActiveService;
 
 @RestController
@@ -16,6 +18,9 @@ public class UserActiveController {
 
     @Autowired
     private UserActiveService userActiveService;
+    
+    @Autowired
+    private UserActiveRepository userActiveRepository;
 
     // ================= ADD =================
     @PostMapping("/add")
@@ -46,6 +51,34 @@ public class UserActiveController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    
+    @PutMapping("/heartbeat/{userId}")
+	public ResponseEntity<?> heartbeat(@PathVariable String userId) {
+
+		try {
+
+			UserActive user = userActiveRepository.findByUserId(userId);
+
+			if (user == null) {
+
+				throw new Exception("No such user find at here....");
+
+			}
+
+			user.setLastActivity(new Date());
+
+			userActiveService.updateUserActive(user, userId, user.getId());
+
+			return ResponseEntity.ok().build();
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(400).body(e.toString());
+
+		}
+
+	}
+
 
     // ================= FIND BY ID =================
     @GetMapping("/{id}")
@@ -98,6 +131,49 @@ public class UserActiveController {
         }
     }
 
+    // ================= FIND EXPIRED RECORDS =================
+    @GetMapping("/expired")
+    public ResponseEntity<?> findExpiredRecords(@RequestParam Date expiryTime) {
+        try {
+            List<UserActive> expiredRecords = 
+                    userActiveService.findExpiredRecords(expiryTime);
+            return ResponseEntity.ok(expiredRecords);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        }
+    }
+
+    // ================= COUNT ACTIVE USERS SINCE =================
+    @GetMapping("/count-active")
+    public ResponseEntity<?> countActiveUsers(@RequestParam Date since) {
+        try {
+            long count = userActiveService.countActiveUsers(since);
+            return ResponseEntity.ok(count);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
+
+    // ================= UPDATE LAST ACTIVITY =================
+    @PutMapping("/last-activity/{userId}")
+    public ResponseEntity<?> updateLastActivity(
+            @PathVariable String userId,
+            @RequestParam Date lastActivity) {
+        try {
+            userActiveService.updateLastActivity(userId, lastActivity);
+            return ResponseEntity.ok().build();
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
+
+    
     // ================= DELETE =================
     @DeleteMapping("/{id}/{userId}")
     public ResponseEntity<?> deleteUserActive(

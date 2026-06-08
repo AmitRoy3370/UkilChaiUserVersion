@@ -26,10 +26,14 @@ import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
 import com.example.demo700.Model.UserModels.User;
+import com.example.demo700.Model.UserModels.UserContactInfo;
+import com.example.demo700.Model.UserModels.UserLocation;
 import com.example.demo700.Repositories.AdminRepositories.AdminRepository;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateJoinRequestRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
+import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
+import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 import com.example.demo700.Services.NotificationServices.NotificationService;
 
@@ -44,6 +48,12 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private UserContactInfoRepository userContactInfoRepository;
+
+	@Autowired
+	private UserLocationRepository userLocationRepository;
 
 	@Autowired
 	private CVUploadService cvUpload;
@@ -563,6 +573,36 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
+	public List<AdvocateJoinRequestDTO> findByDistrict(String district) {
+		
+		if(district == null) {
+			
+			throw new NullPointerException("False request....");
+			
+		}
+		
+		try {
+			
+			List<AdvocateJoinRequest> list = advocateJoinRequestRepository.findByDistrictContainingIgnoreCase(district);
+			
+			if(list.isEmpty()) {
+				
+				throw new Exception();
+				
+			}
+			
+			return getAdvocateJoinRequestResponse(list);
+			
+		} catch(Exception e) {
+			
+			throw new NoSuchElementException("No such advocate request find at here...");
+			
+		}
+		
+	}
+	
+	
+	@Override
 	public boolean deleteAdvocate(String userId, String advocateId) {
 
 		if (userId == null || advocateId == null) {
@@ -800,12 +840,42 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 		}, executors);
 
-		CompletableFuture.allOf(allUserIdFuture, userNameFuture).join();
+		CompletableFuture<Map<String, UserContactInfo>> contactInfoFuture = allUserIdFuture.thenApplyAsync(usersId -> {
+
+			if (usersId.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return userContactInfoRepository.findByUserIdIn(usersId).stream()
+					.collect(Collectors.toMap(UserContactInfo::getUserId, Function.identity()));
+
+		}, executors);
+
+		CompletableFuture<Map<String, UserLocation>> locationFuture = allUserIdFuture.thenApplyAsync(usersId -> {
+
+			if (usersId.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return userLocationRepository.findByUserIdIn(usersId).stream()
+					.collect(Collectors.toMap(UserLocation::getUserId, Function.identity()));
+
+		}, executors);
+
+		CompletableFuture.allOf(allUserIdFuture, userNameFuture, contactInfoFuture, locationFuture).join();
 
 		List<String> allUserId = allUserIdFuture.join();
 
 		Map<String, User> userMap = userNameFuture.join();
 
+		Map<String, UserContactInfo> contactMap = contactInfoFuture.join();
+
+		Map<String, UserLocation> locationMap = locationFuture.join();
+		
 		List<AdvocateJoinRequestDTO> responses = new ArrayList<>();
 
 		for (AdvocateJoinRequest request : list) {
@@ -820,6 +890,8 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 				response.setDegrees(request.getDegrees());
 				response.setExperience(request.getExperience());
 				response.setUserId(request.getUserId());
+				response.setDistrict(request.getDistrict());
+				//response.setProfileImageId(userMap.get(request.getUserId()).getProfileImageId());
 				response.setUserName(userMap.get(request.getUserId()).getName());
 
 				try {
@@ -830,6 +902,43 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 				}
 
+				try {
+
+					UserContactInfo contactInfo = contactMap.get(request.getUserId());
+
+					if (contactInfo == null) {
+
+						throw new Exception();
+
+					}
+
+					response.setUserContactInfoId(contactInfo.getId());
+					response.setEmail(contactInfo.getEmail());
+					response.setPhone(contactInfo.getPhone());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+					
+					UserLocation location = locationMap.get(request.getUserId());
+					
+					if(location == null) {
+						
+						throw new Exception();
+						
+					}
+					
+					response.setUserLocationId(location.getId());
+					response.setLocationName(location.getLocationName());
+					response.setLattitude(location.getLattitude());
+					response.setLogitude(location.getLongitude());
+					
+				} catch(Exception e) {
+					
+				}
+				
 				response.setLicenseKey(request.getLicenseKey());
 				response.setWorkingExperiences(request.getWorkingExperiences());
 

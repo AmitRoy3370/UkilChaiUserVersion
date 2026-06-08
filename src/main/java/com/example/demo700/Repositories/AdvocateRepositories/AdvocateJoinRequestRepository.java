@@ -18,6 +18,8 @@ public interface AdvocateJoinRequestRepository extends MongoRepository<AdvocateJ
 
 	public List<AdvocateJoinRequest> findByExperienceGreaterThan(int experience);
 
+	public List<AdvocateJoinRequest> findByDistrictContainingIgnoreCase(String district);
+	
 	public List<AdvocateJoinRequest> findByDegreesContainingIgnoreCase(String degree);
 
 	public List<AdvocateJoinRequest> findByWorkingExperiencesContainingIgnoreCase(String experience);

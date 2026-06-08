@@ -24,6 +24,7 @@ import com.example.demo700.Model.CaseModels.Hearing;
 import com.example.demo700.Model.CaseModels.ReadStatus;
 import com.example.demo700.Model.ChatModels.ChatMessage;
 import com.example.demo700.Model.ChatModels.ReadableChat;
+import com.example.demo700.Model.LiveLocations.LiveLocationData;
 import com.example.demo700.Model.NotificationModel.Notification;
 import com.example.demo700.Model.PaymentModels.PaymentDetails;
 import com.example.demo700.Model.QNAModels.AnswerQuestion;
@@ -59,6 +60,7 @@ import com.example.demo700.Repositories.PaymentRepositories.PaymentDetailsReposi
 import com.example.demo700.Repositories.QNARepositories.AnswerRepository;
 import com.example.demo700.Repositories.QNARepositories.QuestionRepository;
 import com.example.demo700.Repositories.UserActiveRepositories.UserActiveRepository;
+import com.example.demo700.Repositories.UserLiveLocationRepositories.UserLiveLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.AdvocateRatingRepository;
 import com.example.demo700.Repositories.UserRepositories.ClientFeedbackRepository;
 import com.example.demo700.Repositories.UserRepositories.PostReactionRepository;
@@ -160,6 +162,9 @@ public class Cleaner {
 	@Autowired
 	private CaseTrackingRepository caseTrackingRepository;
 
+	@Autowired
+	private UserLiveLocationRepository userLiveLocationRepository;
+	
 	public void removeUser(String userId) {
 
 		try {
@@ -178,6 +183,20 @@ public class Cleaner {
 
 			if (count != userRepository.count()) {
 
+				try {
+					
+					LiveLocationData data = userLiveLocationRepository.findByUserId(user.getId());
+					
+					if(data != null) {
+						
+						removeUserLiveLocation(data.getId());
+						
+					}
+					
+				} catch(Exception e) {
+					
+				}
+				
 				try {
 
 					UserActive userActive = userActiveRepository.findByUserId(user.getId());
@@ -510,6 +529,20 @@ public class Cleaner {
 
 				if (count != advocateRepository.count()) {
 
+					try {
+						
+						LiveLocationData data = userLiveLocationRepository.findByAdvocateId(advocate.getId());
+						
+						if(data != null) {
+							
+							removeUserLiveLocation(data.getId());
+							
+						}
+						
+					} catch(Exception e) {
+						
+					}
+					
 					try {
 
 						if (!advocate.getCvHexKey().isEmpty()) {
@@ -1601,6 +1634,32 @@ public class Cleaner {
 
 		}
 
+	}
+	
+	public void removeUserLiveLocation(String id) {
+		
+		try {
+			
+			LiveLocationData data = userLiveLocationRepository.findById(id).get();
+			
+			if(data == null) {
+				
+				throw new Exception();
+				
+			}
+			
+			long count = userLiveLocationRepository.count();
+			
+			userLiveLocationRepository.deleteById(id);
+			
+			if(count != userLiveLocationRepository.count()) {
+				
+			}
+			
+		} catch(Exception e) {
+			
+		}
+		
 	}
 
 }

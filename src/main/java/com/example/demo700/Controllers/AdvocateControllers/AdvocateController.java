@@ -172,6 +172,21 @@ public class AdvocateController {
 		}
 	}
 
+	@GetMapping("/find/district/{district}")
+	public ResponseEntity<?> findByDistrict(@PathVariable String district) {
+		
+		try {
+			
+			return ResponseEntity.status(200).body(advocateService.findByDistrict(district));
+			
+		} catch(Exception e) {
+			
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+			
+		}
+		
+	}
+	
 	// --------------------- SEARCH BY EXPERIENCE TEXT ---------------------
 	@GetMapping("/search/experience/{exp}")
 	public ResponseEntity<?> searchByExperience(@PathVariable String exp) {

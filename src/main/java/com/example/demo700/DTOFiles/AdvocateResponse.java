@@ -7,7 +7,7 @@ import com.example.demo700.ENums.AdvocateSpeciality;
 
 public class AdvocateResponse {
 
-	private String id, contactInfoId, locationId;
+	private String id, contactInfoId, locationId, district;
 
 	private String userId, name, profileImageId;
 
@@ -37,6 +37,31 @@ public class AdvocateResponse {
 		this.id = id;
 		this.contactInfoId = contactInfoId;
 		this.locationId = locationId;
+		this.userId = userId;
+		this.name = name;
+		this.profileImageId = profileImageId;
+		this.advocateSpeciality = advocateSpeciality;
+		this.experience = experience;
+		this.licenseKey = licenseKey;
+		this.cvHexKey = cvHexKey;
+		this.degrees = degrees;
+		this.workingExperiences = workingExperiences;
+		this.email = email;
+		this.phone = phone;
+		this.locationName = locationName;
+		this.lattitude = lattitude;
+		this.longitude = longitude;
+	}
+
+	public AdvocateResponse(String id, String contactInfoId, String locationId, String district, String userId,
+			String name, String profileImageId, Set<AdvocateSpeciality> advocateSpeciality, int experience,
+			String licenseKey, String cvHexKey, String[] degrees, String[] workingExperiences, String email,
+			String phone, String locationName, double lattitude, double longitude) {
+		super();
+		this.id = id;
+		this.contactInfoId = contactInfoId;
+		this.locationId = locationId;
+		this.district = district;
 		this.userId = userId;
 		this.name = name;
 		this.profileImageId = profileImageId;
@@ -193,12 +218,20 @@ public class AdvocateResponse {
 		this.longitude = longitude;
 	}
 
+	public String getDistrict() {
+		return district;
+	}
+
+	public void setDistrict(String district) {
+		this.district = district;
+	}
+
 	@Override
 	public String toString() {
 		return "AdvocateResponse [id=" + id + ", contactInfoId=" + contactInfoId + ", locationId=" + locationId
-				+ ", userId=" + userId + ", name=" + name + ", profileImageId=" + profileImageId
-				+ ", advocateSpeciality=" + advocateSpeciality + ", experience=" + experience + ", licenseKey="
-				+ licenseKey + ", cvHexKey=" + cvHexKey + ", degrees=" + Arrays.toString(degrees)
+				+ ", district=" + district + ", userId=" + userId + ", name=" + name + ", profileImageId="
+				+ profileImageId + ", advocateSpeciality=" + advocateSpeciality + ", experience=" + experience
+				+ ", licenseKey=" + licenseKey + ", cvHexKey=" + cvHexKey + ", degrees=" + Arrays.toString(degrees)
 				+ ", workingExperiences=" + Arrays.toString(workingExperiences) + ", email=" + email + ", phone="
 				+ phone + ", locationName=" + locationName + ", lattitude=" + lattitude + ", longitude=" + longitude
 				+ "]";

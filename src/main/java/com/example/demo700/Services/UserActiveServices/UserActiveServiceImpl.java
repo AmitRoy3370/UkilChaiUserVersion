@@ -1,5 +1,6 @@
 package com.example.demo700.Services.UserActiveServices;
 
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -219,6 +220,86 @@ public class UserActiveServiceImpl implements UserActiveService {
 		} catch (Exception e) {
 
 			throw new NoSuchElementException("No such user activeness find at here....");
+
+		}
+
+	}
+
+	public List<UserActive> findExpiredRecords(Date expiryTime) {
+
+		if (expiryTime == null) {
+
+			throw new NullPointerException("False request...");
+
+		}
+
+		try {
+
+			List<UserActive> list = userActiveRepository.findExpiredRecords(expiryTime);
+
+			if (list.isEmpty()) {
+
+				throw new Exception("No such active user find at here...");
+
+			}
+
+			return list;
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException(e.toString());
+
+		}
+
+	}
+
+	public long countActiveUsers(Date since) {
+
+		if (since == null) {
+
+			throw new NullPointerException("False request...");
+
+		}
+
+		try {
+
+			long count = userActiveRepository.countActiveUsers(since);
+
+			return count;
+
+		} catch (Exception e) {
+
+			throw new ArithmeticException(e.toString());
+
+		}
+
+	}
+
+	public void updateLastActivity(String userId, Date lastActivity) {
+
+		if (userId == null || lastActivity == null) {
+
+			throw new NullPointerException("False request...");
+
+		}
+
+		try {
+
+			UserActive user = userActiveRepository.findByUserId(userId);
+
+			if (user == null) {
+
+				throw new Exception("No such active user find at here...");
+
+			}
+
+			user.setLastActivity(lastActivity);
+
+			userActiveRepository.save(user);
+
+		} catch (Exception e) {
+
+			throw new ArithmeticException(e.toString());
 
 		}
 

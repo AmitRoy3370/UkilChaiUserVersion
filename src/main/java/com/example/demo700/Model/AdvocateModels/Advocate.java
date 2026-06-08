@@ -26,6 +26,8 @@ public class Advocate {
 	@NonNull
 	private String licenseKey;
 
+	private String district;
+	
 	@JsonIgnore
 	private String cvHexKey;
 
@@ -34,7 +36,7 @@ public class Advocate {
 	private String workingExperiences[];
 
 	public Advocate(String userId, Set<AdvocateSpeciality> advocateSpeciality, int experience, String licenseKey, String cvHexKey,
-			String[] degrees, String[] workingExperiences) {
+			String[] degrees, String[] workingExperiences, String district) {
 		super();
 		this.userId = userId;
 		this.advocateSpeciality = advocateSpeciality;
@@ -43,6 +45,7 @@ public class Advocate {
 		this.cvHexKey = cvHexKey;
 		this.degrees = degrees;
 		this.workingExperiences = workingExperiences;
+		this.district = district;
 	}
 
 	public Advocate() {
@@ -113,11 +116,20 @@ public class Advocate {
 		this.workingExperiences = workingExperiences;
 	}
 
+	public String getDistrict() {
+		return district;
+	}
+
+	public void setDistrict(String district) {
+		this.district = district;
+	}
+
 	@Override
 	public String toString() {
-		return "Advocate [id=" + id + ", userId=" + userId + ", AdvocateSpeciality=" + advocateSpeciality
-				+ ", experience=" + experience + ", licenseKey=" + licenseKey + ", cvHexKey=" + cvHexKey + ", degrees="
-				+ Arrays.toString(degrees) + ", workingExperiences=" + Arrays.toString(workingExperiences) + "]";
+		return "Advocate [id=" + id + ", userId=" + userId + ", advocateSpeciality=" + advocateSpeciality
+				+ ", experience=" + experience + ", licenseKey=" + licenseKey + ", district=" + district + ", cvHexKey="
+				+ cvHexKey + ", degrees=" + Arrays.toString(degrees) + ", workingExperiences="
+				+ Arrays.toString(workingExperiences) + "]";
 	}
 
 }

@@ -26,6 +26,8 @@ public interface AdvocateJoinRequestService {
 
 	public List<AdvocateJoinRequestDTO> findByWorkingExperiencesContainingIgnoreCase(String experience);
 
+	public List<AdvocateJoinRequestDTO> findByDistrict(String district);
+	
 	public AdvocateJoinRequest updateAdvocate(AdvocateJoinRequest advocate, String userId, String advocateId, MultipartFile file);
 
 	public Advocate handleJoinRequest(String userId, String advocateJoinRequestId);

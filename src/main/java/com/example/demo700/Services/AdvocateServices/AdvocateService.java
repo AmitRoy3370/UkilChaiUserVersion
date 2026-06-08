@@ -17,6 +17,7 @@ public interface AdvocateService {
 	public AdvocateResponse findByUserId(String userId);
 	public List<AdvocateResponse> findByAdvocateSpeciality(AdvocateSpeciality AdvocateSpeciality);
 	public AdvocateResponse findByLicenseKey(String licenseKey);
+	public List<AdvocateResponse> findByDistrict(String district);
 	public List<AdvocateResponse> findByExperienceGreaterThan(int experience);
 	public List<AdvocateResponse> findByDegreesContainingIgnoreCase(String degree);
 	public List<AdvocateResponse> findByWorkingExperiencesContainingIgnoreCase(String experience);

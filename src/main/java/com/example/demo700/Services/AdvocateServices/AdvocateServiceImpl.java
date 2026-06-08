@@ -270,6 +270,35 @@ public class AdvocateServiceImpl implements AdvocateService {
 		}
 
 	}
+	
+	@Override
+	public List<AdvocateResponse> findByDistrict(String district) {
+		
+		if(district == null) {
+			
+			throw new NullPointerException("False request...");
+			
+		}
+		
+		try {
+			
+			List<Advocate> list = advocateRepository.findByDistrictContainingIgnoreCase(district);
+			
+			if(list.isEmpty()) {
+				
+				throw new Exception("No such advocate find at here...");
+				
+			}
+			
+			return getAdvocateResponseFromAdvocateList(list);
+			
+		} catch(Exception e) {
+			
+			throw new NoSuchElementException(e.toString());
+			
+		}
+		
+	}
 
 	@Override
 	public List<AdvocateResponse> findByDegreesContainingIgnoreCase(String degree) {
@@ -686,6 +715,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 				response.setCvHexKey(advocate.getCvHexKey());
 				response.setLicenseKey(advocate.getLicenseKey());
 				response.setUserId(advocate.getUserId());
+				response.setDistrict(advocate.getDistrict());
 
 			} catch (Exception e) {
 

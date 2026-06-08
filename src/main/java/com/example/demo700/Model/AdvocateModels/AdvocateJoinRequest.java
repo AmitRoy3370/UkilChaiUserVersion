@@ -28,13 +28,15 @@ public class AdvocateJoinRequest {
 	private String licenseKey;
 
 	private String cvHexKey;
+	
+	private String district;
 
 	private String degrees[];
 
 	private String workingExperiences[];
 
 	public AdvocateJoinRequest(String userId, Set<AdvocateSpeciality> advocateSpeciality, int experience,
-			String licenseKey, String cvHexKey, String[] degrees, String[] workingExperiences) {
+			String licenseKey, String cvHexKey, String[] degrees, String[] workingExperiences, String district) {
 		super();
 		this.userId = userId;
 		this.advocateSpeciality = advocateSpeciality;
@@ -43,6 +45,7 @@ public class AdvocateJoinRequest {
 		this.cvHexKey = cvHexKey;
 		this.degrees = degrees;
 		this.workingExperiences = workingExperiences;
+		this.district = district;
 	}
 
 	public AdvocateJoinRequest() {
@@ -113,11 +116,20 @@ public class AdvocateJoinRequest {
 		this.workingExperiences = workingExperiences;
 	}
 
+	public String getDistrict() {
+		return district;
+	}
+
+	public void setDistrict(String district) {
+		this.district = district;
+	}
+
 	@Override
 	public String toString() {
-		return "Advocate [id=" + id + ", userId=" + userId + ", AdvocateSpeciality=" + advocateSpeciality.toString()
-				+ ", experience=" + experience + ", licenseKey=" + licenseKey + ", cvHexKey=" + cvHexKey + ", degrees="
-				+ Arrays.toString(degrees) + ", workingExperiences=" + Arrays.toString(workingExperiences) + "]";
+		return "AdvocateJoinRequest [id=" + id + ", userId=" + userId + ", advocateSpeciality=" + advocateSpeciality
+				+ ", experience=" + experience + ", licenseKey=" + licenseKey + ", cvHexKey=" + cvHexKey + ", district="
+				+ district + ", degrees=" + Arrays.toString(degrees) + ", workingExperiences="
+				+ Arrays.toString(workingExperiences) + "]";
 	}
 
 }
