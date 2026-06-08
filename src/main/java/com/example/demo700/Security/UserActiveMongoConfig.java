@@ -28,46 +28,73 @@ public class UserActiveMongoConfig {
 
     @PostConstruct
     public void ensureTTLIndex() {
-        IndexOperations indexOps = mongoTemplate.indexOps(UserActive.class);
-        
-        // Check if index already exists
-        boolean indexExists = indexOps.getIndexInfo().stream()
-            .anyMatch(info -> "lastActivity_ttl".equals(info.getName()));
-        
-        if (!indexExists) {
-            // Create TTL index properly
-            indexOps.ensureIndex(new Index()
-                .on("lastActivity", org.springframework.data.domain.Sort.Direction.ASC)
-                .expire(60, TimeUnit.SECONDS)
-                .named("lastActivity_ttl"));
+        try {
+            System.out.println("🔄 Starting TTL index creation for UserActive...");
             
-            System.out.println("✅ TTL index created on UserActive.lastActivity");
-        } else {
-            System.out.println("✅ TTL index already exists on UserActive.lastActivity");
+            IndexOperations indexOps = mongoTemplate.indexOps(UserActive.class);
+            
+            // Check if index already exists
+            boolean indexExists = false;
+            try {
+                indexExists = indexOps.getIndexInfo().stream()
+                    .anyMatch(info -> "lastActivity_ttl".equals(info.getName()));
+            } catch (Exception e) {
+                System.out.println("⚠️ Could not check existing indexes: " + e.getMessage());
+            }
+            
+            if (!indexExists) {
+                try {
+                    // Create TTL index properly
+                    indexOps.ensureIndex(new Index()
+                        .on("lastActivity", org.springframework.data.domain.Sort.Direction.ASC)
+                        .expire(60, TimeUnit.SECONDS)
+                        .named("lastActivity_ttl"));
+                    
+                    System.out.println("✅ TTL index created on UserActive.lastActivity");
+                } catch (Exception e) {
+                    System.out.println("❌ Failed to create TTL index: " + e.getMessage());
+                    System.out.println("⚠️ Will rely on manual cleanup only");
+                }
+            } else {
+                System.out.println("✅ TTL index already exists on UserActive.lastActivity");
+            }
+            
+            // Verify index
+            verifyIndex();
+            
+        } catch (Exception e) {
+            System.out.println("❌ Error in ensureTTLIndex: " + e.getMessage());
+            // Don't throw exception - allow app to start with manual cleanup only
         }
-        
-        // Verify index
-        verifyIndex();
     }
     
     private void verifyIndex() {
-        IndexOperations indexOps = mongoTemplate.indexOps(UserActive.class);
-        for (IndexInfo indexInfo : indexOps.getIndexInfo()) {
-            if ("lastActivity_ttl".equals(indexInfo.getName())) {
-                System.out.println("✅ Index verified: " + indexInfo);
-                System.out.println("   - Expire after: " + indexInfo.getExpireAfter() + " seconds");
-                break;
+        try {
+            IndexOperations indexOps = mongoTemplate.indexOps(UserActive.class);
+            for (IndexInfo indexInfo : indexOps.getIndexInfo()) {
+                if ("lastActivity_ttl".equals(indexInfo.getName())) {
+                    System.out.println("✅ Index verified: " + indexInfo);
+                    System.out.println("   - Expire after: " + indexInfo.getExpireAfter() + " seconds");
+                    return;
+                }
             }
+            System.out.println("⚠️ TTL index not found, relying on manual cleanup");
+        } catch (Exception e) {
+            System.out.println("⚠️ Could not verify index: " + e.getMessage());
         }
     }
     
     // Fallback: Manual cleanup every 30 seconds
     @Scheduled(fixedDelay = 30000)
     public void manualCleanup() {
-        Date expiryTime = new Date(System.currentTimeMillis() - 65000); // 65 seconds ago
-        long deletedCount = userActiveRepository.deleteByLastActivityBefore(expiryTime);
-        if (deletedCount > 0) {
-            System.out.println("🔄 Manual cleanup: Removed " + deletedCount + " expired records");
+        try {
+            Date expiryTime = new Date(System.currentTimeMillis() - 65000); // 65 seconds ago
+            long deletedCount = userActiveRepository.deleteByLastActivityBefore(expiryTime);
+            if (deletedCount > 0) {
+                System.out.println("🔄 Manual cleanup: Removed " + deletedCount + " expired records at " + new Date());
+            }
+        } catch (Exception e) {
+            System.out.println("❌ Error in manual cleanup: " + e.getMessage());
         }
     }
 }

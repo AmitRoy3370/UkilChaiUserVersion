@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.mongodb.repository.Update;
 import org.springframework.stereotype.Repository;
 
 import com.example.demo700.Model.UserActiveModel.UserActive;
@@ -16,7 +17,8 @@ public interface UserActiveRepository extends MongoRepository<UserActive, String
 
 	public List<UserActive> findByActive(boolean active);
 
-	// For manual cleanup
+	// Manual cleanup - using @Query for delete operation
+	@Query(value = "{ 'lastActivity': { $lt: ?0 } }", delete = true)
 	public long deleteByLastActivityBefore(Date expiryTime);
 	
 	// Check expired records
@@ -29,6 +31,6 @@ public interface UserActiveRepository extends MongoRepository<UserActive, String
     
     // Update last activity
     @Query("{ 'userId': ?0 }")
+    @Update("{ '$set': { 'lastActivity': ?1 } }")
     void updateLastActivity(String userId, Date lastActivity);
-
 }
