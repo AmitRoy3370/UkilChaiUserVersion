@@ -13,7 +13,7 @@ import com.example.demo700.Model.LiveLocations.LiveLocationData;
 import com.example.demo700.Services.UserActiveLocationServices.UserActiveLocationService;
 
 @RestController
-@RequestMapping("/api/user-active-location")
+@RequestMapping("/api/user-live-location")
 public class UserActiveLocationController {
 
     @Autowired
@@ -54,7 +54,24 @@ public class UserActiveLocationController {
         }
     }
 
-    // ================= SEE ALL LOCATIONS =================
+    // ================= HEARTBEAT ENDPOINT =================
+    @PutMapping("/heartbeat/{userId}")
+    public ResponseEntity<?> heartbeat(
+            @PathVariable String userId,
+            @RequestBody LiveLocationData liveLocation) {
+        try {
+            LiveLocationData updated = userActiveLocationService.heartbeat(userId, liveLocation);
+            return ResponseEntity.ok(updated);
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    // ================= SEE ALL ACTIVE LOCATIONS =================
     @GetMapping("/all")
     public ResponseEntity<?> seeAll() {
         try {
@@ -114,7 +131,7 @@ public class UserActiveLocationController {
         }
     }
 
-    // ================= FIND BY LOCATION NAME (CONTAINING IGNORE CASE) =================
+    // ================= FIND BY LOCATION NAME =================
     @GetMapping("/location-name")
     public ResponseEntity<?> findByLocationNameContainingIgnoreCase(
             @RequestParam String locationName) {

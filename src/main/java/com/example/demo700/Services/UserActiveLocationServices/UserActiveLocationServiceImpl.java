@@ -1,6 +1,9 @@
 package com.example.demo700.Services.UserActiveLocationServices;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -8,10 +11,13 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -24,6 +30,8 @@ import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
 import com.example.demo700.Repositories.UserLiveLocationRepositories.UserLiveLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
+
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class UserActiveLocationServiceImpl implements UserActiveLocationService {
@@ -42,6 +50,23 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 
 	@Autowired
 	private Cleaner cleaner;
+	
+	@Value("${location.heartbeat.timeout.seconds:30}")
+	private long heartbeatTimeoutSeconds;
+	
+	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	
+	@PostConstruct
+	public void init() {
+		// Schedule a task to remove expired locations every 10 seconds
+		scheduler.scheduleAtFixedRate(() -> {
+			try {
+				removeExpiredLocations();
+			} catch (Exception e) {
+				System.err.println("Error removing expired locations: " + e.getMessage());
+			}
+		}, 0, 10, TimeUnit.SECONDS);
+	}
 
 	@Override
 	public LiveLocationData addLocation(LiveLocationData liveLocation, String userId) {
@@ -119,6 +144,10 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 		} catch (Exception e) {
 
 		}
+		
+		// Set initial heartbeat timestamp
+		liveLocation.setLastHeartbeat(Date.from(Instant.now()));
+		liveLocation.setActive(true);
 
 		liveLocation = userLiveLocationRepository.save(liveLocation);
 
@@ -159,17 +188,19 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 
 		}
 
+		LiveLocationData existingData = null;
+		
 		try {
 
-			LiveLocationData data = userLiveLocationRepository.findById(id).get();
+			existingData = userLiveLocationRepository.findById(id).get();
 
-			if (data == null) {
+			if (existingData == null) {
 
 				throw new Exception();
 
 			}
 
-			if (!data.getUserId().equals(userId)) {
+			if (!existingData.getUserId().equals(userId)) {
 
 				throw new Exception();
 
@@ -234,7 +265,11 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 		} catch (Exception e) {
 
 		}
-
+		
+		// Preserve heartbeat information
+		//LiveLocationData existingData = userLiveLocationRepository.findById(id).get();
+		liveLocation.setLastHeartbeat(existingData.getLastHeartbeat());
+		liveLocation.setActive(existingData.isActive());
 		liveLocation.setId(id);
 
 		liveLocation = userLiveLocationRepository.save(liveLocation);
@@ -261,6 +296,9 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 				throw new Exception();
 
 			}
+			
+			// Filter only active locations
+			list = list.stream().filter(LiveLocationData::isActive).collect(Collectors.toList());
 
 			return getUserLiveLocationResponse(list);
 
@@ -285,7 +323,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 
 			LiveLocationData data = userLiveLocationRepository.findById(id).get();
 
-			if (data == null) {
+			if (data == null || !data.isActive()) {
 
 				throw new Exception();
 
@@ -314,7 +352,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 
 			LiveLocationData data = userLiveLocationRepository.findByAdvocateId(advocateId);
 
-			if (data == null) {
+			if (data == null || !data.isActive()) {
 
 				throw new Exception();
 
@@ -343,7 +381,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 
 			LiveLocationData data = userLiveLocationRepository.findByUserId(userId);
 
-			if (data == null) {
+			if (data == null || !data.isActive()) {
 
 				throw new Exception();
 
@@ -378,6 +416,9 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 				throw new Exception();
 
 			}
+			
+			// Filter only active locations
+			data = data.stream().filter(LiveLocationData::isActive).collect(Collectors.toList());
 
 			return getUserLiveLocationResponse(data);
 
@@ -407,6 +448,9 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 				throw new Exception();
 
 			}
+			
+			// Filter only active locations
+			data = data.stream().filter(LiveLocationData::isActive).collect(Collectors.toList());
 
 			return getUserLiveLocationResponse(data);
 
@@ -436,6 +480,9 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 				throw new Exception();
 
 			}
+			
+			// Filter only active locations
+			data = data.stream().filter(LiveLocationData::isActive).collect(Collectors.toList());
 
 			return getUserLiveLocationResponse(data);
 
@@ -522,6 +569,73 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 
 		return count != userLiveLocationRepository.count();
 
+	}
+	
+	@Override
+	public LiveLocationData heartbeat(String userId, LiveLocationData liveLocation) {
+		
+		if (userId == null || liveLocation == null) {
+			throw new NullPointerException("False request...");
+		}
+		
+		try {
+			// Check if location exists for this user
+			LiveLocationData existingLocation = userLiveLocationRepository.findByUserId(userId);
+			
+			if (existingLocation == null) {
+				// First time - add new location
+				liveLocation.setUserId(userId);
+				liveLocation.setLastHeartbeat(Date.from(Instant.now()));
+				liveLocation.setActive(true);
+				return addLocation(liveLocation, userId);
+			} else {
+				// Update existing location with new coordinates and heartbeat
+				existingLocation.setLattitude(liveLocation.getLattitude());
+				existingLocation.setLongitude(liveLocation.getLongitude());
+				existingLocation.setLocationName(liveLocation.getLocationName());
+				existingLocation.setLastHeartbeat(Date.from(Instant.now()));
+				existingLocation.setActive(true);
+				
+				if (liveLocation.getAdvocateId() != null) {
+					existingLocation.setAdvocateId(liveLocation.getAdvocateId());
+				}
+				
+				return updateLocation(existingLocation, userId, existingLocation.getId());
+			}
+			
+		} catch (Exception e) {
+			throw new RuntimeException("Heartbeat failed: " + e.getMessage(), e);
+		}
+	}
+	
+	@Override
+	public void removeExpiredLocations() {
+		try {
+			Date expiryTime = Date.from(Instant.now().minus(heartbeatTimeoutSeconds, ChronoUnit.SECONDS));
+			List<LiveLocationData> allLocations = userLiveLocationRepository.findAll();
+			
+			List<LiveLocationData> expiredLocations = allLocations.stream()
+				.filter(location -> location.isActive() && location.getLastHeartbeat() != null)
+				.filter(location -> location.getLastHeartbeat().before(expiryTime))
+				.collect(Collectors.toList());
+			
+			for (LiveLocationData location : expiredLocations) {
+				location.setActive(false);
+				userLiveLocationRepository.save(location);
+				
+				// Also remove from cleaner if needed
+				try {
+					cleaner.removeUserLiveLocation(location.getId());
+				} catch (Exception e) {
+					System.err.println("Error removing expired location from cleaner: " + e.getMessage());
+				}
+				
+				System.out.println("Removed expired location for user: " + location.getUserId() + 
+								   " (Last heartbeat: " + location.getLastHeartbeat() + ")");
+			}
+		} catch (Exception e) {
+			System.err.println("Error in removeExpiredLocations: " + e.getMessage());
+		}
 	}
 
 	private ExecutorService executors = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());

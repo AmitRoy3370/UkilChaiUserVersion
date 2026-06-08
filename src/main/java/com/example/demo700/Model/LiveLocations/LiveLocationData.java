@@ -1,5 +1,7 @@
 package com.example.demo700.Model.LiveLocations;
 
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -20,6 +22,10 @@ public class LiveLocationData {
 	private String locationName;
 
 	private double lattitude, longitude;
+	
+	private Date lastHeartbeat;
+	
+	private boolean active;
 
 	public LiveLocationData(String advocateId, String userId, String locationName, double lattitude,
 			double longitude) {
@@ -29,10 +35,13 @@ public class LiveLocationData {
 		this.locationName = locationName;
 		this.lattitude = lattitude;
 		this.longitude = longitude;
+		this.active = true;
+		this.lastHeartbeat = new Date();
 	}
 
 	public LiveLocationData() {
 		super();
+		this.active = true;
 	}
 
 	public String getId() {
@@ -82,11 +91,28 @@ public class LiveLocationData {
 	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
+	
+	public Date getLastHeartbeat() {
+		return lastHeartbeat;
+	}
+	
+	public void setLastHeartbeat(Date lastHeartbeat) {
+		this.lastHeartbeat = lastHeartbeat;
+	}
+	
+	public boolean isActive() {
+		return active;
+	}
+	
+	public void setActive(boolean active) {
+		this.active = active;
+	}
 
 	@Override
 	public String toString() {
-		return "LivaeLocationData [id=" + id + ", advocateId=" + advocateId + ", userId=" + userId + ", locationName="
-				+ locationName + ", lattitude=" + lattitude + ", longitude=" + longitude + "]";
+		return "LiveLocationData [id=" + id + ", advocateId=" + advocateId + ", userId=" + userId + ", locationName="
+				+ locationName + ", lattitude=" + lattitude + ", longitude=" + longitude + ", lastHeartbeat=" 
+				+ lastHeartbeat + ", active=" + active + "]";
 	}
 
 }
