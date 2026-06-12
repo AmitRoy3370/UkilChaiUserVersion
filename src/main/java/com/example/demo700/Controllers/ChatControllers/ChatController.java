@@ -1,6 +1,8 @@
 package com.example.demo700.Controllers.ChatControllers;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo700.DTOFiles.ChatResponse;
-import com.example.demo700.Model.ChatModels.ChatMessage;
+import com.example.demo700.Model.ChatModels.ChatMessage; // ✅ Fixed: Model → Models
 import com.example.demo700.Services.ChatServices.ChatService;
 
 @RestController
@@ -34,27 +36,20 @@ public class ChatController {
 	private SimpMessagingTemplate messagingTemplate;
 
 	/**
-	 * ✅ WebSocket endpoint for sending live chat messages This method listens to
-	 * messages sent from the client via /app/chat.send and forwards them to the
-	 * receiver’s private queue (/user/{receiver}/queue/messages)
+	 * ✅ WebSocket endpoint for sending live chat messages
 	 */
 	@MessageMapping("/chat.send")
 	public void sendMessage(@Payload ChatMessage message) {
 		try {
-			// Save to DB
 			ChatMessage savedMessage = chatService.saveMessage(message);
-
-			// Send to specific receiver via WebSocket
 			messagingTemplate.convertAndSendToUser(message.getReceiver(), "/queue/messages", savedMessage);
-
 		} catch (Exception e) {
 			System.out.println("Error sending message: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * ✅ REST API: Save a chat message (non-realtime HTTP version) Useful for
-	 * fallback or REST testing (like Postman)
+	 * ✅ REST API: Save a chat message
 	 */
 	@PostMapping("/send")
 	public ResponseEntity<?> saveMessage(@RequestBody ChatMessage message) {
@@ -86,7 +81,7 @@ public class ChatController {
 	}
 
 	/**
-	 * ✅ REST API: Delete specific chat message by ID
+	 * ✅ REST API: Delete specific chat message by ID (with WebSocket notification)
 	 */
 	@DeleteMapping("/delete/{sender}/{receiver}/{chatId}")
 	public ResponseEntity<?> deleteChatMessage(@PathVariable String sender, @PathVariable String receiver,
@@ -95,6 +90,14 @@ public class ChatController {
 		try {
 			boolean deleted = chatService.deleteChatMessage(sender, receiver, chatId);
 			if (deleted) {
+				// ✅ FIXED: Send WebSocket notification to both users
+				Map<String, String> deleteInfo = new HashMap<>();
+				deleteInfo.put("messageId", chatId);
+				deleteInfo.put("deletedBy", sender);
+				
+				messagingTemplate.convertAndSendToUser(receiver, "/queue/delete", deleteInfo);
+				messagingTemplate.convertAndSendToUser(sender, "/queue/delete", deleteInfo);
+				
 				return new ResponseEntity<>("Chat message deleted successfully", HttpStatus.OK);
 			} else {
 				return new ResponseEntity<>("No message deleted", HttpStatus.BAD_REQUEST);
@@ -107,37 +110,44 @@ public class ChatController {
 		}
 	}
 
+	/**
+	 * ✅ WebSocket endpoint for deleting messages (real-time)
+	 */
 	@MessageMapping("/chat.delete")
 	public void deleteMessageWebSocket(@Payload ChatMessage message) {
-	    try {
+		try {
+			boolean deleted = chatService.deleteChatMessage(
+				message.getSender(),
+				message.getReceiver(),
+				message.getId()
+			);
 
-	        boolean deleted = chatService.deleteChatMessage(
-	            message.getSender(),
-	            message.getReceiver(),
-	            message.getId()
-	        );
+			if (deleted) {
+				// ✅ FIXED: Send Map instead of String
+				Map<String, String> deleteInfo = new HashMap<>();
+				deleteInfo.put("messageId", message.getId());
+				deleteInfo.put("deletedBy", message.getSender());
+				
+				messagingTemplate.convertAndSendToUser(
+					message.getReceiver(),
+					"/queue/delete",
+					deleteInfo
+				);
 
-	        if(deleted) {
-
-	            messagingTemplate.convertAndSendToUser(
-	                message.getReceiver(),
-	                "/queue/delete",
-	                message.getId()
-	            );
-
-	            messagingTemplate.convertAndSendToUser(
-	                message.getSender(),
-	                "/queue/delete",
-	                message.getId()
-	            );
-	        }
-
-	    } catch (Exception e) {
-	        System.out.println("Error deleting message via websocket: " + e.getMessage());
-	    }
+				messagingTemplate.convertAndSendToUser(
+					message.getSender(),
+					"/queue/delete",
+					deleteInfo
+				);
+			}
+		} catch (Exception e) {
+			System.out.println("Error deleting message via websocket: " + e.getMessage());
+		}
 	}
 	
-	// 🔹 REST edit chat message
+	/**
+	 * ✅ REST API: Edit chat message
+	 */
 	@PutMapping("/edit/{sender}/{chatId}")
 	public ResponseEntity<?> editChatMessage(@PathVariable String sender, @PathVariable String chatId,
 			@RequestParam String newContent) {
@@ -145,8 +155,9 @@ public class ChatController {
 		try {
 			ChatMessage updated = chatService.editChatMessage(sender, chatId, newContent);
 
-			// Notify receiver via WebSocket
+			// ✅ FIXED: Notify BOTH sender and receiver
 			messagingTemplate.convertAndSendToUser(updated.getReceiver(), "/queue/edit", updated);
+			messagingTemplate.convertAndSendToUser(updated.getSender(), "/queue/edit", updated);
 
 			return new ResponseEntity<>(updated, HttpStatus.OK);
 
@@ -157,14 +168,16 @@ public class ChatController {
 		}
 	}
 
-	// 🔹 WebSocket edit message in real time
+	/**
+	 * ✅ WebSocket endpoint for editing messages (real-time)
+	 */
 	@MessageMapping("/chat.edit")
 	public void editMessageWebSocket(@Payload ChatMessage message) {
 		try {
 			ChatMessage updated = chatService.editChatMessage(message.getSender(), message.getId(),
 					message.getContent());
 
-			// send update to both sender & receiver
+			// Send update to both sender & receiver
 			messagingTemplate.convertAndSendToUser(message.getReceiver(), "/queue/edit", updated);
 			messagingTemplate.convertAndSendToUser(message.getSender(), "/queue/edit", updated);
 
@@ -178,18 +191,18 @@ public class ChatController {
 	 */
 	@GetMapping("/users/{userId}")
 	public ResponseEntity<?> getAllUsersChatList(@PathVariable String userId) {
-	    try {
-	        List<ChatResponse> chatList = chatService.getAllUsersChatList(userId);
-	        if (chatList.isEmpty()) {
-	            return new ResponseEntity<>("No chat history found for this user", HttpStatus.NOT_FOUND);
-	        }
-	        return new ResponseEntity<>(chatList, HttpStatus.OK);
-	    } catch (NoSuchElementException e) {
-	        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-	    } catch (Exception e) {
-	        return new ResponseEntity<>("Error fetching chat list: " + e.getMessage(), 
-	                                   HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
+		try {
+			List<ChatResponse> chatList = chatService.getAllUsersChatList(userId);
+			if (chatList.isEmpty()) {
+				return new ResponseEntity<>("No chat history found for this user", HttpStatus.NOT_FOUND);
+			}
+			return new ResponseEntity<>(chatList, HttpStatus.OK);
+		} catch (NoSuchElementException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>("Error fetching chat list: " + e.getMessage(), 
+									   HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	/**
@@ -197,18 +210,18 @@ public class ChatController {
 	 */
 	@GetMapping("/admins/{userId}")
 	public ResponseEntity<?> getAllAdminsChatList(@PathVariable String userId) {
-	    try {
-	        List<ChatResponse> chatList = chatService.getAllAdminsChatList(userId);
-	        if (chatList.isEmpty()) {
-	            return new ResponseEntity<>("No admin chat history found for this user", HttpStatus.NOT_FOUND);
-	        }
-	        return new ResponseEntity<>(chatList, HttpStatus.OK);
-	    } catch (NoSuchElementException e) {
-	        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-	    } catch (Exception e) {
-	        return new ResponseEntity<>("Error fetching admin chat list: " + e.getMessage(), 
-	                                   HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
+		try {
+			List<ChatResponse> chatList = chatService.getAllAdminsChatList(userId);
+			if (chatList.isEmpty()) {
+				return new ResponseEntity<>("No admin chat history found for this user", HttpStatus.NOT_FOUND);
+			}
+			return new ResponseEntity<>(chatList, HttpStatus.OK);
+		} catch (NoSuchElementException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>("Error fetching admin chat list: " + e.getMessage(), 
+									   HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	/**
@@ -216,36 +229,29 @@ public class ChatController {
 	 */
 	@GetMapping("/center-admins/{userId}")
 	public ResponseEntity<?> getAllCenterAdminChatList(@PathVariable String userId) {
-	    try {
-	        List<ChatResponse> chatList = chatService.getAllCenterAdminChatList(userId);
-	        if (chatList.isEmpty()) {
-	            return new ResponseEntity<>("No center admin chat history found for this user", HttpStatus.NOT_FOUND);
-	        }
-	        return new ResponseEntity<>(chatList, HttpStatus.OK);
-	    } catch (NoSuchElementException e) {
-	        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-	    } catch (Exception e) {
-	        return new ResponseEntity<>("Error fetching center admin chat list: " + e.getMessage(), 
-	                                   HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
+		try {
+			List<ChatResponse> chatList = chatService.getAllCenterAdminChatList(userId);
+			if (chatList.isEmpty()) {
+				return new ResponseEntity<>("No center admin chat history found for this user", HttpStatus.NOT_FOUND);
+			}
+			return new ResponseEntity<>(chatList, HttpStatus.OK);
+		} catch (NoSuchElementException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>("Error fetching center admin chat list: " + e.getMessage(), 
+									   HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	/**
-	 * ✅ REST API: Get all center admins chat list for a specific user based on district
+	 * ✅ REST API: Get all admins chat list for a specific user based on district
 	 */
 	@GetMapping("/admins/{userId}/district/{district}")
 	public ResponseEntity<?> getAllAdminByDistrictChatList(@PathVariable String district, @PathVariable String userId) {
-		
 		try {
-			
 			return ResponseEntity.status(200).body(chatService.getAllAdminsChatListFromDistrict(district, userId));
-			
-		} catch(Exception e) {
-			
+		} catch (Exception e) {
 			return ResponseEntity.status(404).body(e.getMessage());
-			
 		}
-		
 	}
-	
 }
