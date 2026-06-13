@@ -10,26 +10,42 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // SockJS endpoint
-        registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*")
-                .withSockJS();
-        
-        // Pure WebSocket endpoint
-        registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*");
-                
-        // Additional endpoint for better compatibility
-        registry.addEndpoint("/websocket")
-                .setAllowedOriginPatterns("*");
-    }
+	@Override
+	public void registerStompEndpoints(StompEndpointRegistry registry) {
+		// SockJS endpoint
+		registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
 
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/queue", "/topic", "/user");
-        registry.setApplicationDestinationPrefixes("/app");
-        registry.setUserDestinationPrefix("/user");
-    }
+		// Pure WebSocket endpoint
+		registry.addEndpoint("/ws").setAllowedOriginPatterns("*");
+
+		// Additional endpoint for better compatibility
+		registry.addEndpoint("/websocket").setAllowedOriginPatterns("*");
+	}
+
+	/*
+	 * @Override public void configureMessageBroker(MessageBrokerRegistry registry)
+	 * { registry.enableSimpleBroker("/queue", "/topic", "/user");
+	 * registry.setApplicationDestinationPrefixes("/app");
+	 * registry.setUserDestinationPrefix("/user"); }
+	 */
+
+	@Override
+	public void configureMessageBroker(MessageBrokerRegistry registry) {
+
+		registry.enableSimpleBroker(
+
+				"/topic",
+
+				"/queue"
+
+		);
+
+		registry.setApplicationDestinationPrefixes(
+
+				"/app"
+
+		);
+
+	}
+
 }

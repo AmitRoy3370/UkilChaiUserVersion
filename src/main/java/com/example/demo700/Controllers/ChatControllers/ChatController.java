@@ -42,7 +42,31 @@ public class ChatController {
 	public void sendMessage(@Payload ChatMessage message) {
 		try {
 			ChatMessage savedMessage = chatService.saveMessage(message);
-			messagingTemplate.convertAndSendToUser(message.getReceiver(), "/queue/messages", savedMessage);
+
+			String topic =
+
+					getTopic(
+
+							message.getSender(),
+
+							message.getReceiver()
+
+					);
+
+			messagingTemplate.convertAndSend(
+
+					"/topic/chat/"
+
+							+ topic +
+
+							"/messages",
+
+					savedMessage
+
+			);
+
+			// messagingTemplate.convertAndSendToUser(message.getReceiver(),
+			// "/queue/messages", savedMessage);
 		} catch (Exception e) {
 			System.out.println("Error sending message: " + e.getMessage());
 		}
@@ -94,10 +118,21 @@ public class ChatController {
 				Map<String, String> deleteInfo = new HashMap<>();
 				deleteInfo.put("messageId", chatId);
 				deleteInfo.put("deletedBy", sender);
-				
-				messagingTemplate.convertAndSendToUser(receiver, "/queue/delete", deleteInfo);
-				messagingTemplate.convertAndSendToUser(sender, "/queue/delete", deleteInfo);
-				
+
+				// messagingTemplate.convertAndSendToUser(receiver, "/queue/delete",
+				// deleteInfo);
+				// messagingTemplate.convertAndSendToUser(sender, "/queue/delete", deleteInfo);
+
+				String topic = getTopic(sender, receiver);
+
+				messagingTemplate.convertAndSend(
+
+						"/topic/chat/" + topic + "/delete",
+
+						deleteInfo
+
+				);
+
 				return new ResponseEntity<>("Chat message deleted successfully", HttpStatus.OK);
 			} else {
 				return new ResponseEntity<>("No message deleted", HttpStatus.BAD_REQUEST);
@@ -116,35 +151,51 @@ public class ChatController {
 	@MessageMapping("/chat.delete")
 	public void deleteMessageWebSocket(@Payload ChatMessage message) {
 		try {
-			boolean deleted = chatService.deleteChatMessage(
-				message.getSender(),
-				message.getReceiver(),
-				message.getId()
-			);
+			boolean deleted = chatService.deleteChatMessage(message.getSender(), message.getReceiver(),
+					message.getId());
 
 			if (deleted) {
 				// ✅ FIXED: Send Map instead of String
 				Map<String, String> deleteInfo = new HashMap<>();
 				deleteInfo.put("messageId", message.getId());
 				deleteInfo.put("deletedBy", message.getSender());
-				
-				messagingTemplate.convertAndSendToUser(
-					message.getReceiver(),
-					"/queue/delete",
-					deleteInfo
+
+				/*
+				 * messagingTemplate.convertAndSendToUser(message.getReceiver(),
+				 * "/queue/delete", deleteInfo);
+				 * 
+				 * messagingTemplate.convertAndSendToUser(message.getSender(), "/queue/delete",
+				 * deleteInfo);
+				 */
+
+				String topic =
+
+						getTopic(
+
+								message.getSender(),
+
+								message.getReceiver()
+
+						);
+
+				messagingTemplate.convertAndSend(
+
+						"/topic/chat/"
+
+								+ topic +
+
+								"/delete",
+
+						deleteInfo
+
 				);
 
-				messagingTemplate.convertAndSendToUser(
-					message.getSender(),
-					"/queue/delete",
-					deleteInfo
-				);
 			}
 		} catch (Exception e) {
 			System.out.println("Error deleting message via websocket: " + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * ✅ REST API: Edit chat message
 	 */
@@ -156,8 +207,20 @@ public class ChatController {
 			ChatMessage updated = chatService.editChatMessage(sender, chatId, newContent);
 
 			// ✅ FIXED: Notify BOTH sender and receiver
-			messagingTemplate.convertAndSendToUser(updated.getReceiver(), "/queue/edit", updated);
-			messagingTemplate.convertAndSendToUser(updated.getSender(), "/queue/edit", updated);
+			// messagingTemplate.convertAndSendToUser(updated.getReceiver(), "/queue/edit",
+			// updated);
+			// messagingTemplate.convertAndSendToUser(updated.getSender(), "/queue/edit",
+			// updated);
+
+			String topic = getTopic(updated.getSender(), updated.getReceiver());
+
+			messagingTemplate.convertAndSend(
+
+					"/topic/chat/" + topic + "/edit",
+
+					updated
+
+			);
 
 			return new ResponseEntity<>(updated, HttpStatus.OK);
 
@@ -178,14 +241,38 @@ public class ChatController {
 					message.getContent());
 
 			// Send update to both sender & receiver
-			messagingTemplate.convertAndSendToUser(message.getReceiver(), "/queue/edit", updated);
-			messagingTemplate.convertAndSendToUser(message.getSender(), "/queue/edit", updated);
+			// messagingTemplate.convertAndSendToUser(message.getReceiver(), "/queue/edit",
+			// updated);
+			// messagingTemplate.convertAndSendToUser(message.getSender(), "/queue/edit",
+			// updated);
+
+			String topic =
+
+					getTopic(
+
+							updated.getSender(),
+
+							updated.getReceiver()
+
+					);
+
+			messagingTemplate.convertAndSend(
+
+					"/topic/chat/"
+
+							+ topic +
+
+							"/edit",
+
+					updated
+
+			);
 
 		} catch (Exception e) {
 			System.out.println("Error editing message via WebSocket: " + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * ✅ REST API: Get all users chat list for a specific user
 	 */
@@ -200,8 +287,8 @@ public class ChatController {
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
-			return new ResponseEntity<>("Error fetching chat list: " + e.getMessage(), 
-									   HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>("Error fetching chat list: " + e.getMessage(),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -219,8 +306,8 @@ public class ChatController {
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
-			return new ResponseEntity<>("Error fetching admin chat list: " + e.getMessage(), 
-									   HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>("Error fetching admin chat list: " + e.getMessage(),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -238,8 +325,8 @@ public class ChatController {
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
-			return new ResponseEntity<>("Error fetching center admin chat list: " + e.getMessage(), 
-									   HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>("Error fetching center admin chat list: " + e.getMessage(),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -254,4 +341,21 @@ public class ChatController {
 			return ResponseEntity.status(404).body(e.getMessage());
 		}
 	}
+
+	private String getTopic(String a, String b) {
+
+		return
+
+		a.compareTo(b) < 0
+
+				?
+
+				a + "_" + b
+
+				:
+
+				b + "_" + a;
+
+	}
+
 }
