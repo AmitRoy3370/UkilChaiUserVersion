@@ -28,7 +28,7 @@ public interface UserActiveLocationService {
 	public boolean deleteLiveLocation(String id, String userId);
 
 	// New heartbeat methods
-	public LiveLocationData heartbeat(String userId, LiveLocationData liveLocation);
+	public UserLiveLocationDataResponse heartbeat(String userId, LiveLocationData liveLocation);
 
 	public void removeExpiredLocations();
 

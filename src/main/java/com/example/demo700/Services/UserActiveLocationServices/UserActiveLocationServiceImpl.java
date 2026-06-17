@@ -572,7 +572,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 	
 	@Override
-	public LiveLocationData heartbeat(String userId, LiveLocationData liveLocation) {
+	public UserLiveLocationDataResponse heartbeat(String userId, LiveLocationData liveLocation) {
 		
 		if (userId == null || liveLocation == null) {
 			throw new NullPointerException("False request...");
@@ -587,7 +587,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 				liveLocation.setUserId(userId);
 				liveLocation.setLastHeartbeat(Date.from(Instant.now()));
 				liveLocation.setActive(true);
-				return addLocation(liveLocation, userId);
+				return getUserLiveLocationResponse(addLocation(liveLocation, userId));
 			} else {
 				// Update existing location with new coordinates and heartbeat
 				existingLocation.setLattitude(liveLocation.getLattitude());
@@ -600,7 +600,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 					existingLocation.setAdvocateId(liveLocation.getAdvocateId());
 				}
 				
-				return updateLocation(existingLocation, userId, existingLocation.getId());
+				return getUserLiveLocationResponse(updateLocation(existingLocation, userId, existingLocation.getId()));
 			}
 			
 		} catch (Exception e) {

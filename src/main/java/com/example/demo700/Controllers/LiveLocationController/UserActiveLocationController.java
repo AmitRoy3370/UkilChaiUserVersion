@@ -60,7 +60,7 @@ public class UserActiveLocationController {
             @PathVariable String userId,
             @RequestBody LiveLocationData liveLocation) {
         try {
-            LiveLocationData updated = userActiveLocationService.heartbeat(userId, liveLocation);
+        	UserLiveLocationDataResponse updated = userActiveLocationService.heartbeat(userId, liveLocation);
             return ResponseEntity.ok(updated);
         } catch (NullPointerException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
