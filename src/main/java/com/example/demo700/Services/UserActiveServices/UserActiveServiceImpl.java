@@ -5,6 +5,11 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -26,6 +31,9 @@ public class UserActiveServiceImpl implements UserActiveService {
 
 	@Autowired
 	private CenterAdminRepository centerAdminRepository;
+
+	@Autowired
+	private MongoTemplate mongoTemplate;
 
 	@Autowired
 	private Cleaner cleaner;
@@ -162,15 +170,12 @@ public class UserActiveServiceImpl implements UserActiveService {
 
 		userActive.setId(id);
 
-		userActive = userActiveRepository.save(userActive);
+		Query query = new Query(Criteria.where("userId").is(userId));
 
-		if (userActive == null) {
+		Update update = new Update().set("active", userActive.isActive()).set("lastActivity", new Date());
 
-			throw new ArithmeticException("User activeness is not added at here....");
-
-		}
-
-		return userActive;
+		return mongoTemplate.findAndModify(query, update, FindAndModifyOptions.options().upsert(true).returnNew(true),
+				UserActive.class);
 	}
 
 	@Override

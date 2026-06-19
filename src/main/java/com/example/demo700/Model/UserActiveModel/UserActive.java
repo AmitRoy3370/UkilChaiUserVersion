@@ -16,6 +16,7 @@ public class UserActive {
 	private String id;
 
 	@NonNull
+	@Indexed(unique=true)
 	private String userId;
 
 	private boolean active;
