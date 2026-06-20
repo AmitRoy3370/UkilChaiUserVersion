@@ -42,6 +42,7 @@ public class AdvocateController {
 			@RequestPart("advocateSpeciality") String advocateSpeciality, @RequestPart("experience") String experience,
 			@RequestPart("licenseKey") String licenseKey, @RequestPart("degrees") String degreesJson,
 			@RequestPart("workingExperiences") String workJson,
+			@RequestPart(value="district", required=false) String district,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 
 		try {
@@ -70,6 +71,14 @@ public class AdvocateController {
 			} catch (Exception e) {
 
 				return ResponseEntity.status(400).body("in correct speciality...");
+
+			}
+
+			try {
+
+				request.setDistrict(district);
+
+			} catch(Exception e) {
 
 			}
 
@@ -174,19 +183,19 @@ public class AdvocateController {
 
 	@GetMapping("/find/district/{district}")
 	public ResponseEntity<?> findByDistrict(@PathVariable String district) {
-		
+
 		try {
-			
+
 			return ResponseEntity.status(200).body(advocateService.findByDistrict(district));
-			
+
 		} catch(Exception e) {
-			
+
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-			
+
 		}
-		
+
 	}
-	
+
 	// --------------------- SEARCH BY EXPERIENCE TEXT ---------------------
 	@GetMapping("/search/experience/{exp}")
 	public ResponseEntity<?> searchByExperience(@PathVariable String exp) {
@@ -203,6 +212,7 @@ public class AdvocateController {
 			@RequestPart("userId") String userId, @RequestPart("advocateSpeciality") String advocateSpeciality,
 			@RequestPart("experience") String experience, @RequestPart("licenseKey") String licenseKey,
 			@RequestPart("degrees") String degreesJson, @RequestPart("workingExperiences") String workJson,
+			@RequestPart(value="district", required=false) String district,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 
 		try {
@@ -241,6 +251,14 @@ public class AdvocateController {
 			} catch (Exception e) {
 
 				request.setExperience(0);
+
+			}
+
+			try {
+
+				request.setDistrict(district);
+
+			} catch(Exception e) {
 
 			}
 

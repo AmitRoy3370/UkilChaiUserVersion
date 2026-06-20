@@ -44,7 +44,7 @@ public class AdvocateJoinRequestController {
 	public ResponseEntity<?> addAdvocate(@RequestPart("userId") String userId,
 			@RequestPart("advocateSpeciality") String advocateSpeciality, @RequestPart("experience") String experience,
 			@RequestPart("licenseKey") String licenseKey, @RequestPart("degrees") String degreesJson,
-			@RequestPart("workingExperiences") String workJson,
+			@RequestPart("workingExperiences") String workJson, @RequestPart(value="district", required=false) String district,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 
 		AdvocateJoinRequest request = new AdvocateJoinRequest();
@@ -93,6 +93,14 @@ public class AdvocateJoinRequestController {
 		}
 
 		try {
+			
+			request.setDistrict(district);
+			
+		} catch(Exception e) {
+			
+		}
+		
+		try {
 
 			request.setExperience(Integer.parseInt(experience));
 
@@ -136,6 +144,7 @@ public class AdvocateJoinRequestController {
 			@RequestPart("userId") String userId, @RequestPart("advocateSpeciality") String advocateSpeciality,
 			@RequestPart("experience") String experience, @RequestPart("licenseKey") String licenseKey,
 			@RequestPart("degrees") String degreesJson, @RequestPart("workingExperiences") String workJson,
+			@RequestPart(value="district", required=false) String district,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 
 		AdvocateJoinRequest request = new AdvocateJoinRequest();
