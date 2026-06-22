@@ -61,7 +61,9 @@ public class UserActiveController {
 
 			if (user == null) {
 
-				throw new Exception("No such user find at here....");
+				user = userActiveRepository.save(new UserActive(userId, true));
+				
+				//throw new Exception("No such user find at here....");
 
 			}
 
