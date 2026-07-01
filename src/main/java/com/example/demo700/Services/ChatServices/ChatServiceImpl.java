@@ -607,6 +607,7 @@ public class ChatServiceImpl implements ChatService {
 				try {
 
 					response.setSenderId(userId);
+					response.setSenderFullName(currentUser.getFullName());
 					response.setSenderName(currentUser != null ? currentUser.getName() : "Unknown");
 
 				} catch (Exception e) {
@@ -633,13 +634,13 @@ public class ChatServiceImpl implements ChatService {
 						boolean isCurrentUserSender = latestMessage.getSender().equals(userId);
 
 						if (isCurrentUserSender) {
-							response.setSenderInfo(new ChatResponse.SenderInfo(otherUser.getName(), otherUserId,
+							response.setSenderInfo(new ChatResponse.SenderInfo(otherUser.getName(), otherUser.getFullName(), otherUserId,
 									latestMessage.getContent(), readChat.getOrDefault(latestMessage.getId(),
 											readChat.getOrDefault(latestMessage.getId(), true))));
 							response.setReceiverInfo(null);
 						} else {
 							response.setSenderInfo(null);
-							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName(),
+							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName(), otherUser.getFullName(),
 									latestMessage.getContent(), readChat.getOrDefault(latestMessage.getId(),
 											readChat.getOrDefault(latestMessage.getId(), true))));
 						}

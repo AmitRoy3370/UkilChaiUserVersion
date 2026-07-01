@@ -11,9 +11,9 @@ public class CaseResponse {
 
 	private String caseName;
 
-	private String userId, userName;
+	private String userId, userName, userFullName;
 
-	private String advocateId, advocateName;
+	private String advocateId, advocateName, advocateFullName;
 
 	private AdvocateSpeciality caseType;
 
@@ -30,6 +30,23 @@ public class CaseResponse {
 		this.userName = userName;
 		this.advocateId = advocateId;
 		this.advocateName = advocateName;
+		this.caseType = caseType;
+		this.attachmentsId = attachmentsId;
+		this.issuedTime = issuedTime;
+	}
+
+	public CaseResponse(String id, String caseName, String userId, String userName, String userFullName,
+			String advocateId, String advocateName, String advocateFullName, AdvocateSpeciality caseType,
+			String[] attachmentsId, Instant issuedTime) {
+		super();
+		this.id = id;
+		this.caseName = caseName;
+		this.userId = userId;
+		this.userName = userName;
+		this.userFullName = userFullName;
+		this.advocateId = advocateId;
+		this.advocateName = advocateName;
+		this.advocateFullName = advocateFullName;
 		this.caseType = caseType;
 		this.attachmentsId = attachmentsId;
 		this.issuedTime = issuedTime;
@@ -111,11 +128,28 @@ public class CaseResponse {
 		this.issuedTime = issuedTime;
 	}
 
+	public String getUserFullName() {
+		return userFullName;
+	}
+
+	public void setUserFullName(String userFullName) {
+		this.userFullName = userFullName;
+	}
+
+	public String getAdvocateFullName() {
+		return advocateFullName;
+	}
+
+	public void setAdvocateFullName(String advocateFullName) {
+		this.advocateFullName = advocateFullName;
+	}
+
 	@Override
 	public String toString() {
 		return "CaseResponse [id=" + id + ", caseName=" + caseName + ", userId=" + userId + ", userName=" + userName
-				+ ", advocateId=" + advocateId + ", advocateName=" + advocateName + ", caseType=" + caseType
-				+ ", attachmentsId=" + Arrays.toString(attachmentsId) + ", issuedTime=" + issuedTime + "]";
+				+ ", userFullName=" + userFullName + ", advocateId=" + advocateId + ", advocateName=" + advocateName
+				+ ", advocateFullName=" + advocateFullName + ", caseType=" + caseType + ", attachmentsId="
+				+ Arrays.toString(attachmentsId) + ", issuedTime=" + issuedTime + "]";
 	}
 
 }

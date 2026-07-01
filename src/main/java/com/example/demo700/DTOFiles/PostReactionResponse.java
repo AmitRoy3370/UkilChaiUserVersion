@@ -10,7 +10,7 @@ public class PostReactionResponse {
 
 	private String comment;
 
-	private String userId, userName;
+	private String userId, userName, fullName;
 
 	private String advocatePostId;
 
@@ -22,6 +22,18 @@ public class PostReactionResponse {
 		this.comment = comment;
 		this.userId = userId;
 		this.userName = userName;
+		this.advocatePostId = advocatePostId;
+	}
+
+	public PostReactionResponse(String id, PostReactions postReaction, String comment, String userId, String userName,
+			String fullName, String advocatePostId) {
+		super();
+		this.id = id;
+		this.postReaction = postReaction;
+		this.comment = comment;
+		this.userId = userId;
+		this.userName = userName;
+		this.fullName = fullName;
 		this.advocatePostId = advocatePostId;
 	}
 
@@ -77,10 +89,19 @@ public class PostReactionResponse {
 		this.advocatePostId = advocatePostId;
 	}
 
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
 	@Override
 	public String toString() {
 		return "PostReactionResponse [id=" + id + ", postReaction=" + postReaction + ", comment=" + comment
-				+ ", userId=" + userId + ", userName=" + userName + ", advocatePostId=" + advocatePostId + "]";
+				+ ", userId=" + userId + ", userName=" + userName + ", fullName=" + fullName + ", advocatePostId="
+				+ advocatePostId + "]";
 	}
 
 }

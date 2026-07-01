@@ -8,17 +8,29 @@ public class AdminDTO {
 
 	private String id, profileImageId;
 
-	private String userId, userName;
+	private String userId, userName, fullName;
 
 	private Set<AdvocateSpeciality> advocateSpeciality;
 
-	public AdminDTO(String id, String userId, String userName, Set<AdvocateSpeciality> advocateSpeciality, String profileImageId) {
+	public AdminDTO(String id, String userId, String userName, Set<AdvocateSpeciality> advocateSpeciality,
+			String profileImageId) {
 		super();
 		this.id = id;
 		this.userId = userId;
 		this.userName = userName;
 		this.advocateSpeciality = advocateSpeciality;
 		this.profileImageId = profileImageId;
+	}
+
+	public AdminDTO(String id, String profileImageId, String userId, String userName, String fullName,
+			Set<AdvocateSpeciality> advocateSpeciality) {
+		super();
+		this.id = id;
+		this.profileImageId = profileImageId;
+		this.userId = userId;
+		this.userName = userName;
+		this.fullName = fullName;
+		this.advocateSpeciality = advocateSpeciality;
 	}
 
 	public AdminDTO() {
@@ -65,10 +77,18 @@ public class AdminDTO {
 		this.profileImageId = profileImageId;
 	}
 
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
 	@Override
 	public String toString() {
 		return "AdminDTO [id=" + id + ", profileImageId=" + profileImageId + ", userId=" + userId + ", userName="
-				+ userName + ", advocateSpeciality=" + advocateSpeciality + "]";
+				+ userName + ", fullName=" + fullName + ", advocateSpeciality=" + advocateSpeciality + "]";
 	}
 
 }

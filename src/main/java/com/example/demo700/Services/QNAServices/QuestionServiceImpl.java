@@ -507,6 +507,9 @@ public class QuestionServiceImpl implements QuestionService {
 						response.setUserId(question.getUserId());
 						response.setUserName(userMap.get(question.getUserId()).getName());
 
+						response.setFullName(userMap.get(question.getUserId()).getFullName());
+
+						
 					} catch (Exception e) {
 
 					}

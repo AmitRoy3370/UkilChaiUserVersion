@@ -835,12 +835,16 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 					response.setRequestAdvocateName(
 							userMap.get(advocateMap.get(request.getRequestedAdvocateId())).getName());
 
+					response.setRequestedAdvocateFullName(
+							userMap.get(advocateMap.get(request.getRequestedAdvocateId())).getFullName());
+
 				}
 
 				try {
 
 					response.setUserId(request.getUserId());
 					response.setUserName(userMap.get(request.getUserId()).getName());
+					response.setUserFullName(userMap.get(request.getUserId()).getFullName());
 
 				} catch (Exception e) {
 

@@ -17,9 +17,9 @@ public class CaseRequestResponse {
 
 	private String[] attachmentId;
 
-	private String userId, userName;
+	private String userId, userName, userFullName;
 
-	private String requestedAdvocateId, requestAdvocateName;
+	private String requestedAdvocateId, requestAdvocateName, requestedAdvocateFullName;
 
 	public CaseRequestResponse(String id, String caseName, AdvocateSpeciality caseType, Instant requestDate,
 			String[] attachmentId, String userId, String userName, String requestedAdvocateId,
@@ -34,6 +34,23 @@ public class CaseRequestResponse {
 		this.userName = userName;
 		this.requestedAdvocateId = requestedAdvocateId;
 		this.requestAdvocateName = requestAdvocateName;
+	}
+
+	public CaseRequestResponse(String id, String caseName, AdvocateSpeciality caseType, Instant requestDate,
+			String[] attachmentId, String userId, String userName, String userFullName, String requestedAdvocateId,
+			String requestAdvocateName, String requestedAdvocateFullName) {
+		super();
+		this.id = id;
+		this.caseName = caseName;
+		this.caseType = caseType;
+		this.requestDate = requestDate;
+		this.attachmentId = attachmentId;
+		this.userId = userId;
+		this.userName = userName;
+		this.userFullName = userFullName;
+		this.requestedAdvocateId = requestedAdvocateId;
+		this.requestAdvocateName = requestAdvocateName;
+		this.requestedAdvocateFullName = requestedAdvocateFullName;
 	}
 
 	public CaseRequestResponse() {
@@ -112,12 +129,29 @@ public class CaseRequestResponse {
 		this.requestAdvocateName = requestAdvocateName;
 	}
 
+	public String getUserFullName() {
+		return userFullName;
+	}
+
+	public void setUserFullName(String userFullName) {
+		this.userFullName = userFullName;
+	}
+
+	public String getRequestedAdvocateFullName() {
+		return requestedAdvocateFullName;
+	}
+
+	public void setRequestedAdvocateFullName(String requestedAdvocateFullName) {
+		this.requestedAdvocateFullName = requestedAdvocateFullName;
+	}
+
 	@Override
 	public String toString() {
 		return "CaseRequestResponse [id=" + id + ", caseName=" + caseName + ", caseType=" + caseType + ", requestDate="
 				+ requestDate + ", attachmentId=" + Arrays.toString(attachmentId) + ", userId=" + userId + ", userName="
-				+ userName + ", requestedAdvocateId=" + requestedAdvocateId + ", requestAdvocateName="
-				+ requestAdvocateName + "]";
+				+ userName + ", userFullName=" + userFullName + ", requestedAdvocateId=" + requestedAdvocateId
+				+ ", requestAdvocateName=" + requestAdvocateName + ", requestedAdvocateFullName="
+				+ requestedAdvocateFullName + "]";
 	}
 
 }

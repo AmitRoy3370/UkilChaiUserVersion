@@ -9,7 +9,7 @@ public class QuestionResponse {
 
 	private String id;
 
-	private String userId, userName;
+	private String userId, userName, fullName;
 
 	private String message;
 
@@ -27,6 +27,20 @@ public class QuestionResponse {
 		this.id = id;
 		this.userId = userId;
 		this.userName = userName;
+		this.message = message;
+		this.questionType = questionType;
+		this.postTime = postTime;
+		this.attachmentId = attachmentId;
+		this.answers = answers;
+	}
+
+	public QuestionResponse(String id, String userId, String userName, String fullName, String message,
+			AdvocateSpeciality questionType, Instant postTime, String attachmentId, List<AnswerResponse> answers) {
+		super();
+		this.id = id;
+		this.userId = userId;
+		this.userName = userName;
+		this.fullName = fullName;
 		this.message = message;
 		this.questionType = questionType;
 		this.postTime = postTime;
@@ -104,11 +118,19 @@ public class QuestionResponse {
 		this.answers = answers;
 	}
 
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
 	@Override
 	public String toString() {
-		return "QuestionResponse [id=" + id + ", userId=" + userId + ", userName=" + userName + ", message=" + message
-				+ ", questionType=" + questionType + ", postTime=" + postTime + ", attachmentId=" + attachmentId
-				+ ", answers=" + answers + "]";
+		return "QuestionResponse [id=" + id + ", userId=" + userId + ", userName=" + userName + ", fullName=" + fullName
+				+ ", message=" + message + ", questionType=" + questionType + ", postTime=" + postTime
+				+ ", attachmentId=" + attachmentId + ", answers=" + answers + "]";
 	}
 
 }

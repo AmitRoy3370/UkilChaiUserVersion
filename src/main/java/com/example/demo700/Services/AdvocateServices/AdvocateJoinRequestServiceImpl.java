@@ -937,6 +937,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 					// response.setProfileImageId(userMap.get(request.getUserId()).getProfileImageId());
 					response.setUserName(userMap.get(request.getUserId()).getName());
+					response.setFullName(userMap.get(request.getUserId()).getFullName());
 
 				} catch (Exception e) {
 

@@ -14,14 +14,25 @@ public class User {
 	@NonNull
 	private String name;
 
+	private String fullName;
+
 	@NonNull
 	private String password;
 
 	private String profileImageId;
 
+	public User(String name, String fullName, String password, String profileImageId) {
+		super();
+		this.name = name;
+		this.fullName = fullName;
+		this.password = password;
+		this.profileImageId = profileImageId;
+	}
+	
 	public User(String name, String password, String profileImageId) {
 		super();
 		this.name = name;
+		
 		this.password = password;
 		this.profileImageId = profileImageId;
 	}
@@ -62,10 +73,18 @@ public class User {
 		this.profileImageId = profileImageId;
 	}
 
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", name=" + name + ", password=" + password + ", profileImageId=" + profileImageId
-				+ "]";
+		return "User [id=" + id + ", name=" + name + ", fullName=" + fullName + ", password=" + password
+				+ ", profileImageId=" + profileImageId + "]";
 	}
 
 }

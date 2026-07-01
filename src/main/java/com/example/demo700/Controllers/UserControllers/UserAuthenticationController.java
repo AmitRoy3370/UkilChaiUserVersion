@@ -25,12 +25,24 @@ public class UserAuthenticationController {
 	private UserService userService;
 
 	@PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<?> addUser(@RequestPart("name") String name, @RequestPart("password") String password, @RequestPart("profileImageId") String profileImageId,
-			@RequestPart(value = "file", required = false) MultipartFile file) {
+	public ResponseEntity<?> addUser(@RequestPart("name") String name, @RequestPart("password") String password,
+			@RequestPart("profileImageId") String profileImageId,
+			@RequestPart(value = "file", required = false) MultipartFile file,
+			@RequestPart(value = "FullName", required = false) String fullName) {
 
 		try {
 
-			User user = new User(name, password, profileImageId);
+			User user = null;
+
+			if (fullName != null) {
+
+				user = new User(name, fullName, password, profileImageId);
+
+			} else {
+
+				user = new User(name, password, profileImageId);
+
+			}
 
 			JwtResponse jwtResponse = userService.addUser(user, file);
 

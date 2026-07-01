@@ -687,6 +687,16 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 
 				}
 
+				try {
+
+					response.setFullName(userMap.get(data.getUserId()).getFullName());
+
+				} catch (Exception e) {
+
+					response.setUserName("Un Named");
+
+				}
+				
 				responses.add(response);
 
 			} catch (Exception e) {

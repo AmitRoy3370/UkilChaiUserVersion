@@ -11,6 +11,7 @@ import com.example.demo700.Model.UserModels.User;
 public interface UserRepository extends MongoRepository<User, String> {
 	
 	public User findByNameIgnoreCase(String name);
+	public List<User> findByFullNameContainingIgnoreCase(String partialFullName);
 	public List<User> findByProfileImageId(String profileImageId);
 
 }

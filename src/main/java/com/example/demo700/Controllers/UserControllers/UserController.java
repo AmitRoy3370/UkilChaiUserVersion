@@ -48,11 +48,25 @@ public class UserController {
 
 	// ----------------- UPDATE USER --------------------
 	@PutMapping(value = "/update/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<?> updateUser(@RequestPart("name") String name, @RequestPart("password") String password,
+	public ResponseEntity<?> updateUser(@RequestPart("name") String name,
+			@RequestPart(value = "FullName", required = false) String fullName,
+			@RequestPart("password") String password,
 			@RequestPart(value = "profileImageId", required = false) String profileImageId,
 			@RequestPart(value = "file", required = false) MultipartFile file, @PathVariable String userId) {
 		try {
-			User user = new User(name, password, profileImageId);
+
+			User user = null;
+
+			if (fullName != null) {
+
+				user = new User(name, fullName, password, profileImageId);
+
+			} else {
+
+				user = new User(name, password, profileImageId);
+
+			}
+
 			User updated = userService.updateUser(user, userId, file);
 			if (updated == null) {
 				return ResponseEntity.status(500).body("Data is not updated...");
@@ -103,6 +117,29 @@ public class UserController {
 		} catch (Exception e) {
 			return ResponseEntity.status(404).body(e.getMessage());
 		}
+	}
+
+	@GetMapping("/find/fullName/{fullName}")
+	public ResponseEntity<?> findByFullNamePartial(@PathVariable String fullName) {
+
+		try {
+
+			List<User> users = userService.findByFullNamePartial(fullName);
+
+			if (users.isEmpty()) {
+
+				throw new Exception("No user find...");
+
+			}
+
+			return ResponseEntity.status(200).body(users);
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(404).body(e.getMessage());
+
+		}
+
 	}
 
 	// ----------------- FIND BY PROFILE IMAGE ID --------------------

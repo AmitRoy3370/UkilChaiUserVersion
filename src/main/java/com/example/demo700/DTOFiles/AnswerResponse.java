@@ -6,7 +6,7 @@ public class AnswerResponse {
 
 	private String id;
 
-	private String advocateId, advocateName;
+	private String advocateId, advocateName, advocateFullName;
 
 	private String message;
 
@@ -22,6 +22,19 @@ public class AnswerResponse {
 		this.id = id;
 		this.advocateId = advocateId;
 		this.advocateName = advocateName;
+		this.message = message;
+		this.time = time;
+		this.questionId = questionId;
+		this.attachmentId = attachmentId;
+	}
+
+	public AnswerResponse(String id, String advocateId, String advocateName, String advocateFullName, String message,
+			Instant time, String questionId, String attachmentId) {
+		super();
+		this.id = id;
+		this.advocateId = advocateId;
+		this.advocateName = advocateName;
+		this.advocateFullName = advocateFullName;
 		this.message = message;
 		this.time = time;
 		this.questionId = questionId;
@@ -88,11 +101,19 @@ public class AnswerResponse {
 		this.attachmentId = attachmentId;
 	}
 
+	public String getAdvocateFullName() {
+		return advocateFullName;
+	}
+
+	public void setAdvocateFullName(String advocateFullName) {
+		this.advocateFullName = advocateFullName;
+	}
+
 	@Override
 	public String toString() {
 		return "AnswerResponse [id=" + id + ", advocateId=" + advocateId + ", advocateName=" + advocateName
-				+ ", message=" + message + ", time=" + time + ", questionId=" + questionId + ", attachmentId="
-				+ attachmentId + "]";
+				+ ", advocateFullName=" + advocateFullName + ", message=" + message + ", time=" + time + ", questionId="
+				+ questionId + ", attachmentId=" + attachmentId + "]";
 	}
 
 }

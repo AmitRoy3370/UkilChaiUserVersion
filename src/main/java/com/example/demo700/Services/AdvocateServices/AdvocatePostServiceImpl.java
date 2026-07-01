@@ -293,12 +293,12 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 			if (file != null && !file.isEmpty()) {
 
-				if(advocatePost.getAttachmentId() != null) {
-					
+				if (advocatePost.getAttachmentId() != null) {
+
 					postContentService.delete(advocatePost.getAttachmentId());
-					
+
 				}
-				
+
 				String attachmentId = postContentService.upload(file);
 
 				advocatePost.setAttachmentId(attachmentId);
@@ -547,6 +547,8 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 				try {
 
 					response.setAdvocateName(userMap.get(post.getAdvocateId()).getName());
+
+					response.setAdvocateFullName(userMap.get(post.getAdvocateId()).getFullName());
 
 				} catch (Exception e) {
 

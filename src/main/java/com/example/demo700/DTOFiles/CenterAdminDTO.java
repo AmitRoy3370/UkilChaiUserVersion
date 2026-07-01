@@ -6,7 +6,7 @@ public class CenterAdminDTO {
 
 	String id, profileImageId;
 
-	String userId, userName;
+	String userId, userName, fullName;
 
 	List<String> admins;
 
@@ -16,7 +16,11 @@ public class CenterAdminDTO {
 
 	List<String> adminsName;
 
+	List<String> adminsFullName;
+	
 	List<String> advocatesName;
+	
+	List<String> advocatesFullName;
 
 	public CenterAdminDTO(String id, String userId, List<String> admins, List<String> districts, List<String> advocates,
 			List<String> adminsName, List<String> advocatesName, String userName, String profileImageId) {
@@ -30,6 +34,40 @@ public class CenterAdminDTO {
 		this.adminsName = adminsName;
 		this.advocatesName = advocatesName;
 		this.profileImageId = profileImageId;
+	}
+
+	public CenterAdminDTO(String id, String profileImageId, String userId, String userName, String fullName,
+			List<String> admins, List<String> districts, List<String> advocates, List<String> adminsName,
+			List<String> advocatesName) {
+		super();
+		this.id = id;
+		this.profileImageId = profileImageId;
+		this.userId = userId;
+		this.userName = userName;
+		this.fullName = fullName;
+		this.admins = admins;
+		this.districts = districts;
+		this.advocates = advocates;
+		this.adminsName = adminsName;
+		this.advocatesName = advocatesName;
+	}
+
+	public CenterAdminDTO(String id, String profileImageId, String userId, String userName, String fullName,
+			List<String> admins, List<String> districts, List<String> advocates, List<String> adminsName,
+			List<String> adminsFullName, List<String> advocatesName, List<String> advocatesFullName) {
+		super();
+		this.id = id;
+		this.profileImageId = profileImageId;
+		this.userId = userId;
+		this.userName = userName;
+		this.fullName = fullName;
+		this.admins = admins;
+		this.districts = districts;
+		this.advocates = advocates;
+		this.adminsName = adminsName;
+		this.adminsFullName = adminsFullName;
+		this.advocatesName = advocatesName;
+		this.advocatesFullName = advocatesFullName;
 	}
 
 	public CenterAdminDTO() {
@@ -108,11 +146,36 @@ public class CenterAdminDTO {
 		this.profileImageId = profileImageId;
 	}
 
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+	public List<String> getAdminsFullName() {
+		return adminsFullName;
+	}
+
+	public void setAdminsFullName(List<String> adminsFullName) {
+		this.adminsFullName = adminsFullName;
+	}
+
+	public List<String> getAdvocatesFullName() {
+		return advocatesFullName;
+	}
+
+	public void setAdvocatesFullName(List<String> advocatesFullName) {
+		this.advocatesFullName = advocatesFullName;
+	}
+
 	@Override
 	public String toString() {
 		return "CenterAdminDTO [id=" + id + ", profileImageId=" + profileImageId + ", userId=" + userId + ", userName="
-				+ userName + ", admins=" + admins + ", districts=" + districts + ", advocates=" + advocates
-				+ ", adminsName=" + adminsName + ", advocatesName=" + advocatesName + "]";
+				+ userName + ", fullName=" + fullName + ", admins=" + admins + ", districts=" + districts
+				+ ", advocates=" + advocates + ", adminsName=" + adminsName + ", adminsFullName=" + adminsFullName
+				+ ", advocatesName=" + advocatesName + ", advocatesFullName=" + advocatesFullName + "]";
 	}
 
 }

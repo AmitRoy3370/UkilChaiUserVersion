@@ -294,27 +294,27 @@ public class PostReactionServiceImpl implements PostReactionService {
 
 	@Override
 	public List<PostReactionResponse> findByAdvocateIdIn(List<String> advocatePostIds) {
-		
+
 		try {
-			
+
 			List<PostReaction> list = postReactionRepository.findByAdvocatePostIdIn(advocatePostIds);
-			
-			if(list.isEmpty()) {
-				
+
+			if (list.isEmpty()) {
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return getPostReactionResponseFromPostReactionList(list);
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			return new ArrayList<>();
-			
+
 		}
-		
+
 	}
-	
+
 	@Override
 	public boolean removePostReaction(String id, String userId) {
 
@@ -421,6 +421,8 @@ public class PostReactionServiceImpl implements PostReactionService {
 
 					response.setUserId(reaction.getUserId());
 					response.setUserName(userMap.get(reaction.getUserId()).getName());
+
+					response.setFullName(userMap.get(reaction.getUserId()).getFullName());
 
 				} catch (Exception e) {
 

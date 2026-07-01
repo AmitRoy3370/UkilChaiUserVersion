@@ -551,6 +551,7 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 
 					response.setQuestionId(answer.getQuestionId());
 					response.setAdvocateName(advocateMap.get(answer.getAdvocateId()).getName());
+					response.setAdvocateFullName(advocateMap.get(answer.getAdvocateId()).getFullName());
 
 				} catch (Exception e) {
 

@@ -15,6 +15,7 @@ public interface UserService {
 	public User updateUser(User user, String userId, MultipartFile file);
 	public boolean deleteUser(String userId, String tryingToDelete);
 	public User findByName(String name);
+	public List<User> findByFullNamePartial(String fullNamePartial);
 	public List<User> findByProfileImageId(String profileImageId);
 	public JwtResponse LogIn(LoginRequest loginRequest);
 	public User searchUser(String userId);

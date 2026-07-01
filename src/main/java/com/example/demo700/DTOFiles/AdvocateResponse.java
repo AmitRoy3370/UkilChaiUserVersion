@@ -9,7 +9,7 @@ public class AdvocateResponse {
 
 	private String id, contactInfoId, locationId, district;
 
-	private String userId, name, profileImageId;
+	private String userId, name, fullName, profileImageId;
 
 	private Set<AdvocateSpeciality> advocateSpeciality;
 
@@ -39,6 +39,32 @@ public class AdvocateResponse {
 		this.locationId = locationId;
 		this.userId = userId;
 		this.name = name;
+		this.profileImageId = profileImageId;
+		this.advocateSpeciality = advocateSpeciality;
+		this.experience = experience;
+		this.licenseKey = licenseKey;
+		this.cvHexKey = cvHexKey;
+		this.degrees = degrees;
+		this.workingExperiences = workingExperiences;
+		this.email = email;
+		this.phone = phone;
+		this.locationName = locationName;
+		this.lattitude = lattitude;
+		this.longitude = longitude;
+	}
+
+	public AdvocateResponse(String id, String contactInfoId, String locationId, String district, String userId,
+			String name, String fullName, String profileImageId, Set<AdvocateSpeciality> advocateSpeciality,
+			int experience, String licenseKey, String cvHexKey, String[] degrees, String[] workingExperiences,
+			String email, String phone, String locationName, double lattitude, double longitude) {
+		super();
+		this.id = id;
+		this.contactInfoId = contactInfoId;
+		this.locationId = locationId;
+		this.district = district;
+		this.userId = userId;
+		this.name = name;
+		this.fullName = fullName;
 		this.profileImageId = profileImageId;
 		this.advocateSpeciality = advocateSpeciality;
 		this.experience = experience;
@@ -226,15 +252,23 @@ public class AdvocateResponse {
 		this.district = district;
 	}
 
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
 	@Override
 	public String toString() {
 		return "AdvocateResponse [id=" + id + ", contactInfoId=" + contactInfoId + ", locationId=" + locationId
-				+ ", district=" + district + ", userId=" + userId + ", name=" + name + ", profileImageId="
-				+ profileImageId + ", advocateSpeciality=" + advocateSpeciality + ", experience=" + experience
-				+ ", licenseKey=" + licenseKey + ", cvHexKey=" + cvHexKey + ", degrees=" + Arrays.toString(degrees)
-				+ ", workingExperiences=" + Arrays.toString(workingExperiences) + ", email=" + email + ", phone="
-				+ phone + ", locationName=" + locationName + ", lattitude=" + lattitude + ", longitude=" + longitude
-				+ "]";
+				+ ", district=" + district + ", userId=" + userId + ", name=" + name + ", fullName=" + fullName
+				+ ", profileImageId=" + profileImageId + ", advocateSpeciality=" + advocateSpeciality + ", experience="
+				+ experience + ", licenseKey=" + licenseKey + ", cvHexKey=" + cvHexKey + ", degrees="
+				+ Arrays.toString(degrees) + ", workingExperiences=" + Arrays.toString(workingExperiences) + ", email="
+				+ email + ", phone=" + phone + ", locationName=" + locationName + ", lattitude=" + lattitude
+				+ ", longitude=" + longitude + "]";
 	}
 
 }

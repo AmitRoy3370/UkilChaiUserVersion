@@ -724,6 +724,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 			try {
 
 				response.setName(userMap.get(advocate.getUserId()).getName());
+				response.setFullName(userMap.get(advocate.getUserId()).getFullName());
 				response.setProfileImageId(userMap.get(advocate.getUserId()).getProfileImageId());
 
 			} catch (Exception e) {

@@ -6,7 +6,7 @@ public class UserLiveLocationDataResponse {
 
 	private String advocateId;
 
-	private String userId, userName;
+	private String userId, userName, fullName;
 
 	private String locationName;
 
@@ -19,6 +19,19 @@ public class UserLiveLocationDataResponse {
 		this.advocateId = advocateId;
 		this.userId = userId;
 		this.userName = userName;
+		this.locationName = locationName;
+		this.lattitude = lattitude;
+		this.longitude = longitude;
+	}
+
+	public UserLiveLocationDataResponse(String id, String advocateId, String userId, String userName, String fullName,
+			String locationName, double lattitude, double longitude) {
+		super();
+		this.id = id;
+		this.advocateId = advocateId;
+		this.userId = userId;
+		this.userName = userName;
+		this.fullName = fullName;
 		this.locationName = locationName;
 		this.lattitude = lattitude;
 		this.longitude = longitude;
@@ -84,11 +97,19 @@ public class UserLiveLocationDataResponse {
 		this.longitude = longitude;
 	}
 
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
 	@Override
 	public String toString() {
 		return "UserLiveLocationDataResponse [id=" + id + ", advocateId=" + advocateId + ", userId=" + userId
-				+ ", userName=" + userName + ", locationName=" + locationName + ", lattitude=" + lattitude
-				+ ", longitude=" + longitude + "]";
+				+ ", userName=" + userName + ", fullName=" + fullName + ", locationName=" + locationName
+				+ ", lattitude=" + lattitude + ", longitude=" + longitude + "]";
 	}
 
 }

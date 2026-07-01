@@ -132,6 +132,35 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public List<User> findByFullNamePartial(String fullNamePartial) {
+		
+		if(fullNamePartial == null) {
+			
+			throw new NullPointerException("False request...");
+			
+		}
+		
+		try {
+			
+			List<User> list = userRepository.findByFullNameContainingIgnoreCase(fullNamePartial);
+			
+			if(list == null || list.isEmpty()) {
+				
+				throw new NoSuchElementException();
+				
+			}
+			
+			return list;
+			
+		} catch(Exception e) {
+			
+			throw new NoSuchElementException(e.getMessage());
+			
+		}
+		
+	}
+	
+	@Override
 	public User updateUser(User user, String userId, MultipartFile file) {
 
 		if (user == null || userId == null) {

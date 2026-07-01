@@ -8,7 +8,7 @@ public class PostResponse {
 
 	private String id;
 
-	private String advocateId, advocateName;
+	private String advocateId, advocateName, advocateFullName;
 
 	private AdvocateSpeciality postType;
 
@@ -24,6 +24,20 @@ public class PostResponse {
 		this.id = id;
 		this.advocateId = advocateId;
 		this.advocateName = advocateName;
+		this.postType = postType;
+		this.postContent = postContent;
+		this.attachmentId = attachmentId;
+		this.reactions = reactions;
+	}
+
+	public PostResponse(String id, String advocateId, String advocateName, String advocateFullName,
+			AdvocateSpeciality postType, String postContent, String attachmentId,
+			List<PostReactionResponse> reactions) {
+		super();
+		this.id = id;
+		this.advocateId = advocateId;
+		this.advocateName = advocateName;
+		this.advocateFullName = advocateFullName;
 		this.postType = postType;
 		this.postContent = postContent;
 		this.attachmentId = attachmentId;
@@ -90,11 +104,19 @@ public class PostResponse {
 		this.reactions = reactions;
 	}
 
+	public String getAdvocateFullName() {
+		return advocateFullName;
+	}
+
+	public void setAdvocateFullName(String advocateFullName) {
+		this.advocateFullName = advocateFullName;
+	}
+
 	@Override
 	public String toString() {
 		return "PostResponse [id=" + id + ", advocateId=" + advocateId + ", advocateName=" + advocateName
-				+ ", postType=" + postType + ", postContent=" + postContent + ", attachmentId=" + attachmentId
-				+ ", reactions=" + reactions + "]";
+				+ ", advocateFullName=" + advocateFullName + ", postType=" + postType + ", postContent=" + postContent
+				+ ", attachmentId=" + attachmentId + ", reactions=" + reactions + "]";
 	}
 
 }

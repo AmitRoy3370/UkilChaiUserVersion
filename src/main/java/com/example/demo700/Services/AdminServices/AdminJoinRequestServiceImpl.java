@@ -582,6 +582,7 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 				}
 
 				response.setUserName(userMap.get(adminJoinRequest.getUserId()).getName());
+				response.setFullName(userMap.get(adminJoinRequest.getUserId()).getFullName());
 				response.setAdvocateSpeciality(adminJoinRequest.getAdvocateSpeciality());
 
 			} catch (Exception e) {

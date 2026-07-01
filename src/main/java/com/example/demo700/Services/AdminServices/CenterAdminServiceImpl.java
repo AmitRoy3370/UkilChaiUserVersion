@@ -563,10 +563,10 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 
 		}, executors);
 
-		CompletableFuture<Map<String, List<String>>> adminFuture = CompletableFuture.supplyAsync(() -> {
+		CompletableFuture<Map<String, List<AdminDTO>>> adminFullNameFuture = CompletableFuture.supplyAsync(() -> {
 
 			if (list == null || list.isEmpty()) {
-				return new HashMap<String, List<String>>();
+				return new HashMap<String, List<AdminDTO>>();
 			}
 
 			return list.stream().filter(Objects::nonNull)
@@ -576,21 +576,27 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 								try {
 									// Pass List<String> to seeAllAdvocate
 									List<AdminDTO> advocateResponses = adminService.seeAll(admin.getAdmins());
-									return advocateResponses.stream().filter(Objects::nonNull)
-											.map(AdminDTO::getUserName).filter(Objects::nonNull)
-											.collect(Collectors.toList());
+
+									/*
+									 * return advocateResponses.stream().filter(Objects::nonNull)
+									 * .map(AdminDTO::getFullName).filter(Objects::nonNull)
+									 * .collect(Collectors.toList());
+									 */
+
+									return advocateResponses;
+
 								} catch (Exception e) {
-									return new ArrayList<String>();
+									return new ArrayList<AdminDTO>();
 								}
 							}));
 
 		}, executors);
 
 		// If seeAllAdvocate() returns List<AdvocateResponse>
-		CompletableFuture<Map<String, List<String>>> advocateFuture = CompletableFuture.supplyAsync(() -> {
+		CompletableFuture<Map<String, List<AdvocateResponse>>> advocateFuture = CompletableFuture.supplyAsync(() -> {
 
 			if (list == null || list.isEmpty()) {
-				return new HashMap<String, List<String>>();
+				return new HashMap<String, List<AdvocateResponse>>();
 			}
 
 			return list.stream().filter(Objects::nonNull)
@@ -601,20 +607,27 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 									// Pass List<String> to seeAllAdvocate
 									List<AdvocateResponse> advocateResponses = advocateService
 											.seeAllAdvocate(admin.getAdvocates());
-									return advocateResponses.stream().filter(Objects::nonNull)
-											.map(AdvocateResponse::getName).filter(Objects::nonNull)
-											.collect(Collectors.toList());
+									/*
+									 * return advocateResponses.stream().filter(Objects::nonNull)
+									 * .map(AdvocateResponse::getName).filter(Objects::nonNull)
+									 * .collect(Collectors.toList());
+									 * 
+									 */
+
+									return advocateResponses;
+
 								} catch (Exception e) {
-									return new ArrayList<String>();
+									return new ArrayList<AdvocateResponse>();
 								}
 							}));
 
 		}, executors);
 
-		CompletableFuture.allOf(allUserIdFuture, userNameFuture, adminFuture, advocateFuture).join();
+		CompletableFuture.allOf(allUserIdFuture, userNameFuture, adminFullNameFuture, advocateFuture).join();
 
-		Map<String, List<String>> adminMap = adminFuture.join();
-		Map<String, List<String>> advocateMap = advocateFuture.join();
+		Map<String, List<AdminDTO>> adminFullNameMap = adminFullNameFuture.join();
+		Map<String, List<AdvocateResponse>> advocateMap = advocateFuture.join();
+
 		List<String> allUserId = allUserIdFuture.join();
 		Map<String, User> userMap = userNameFuture.join();
 
@@ -627,6 +640,8 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 				response.setId(centerAdmin.getId());
 				response.setUserId(centerAdmin.getUserId());
 				response.setUserName(userMap.get(centerAdmin.getUserId()).getName());
+
+				response.setFullName(userMap.get(centerAdmin.getUserId()).getFullName());
 
 				try {
 
@@ -642,7 +657,8 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 
 				try {
 
-					response.setAdvocatesName(advocateMap.get(centerAdmin.getId()));
+					response.setAdvocatesName(advocateMap.get(centerAdmin.getId()).stream()
+							.map(AdvocateResponse::getName).collect(Collectors.toList()));
 
 				} catch (Exception e) {
 
@@ -650,7 +666,26 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 
 				try {
 
-					response.setAdminsName(adminMap.get(centerAdmin.getId()));
+					response.setAdvocatesFullName(advocateMap.get(centerAdmin.getId()).stream()
+							.map(AdvocateResponse::getFullName).collect(Collectors.toList()));
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setAdminsName(adminFullNameMap.get(centerAdmin.getId()).stream().map(AdminDTO::getUserName)
+							.collect(Collectors.toList()));
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setAdminsFullName(adminFullNameMap.get(centerAdmin.getId()).stream()
+							.map(AdminDTO::getFullName).collect(Collectors.toList()));
 
 				} catch (Exception e) {
 

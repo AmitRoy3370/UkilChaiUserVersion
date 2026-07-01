@@ -394,6 +394,7 @@ public class AdminServiceImpl implements AdminService {
 				adminDTO.setUserId(admin.getUserId());
 				adminDTO.setAdvocateSpeciality(admin.getAdvocateSpeciality());
 				adminDTO.setUserName(userMap.get(admin.getUserId()).getName());
+				adminDTO.setFullName(userMap.get(admin.getUserId()).getFullName());
 
 				try {
 					

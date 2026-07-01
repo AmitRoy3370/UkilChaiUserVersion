@@ -9,7 +9,7 @@ public class AdvocateJoinRequestDTO {
 
 	private String id, profileImageId;
 
-	private String userId, userName;
+	private String userId, userName, fullName;
 	
 	private String userContactInfoId, phone, email;
 	
@@ -40,6 +40,32 @@ public class AdvocateJoinRequestDTO {
 		this.advocateSpeciality = advocateSpeciality;
 		this.experience = experience;
 		this.licenseKey = licenseKey;
+		this.cvHexKey = cvHexKey;
+		this.degrees = degrees;
+		this.workingExperiences = workingExperiences;
+	}
+
+	public AdvocateJoinRequestDTO(String id, String profileImageId, String userId, String userName, String fullName,
+			String userContactInfoId, String phone, String email, String userLocationId, String locationName,
+			double lattitude, double logitude, Set<AdvocateSpeciality> advocateSpeciality, int experience,
+			String licenseKey, String district, String cvHexKey, String[] degrees, String[] workingExperiences) {
+		super();
+		this.id = id;
+		this.profileImageId = profileImageId;
+		this.userId = userId;
+		this.userName = userName;
+		this.fullName = fullName;
+		this.userContactInfoId = userContactInfoId;
+		this.phone = phone;
+		this.email = email;
+		this.userLocationId = userLocationId;
+		this.locationName = locationName;
+		this.lattitude = lattitude;
+		this.logitude = logitude;
+		this.advocateSpeciality = advocateSpeciality;
+		this.experience = experience;
+		this.licenseKey = licenseKey;
+		this.district = district;
 		this.cvHexKey = cvHexKey;
 		this.degrees = degrees;
 		this.workingExperiences = workingExperiences;
@@ -218,15 +244,23 @@ public class AdvocateJoinRequestDTO {
 		this.district = district;
 	}
 
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
 	@Override
 	public String toString() {
 		return "AdvocateJoinRequestDTO [id=" + id + ", profileImageId=" + profileImageId + ", userId=" + userId
-				+ ", userName=" + userName + ", userContactInfoId=" + userContactInfoId + ", phone=" + phone
-				+ ", email=" + email + ", userLocationId=" + userLocationId + ", locationName=" + locationName
-				+ ", lattitude=" + lattitude + ", logitude=" + logitude + ", advocateSpeciality=" + advocateSpeciality
-				+ ", experience=" + experience + ", licenseKey=" + licenseKey + ", district=" + district + ", cvHexKey="
-				+ cvHexKey + ", degrees=" + Arrays.toString(degrees) + ", workingExperiences="
-				+ Arrays.toString(workingExperiences) + "]";
+				+ ", userName=" + userName + ", fullName=" + fullName + ", userContactInfoId=" + userContactInfoId
+				+ ", phone=" + phone + ", email=" + email + ", userLocationId=" + userLocationId + ", locationName="
+				+ locationName + ", lattitude=" + lattitude + ", logitude=" + logitude + ", advocateSpeciality="
+				+ advocateSpeciality + ", experience=" + experience + ", licenseKey=" + licenseKey + ", district="
+				+ district + ", cvHexKey=" + cvHexKey + ", degrees=" + Arrays.toString(degrees)
+				+ ", workingExperiences=" + Arrays.toString(workingExperiences) + "]";
 	}
 
 }

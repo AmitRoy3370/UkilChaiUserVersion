@@ -6,14 +6,14 @@ public class ChatResponse {
 
 	private String id;
 	private String senderId;
-	private String senderName;
+	private String senderName, senderFullName;
 	private SenderInfo senderInfo;
 	private ReceiverInfo receiverInfo;
 	private Instant timeStamp;
 
 	// Nested DTO for sender information
 	public static class SenderInfo {
-		private String receiverName;
+		private String receiverName, receiverFullName;
 		private String receiverId;
 		private String message;
 		private boolean readChat;
@@ -24,6 +24,16 @@ public class ChatResponse {
 
 		public SenderInfo(String receiverName, String receiverId, String message, boolean readChat) {
 			this.receiverName = receiverName;
+			this.receiverId = receiverId;
+			this.message = message;
+			this.readChat = readChat;
+		}
+
+		public SenderInfo(String receiverName, String receiverFullName, String receiverId, String message,
+				boolean readChat) {
+			super();
+			this.receiverName = receiverName;
+			this.receiverFullName = receiverFullName;
 			this.receiverId = receiverId;
 			this.message = message;
 			this.readChat = readChat;
@@ -64,8 +74,8 @@ public class ChatResponse {
 
 		@Override
 		public String toString() {
-			return "SenderInfo [receiverName=" + receiverName + ", receiverId=" + receiverId + ", message=" + message
-					+ ", readChat=" + readChat + "]";
+			return "SenderInfo [receiverName=" + receiverName + ", receiverFullName=" + receiverFullName
+					+ ", receiverId=" + receiverId + ", message=" + message + ", readChat=" + readChat + "]";
 		}
 
 	}
@@ -73,7 +83,7 @@ public class ChatResponse {
 	// Nested DTO for receiver information
 	public static class ReceiverInfo {
 		private String senderId;
-		private String senderName;
+		private String senderName, senderFullName;
 		private String message;
 		private boolean readChat;
 
@@ -84,6 +94,16 @@ public class ChatResponse {
 		public ReceiverInfo(String senderId, String senderName, String message, boolean readChat) {
 			this.senderId = senderId;
 			this.senderName = senderName;
+			this.message = message;
+			this.readChat = readChat;
+		}
+
+		public ReceiverInfo(String senderId, String senderName, String senderFullName, String message,
+				boolean readChat) {
+			super();
+			this.senderId = senderId;
+			this.senderName = senderName;
+			this.senderFullName = senderFullName;
 			this.message = message;
 			this.readChat = readChat;
 		}
@@ -121,10 +141,18 @@ public class ChatResponse {
 			this.readChat = readChat;
 		}
 
+		public String getSenderFullName() {
+			return senderFullName;
+		}
+
+		public void setSenderFullName(String senderFullName) {
+			this.senderFullName = senderFullName;
+		}
+
 		@Override
 		public String toString() {
-			return "ReceiverInfo [senderId=" + senderId + ", senderName=" + senderName + ", message=" + message
-					+ ", readChat=" + readChat + "]";
+			return "ReceiverInfo [senderId=" + senderId + ", senderName=" + senderName + ", senderFullName="
+					+ senderFullName + ", message=" + message + ", readChat=" + readChat + "]";
 		}
 
 	}
@@ -138,6 +166,18 @@ public class ChatResponse {
 		this.id = id;
 		this.senderId = senderId;
 		this.senderName = senderName;
+		this.senderInfo = senderInfo;
+		this.receiverInfo = receiverInfo;
+		this.timeStamp = timeStamp;
+	}
+
+	public ChatResponse(String id, String senderId, String senderName, String senderFullName, SenderInfo senderInfo,
+			ReceiverInfo receiverInfo, Instant timeStamp) {
+		super();
+		this.id = id;
+		this.senderId = senderId;
+		this.senderName = senderName;
+		this.senderFullName = senderFullName;
 		this.senderInfo = senderInfo;
 		this.receiverInfo = receiverInfo;
 		this.timeStamp = timeStamp;
@@ -192,10 +232,19 @@ public class ChatResponse {
 		this.timeStamp = timeStamp;
 	}
 
+	public String getSenderFullName() {
+		return senderFullName;
+	}
+
+	public void setSenderFullName(String senderFullName) {
+		this.senderFullName = senderFullName;
+	}
+
 	@Override
 	public String toString() {
-		return "ChatResponse [id=" + id + ", senderId=" + senderId + ", senderName=" + senderName + ", senderInfo="
-				+ senderInfo + ", receiverInfo=" + receiverInfo + ", timeStamp=" + timeStamp + "]";
+		return "ChatResponse [id=" + id + ", senderId=" + senderId + ", senderName=" + senderName + ", senderFullName="
+				+ senderFullName + ", senderInfo=" + senderInfo + ", receiverInfo=" + receiverInfo + ", timeStamp="
+				+ timeStamp + "]";
 	}
 
 }

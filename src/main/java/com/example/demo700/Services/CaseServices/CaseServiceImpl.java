@@ -590,8 +590,9 @@ public class CaseServiceImpl implements CaseService {
 				response.setUserId(_case.getUserId());
 				response.setAttachmentsId(_case.getAttachmentsId());
 				response.setUserName(userMap.get(_case.getUserId()).getName());
+				response.setUserFullName(userMap.get(_case.getUserId()).getFullName());
 				response.setAdvocateName(userMap.get(advocateMap.get(_case.getAdvocateId())).getName());
-
+                response.setAdvocateFullName(userMap.get(advocateMap.get(_case.getAdvocateId())).getFullName());
 				responses.add(response);
 
 			} catch (Exception e) {
