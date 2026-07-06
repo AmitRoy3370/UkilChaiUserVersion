@@ -1,6 +1,5 @@
 package com.example.demo700.Security;
 
-
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -15,55 +14,50 @@ import org.springframework.web.multipart.support.MultipartFilter;
 @Configuration
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;
+	private final JwtFilter jwtFilter;
 
-    public SecurityConfig(JwtFilter jwtFilter) {
-        this.jwtFilter = jwtFilter;
-    }
+	public SecurityConfig(JwtFilter jwtFilter) {
+		this.jwtFilter = jwtFilter;
+	}
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http
-            // 🔴 CSRF off (API based app)
-            .csrf(csrf -> csrf.disable())
+		http
+				// 🔴 CSRF off (API based app)
+				.csrf(csrf -> csrf.disable())
 
-            // 🔴 Enable CORS
-            .cors(cors -> {})
+				// 🔴 Enable CORS
+				.cors(cors -> {
+				})
 
-            // 🔴 Stateless session (JWT)
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
+				// 🔴 Stateless session (JWT)
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            // 🔴 Authorization rules
-            .authorizeHttpRequests(auth ->
-                auth
-                    // ✅ VERY IMPORTANT for Flutter Web
-                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+				// 🔴 Authorization rules
+				.authorizeHttpRequests(auth -> auth
+						// ✅ VERY IMPORTANT for Flutter Web
+						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                    // ✅ Public APIs
-                    .requestMatchers(
-                        "/api/auth/register",
-                        "/api/auth/login"
-                    ).permitAll()
+						// ✅ Public APIs
+						.requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+						.requestMatchers(HttpMethod.GET, "/**").permitAll()
 
-                    // 🔐 Everything else needs JWT
-                    .anyRequest().authenticated()
-            )
+						// 🔐 Everything else needs JWT
+						.anyRequest().authenticated())
 
-            // 🔴 Add JWT filter
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+				// 🔴 Add JWT filter
+				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
-    
-    @Bean
-    public FilterRegistrationBean<MultipartFilter> multipartFilter() {
-        FilterRegistrationBean<MultipartFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(new MultipartFilter());
-        
-        return registrationBean;
-    }
-    
+		return http.build();
+	}
+
+	@Bean
+	public FilterRegistrationBean<MultipartFilter> multipartFilter() {
+		FilterRegistrationBean<MultipartFilter> registrationBean = new FilterRegistrationBean<>();
+		registrationBean.setFilter(new MultipartFilter());
+
+		return registrationBean;
+	}
+
 }
