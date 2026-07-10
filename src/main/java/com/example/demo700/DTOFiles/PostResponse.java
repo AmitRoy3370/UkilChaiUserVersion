@@ -14,12 +14,14 @@ public class PostResponse {
 
 	private String postContent;
 
+        private String postTitle;
+
 	private String attachmentId;
 
 	private List<PostReactionResponse> reactions;
 
 	public PostResponse(String id, String advocateId, String advocateName, AdvocateSpeciality postType,
-			String postContent, String attachmentId, List<PostReactionResponse> reactions) {
+			String postContent, String attachmentId, List<PostReactionResponse> reactions, String postTitle) {
 		super();
 		this.id = id;
 		this.advocateId = advocateId;
@@ -28,11 +30,12 @@ public class PostResponse {
 		this.postContent = postContent;
 		this.attachmentId = attachmentId;
 		this.reactions = reactions;
+                this.postTitle = postTitle;
 	}
 
 	public PostResponse(String id, String advocateId, String advocateName, String advocateFullName,
 			AdvocateSpeciality postType, String postContent, String attachmentId,
-			List<PostReactionResponse> reactions) {
+			List<PostReactionResponse> reactions, String postTitle) {
 		super();
 		this.id = id;
 		this.advocateId = advocateId;
@@ -42,6 +45,7 @@ public class PostResponse {
 		this.postContent = postContent;
 		this.attachmentId = attachmentId;
 		this.reactions = reactions;
+                this.postTitle = postTitle;
 	}
 
 	public PostResponse() {
@@ -112,11 +116,19 @@ public class PostResponse {
 		this.advocateFullName = advocateFullName;
 	}
 
+        public void setPostTitle(String postTitle) {
+                this.postTitle = postTitle;
+        }
+
+        public String getPostTitle() {
+                return postTitle;
+        }
+
 	@Override
 	public String toString() {
 		return "PostResponse [id=" + id + ", advocateId=" + advocateId + ", advocateName=" + advocateName
 				+ ", advocateFullName=" + advocateFullName + ", postType=" + postType + ", postContent=" + postContent
-				+ ", attachmentId=" + attachmentId + ", reactions=" + reactions + "]";
+				+ ", attachmentId=" + attachmentId + ", reactions=" + reactions + "postTitle=" + postTitle + "]";
 	}
 
 }

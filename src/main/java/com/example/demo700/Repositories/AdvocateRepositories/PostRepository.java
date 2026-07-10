@@ -18,6 +18,8 @@ public interface PostRepository extends MongoRepository<AdvocatePost, String> {
     // Post Type দিয়ে posts
     List<AdvocatePost> findByPostType(AdvocateSpeciality postType);
     
+    List<AdvocatePost> findByPostTitleContainingIgnoreCase(String titlePartial);
+    
     // Advocate ID + Post Type
     List<AdvocatePost> findByAdvocateIdAndPostType(String advocateId, AdvocateSpeciality postType);
     

@@ -219,6 +219,34 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 		return getPostResponseFromPostList(list);
 	}
 
+	public List<PostResponse> findByPostTitle(String postTitle) {
+		
+		if(postTitle == null) {
+			
+			throw new NullPointerException("False request....");
+			
+		}
+		
+		try {
+			
+			List<AdvocatePost> list = advocatePostRepository.findByPostTitleContainingIgnoreCase(postTitle);
+			
+			if(list.isEmpty()) {
+				
+				throw new Exception();
+				
+			}
+			
+			return getPostResponseFromPostList(list);
+			
+		} catch(Exception e) {
+			
+			throw new NoSuchElementException("No such post find at here...");
+			
+		}
+		
+	}
+	
 	@Override
 	public List<PostResponse> findByAttachmentIdIsNotNull() {
 
@@ -519,6 +547,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 				response.setId(post.getId());
 				response.setAdvocateId(post.getAdvocateId());
 				response.setPostType(post.getPostType());
+                                response.setPostTitle(post.getPostTitle());
 
 				try {
 

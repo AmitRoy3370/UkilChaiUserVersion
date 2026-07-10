@@ -16,18 +16,22 @@ public class AdvocatePost {
 	private String advocateId;
 
 	private AdvocateSpeciality postType;
-	
+
+	private String postTitle;
+
 	@NonNull
 	private String postContent;
 
 	private String attachmentId;
 
-	public AdvocatePost(String advocateId, String postContent, String attachmentId, AdvocateSpeciality postType) {
+	public AdvocatePost(String advocateId, String postContent, String attachmentId, AdvocateSpeciality postType,
+			String postTitle) {
 		super();
 		this.advocateId = advocateId;
 		this.postContent = postContent;
 		this.attachmentId = attachmentId;
 		this.postType = postType;
+		this.postTitle = postTitle;
 	}
 
 	public AdvocatePost() {
@@ -66,8 +70,6 @@ public class AdvocatePost {
 		this.attachmentId = attachmentId;
 	}
 
-	
-	
 	public AdvocateSpeciality getPostType() {
 		return postType;
 	}
@@ -76,10 +78,19 @@ public class AdvocatePost {
 		this.postType = postType;
 	}
 
+	public void setPostTitle(String postTitle) {
+		this.postTitle = postTitle;
+
+	}
+
+	public String getPostTitle() {
+		return this.postTitle;
+	}
+
 	@Override
 	public String toString() {
 		return "AdvocatePost [id=" + id + ", advocateId=" + advocateId + ", postType=" + postType + ", postContent="
-				+ postContent + ", attachmentId=" + attachmentId + "]";
+				+ postContent + ", attachmentId=" + attachmentId + "postTitle=" + postTitle + "]";
 	}
 
 }

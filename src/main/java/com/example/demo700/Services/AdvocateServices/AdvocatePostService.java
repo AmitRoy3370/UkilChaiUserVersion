@@ -19,6 +19,8 @@ public interface AdvocatePostService {
 
 	// Post Type দিয়ে posts
 	List<PostResponse> findByPostType(AdvocateSpeciality postType);
+	
+	List<PostResponse> findByPostTitle(String postTitle);
 
 	// Advocate ID + Post Type
 	List<PostResponse> findByAdvocateIdAndPostType(String advocateId, AdvocateSpeciality postType);

@@ -37,13 +37,14 @@ public class AdvocatePostController {
 	@PostMapping(value = "/upload/{userId}", consumes = "multipart/form-data")
 	public ResponseEntity<?> uploadPost(@PathVariable String userId, @RequestPart("advocateId") String advocateId,
 			@RequestPart("postContent") String postContent, @RequestPart("postType") String postType,
+			@RequestPart(value = "postTitle", required = false) String postTitle,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 
 		try {
 
 			AdvocateSpeciality advocateSpeciality = AdvocateSpeciality.valueOf(postType);
 
-			AdvocatePost advocatePost = new AdvocatePost(advocateId, postContent, "", advocateSpeciality);
+			AdvocatePost advocatePost = new AdvocatePost(advocateId, postContent, "", advocateSpeciality, postTitle);
 
 			AdvocatePost saved = advocatePostService.uploadPost(advocatePost, userId, file);
 
@@ -124,6 +125,32 @@ public class AdvocatePostController {
 	}
 
 	// -------------------------------------------------
+	// SEARCH BY POST TITLE
+	// -------------------------------------------------
+	@GetMapping("/search/title/{title}")
+	public ResponseEntity<?> searchByPostTitle(@PathVariable String postTitle) {
+
+		try {
+
+			List<PostResponse> list = advocatePostService.findByPostTitle(postTitle);
+
+			if (list.isEmpty()) {
+
+				throw new Exception("No such post exist...");
+
+			}
+
+			return ResponseEntity.status(200).body(list);
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(404).body(e.getMessage());
+
+		}
+
+	}
+
+	// -------------------------------------------------
 	// LATEST POSTS
 	// -------------------------------------------------
 	@GetMapping("/latest")
@@ -181,15 +208,19 @@ public class AdvocatePostController {
 	// -------------------------------------------------
 	@PutMapping(value = "/update/{postId}/{userId}", consumes = "multipart/form-data")
 	public ResponseEntity<?> updatePost(@PathVariable String postId, @PathVariable String userId,
-			@RequestPart("advocateId") String advocateId, @RequestPart(value="postContent", required = false) String postContent,
-			@RequestPart("postType") String postType, @RequestPart(value="attachmentId", required=false) String attachmentId,
+			@RequestPart("advocateId") String advocateId,
+			@RequestPart(value = "postContent", required = false) String postContent,
+			@RequestPart(value = "postTitle", required = false) String postTitle,
+			@RequestPart("postType") String postType,
+			@RequestPart(value = "attachmentId", required = false) String attachmentId,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 
 		try {
 
 			AdvocateSpeciality advocateSpeciality = AdvocateSpeciality.valueOf(postType);
 
-			AdvocatePost advocatePost = new AdvocatePost(advocateId, postContent, attachmentId, advocateSpeciality);
+			AdvocatePost advocatePost = new AdvocatePost(advocateId, postContent, attachmentId, advocateSpeciality,
+					postTitle);
 
 			AdvocatePost updated = advocatePostService.updateAdvocatePost(postId, userId, advocatePost, file);
 
