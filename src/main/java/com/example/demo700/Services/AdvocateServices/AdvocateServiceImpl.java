@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,12 +23,13 @@ import com.example.demo700.DTOFiles.AdvocateResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
-
+import com.example.demo700.Model.UserModels.AdvocateRating;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Model.UserModels.UserContactInfo;
 import com.example.demo700.Model.UserModels.UserLocation;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
+import com.example.demo700.Repositories.UserRepositories.AdvocateRatingRepository;
 import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
 import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
@@ -50,6 +52,9 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 	@Autowired
 	private UserLocationRepository locationRepository;
+
+	@Autowired
+	private AdvocateRatingRepository advocateRatingRepository;
 
 	@Autowired
 	private Cleaner cleaner;
@@ -150,17 +155,16 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 		return getAdvocateResponseFromAdvocateList(advocateRepository.findAll());
 	}
-	
+
 	@Override
 	public List<AdvocateResponse> seeAllAdvocate(List<String> list) {
-	
+
 		List<Advocate> advocates = advocateRepository.findAllById(list);
-		
+
 		return getAdvocateResponseFromAdvocateList(advocates);
-		
+
 	}
 
-	
 	@Override
 	public AdvocateResponse findByUserId(String userId) {
 
@@ -270,34 +274,34 @@ public class AdvocateServiceImpl implements AdvocateService {
 		}
 
 	}
-	
+
 	@Override
 	public List<AdvocateResponse> findByDistrict(String district) {
-		
-		if(district == null) {
-			
+
+		if (district == null) {
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			List<Advocate> list = advocateRepository.findByDistrictContainingIgnoreCase(district);
-			
-			if(list.isEmpty()) {
-				
+
+			if (list.isEmpty()) {
+
 				throw new Exception("No such advocate find at here...");
-				
+
 			}
-			
+
 			return getAdvocateResponseFromAdvocateList(list);
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException(e.toString());
-			
+
 		}
-		
+
 	}
 
 	@Override
@@ -673,6 +677,24 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 		List<String> allUserId = advocates.stream().map(Advocate::getUserId).collect(Collectors.toList());
 
+		CompletableFuture<List<String>> allAdvocateId = CompletableFuture
+				.supplyAsync(() -> advocates.stream().map(Advocate::getId).collect(Collectors.toList()), executor);
+
+		CompletableFuture<Map<String, List<AdvocateRating>>> advocateRatingMapFuture = allAdvocateId
+				.thenApplyAsync(allId -> {
+
+					if (allId.isEmpty()) {
+
+						return new HashMap<>();
+
+					}
+
+					return advocateRatingRepository.findByAdvocateIdIn(allId).stream().filter(Objects::nonNull)
+							.filter(advocateRating -> advocateRating.getAdvocateId() != null)
+							.collect(Collectors.groupingBy(AdvocateRating::getAdvocateId));
+
+				}, executor);
+
 		CompletableFuture<Map<String, User>> nameFuture = CompletableFuture
 				.supplyAsync(
 						() -> userRepository.findAllById(allUserId)
@@ -695,11 +717,14 @@ public class AdvocateServiceImpl implements AdvocateService {
 								UserLocation::getUserId, Function.identity(), (existing, replacement) -> existing)),
 				executor);
 
-		CompletableFuture.allOf(nameFuture, contactInfoFuture, locationFuture).join();
+		CompletableFuture.allOf(nameFuture, contactInfoFuture, locationFuture, allAdvocateId, advocateRatingMapFuture)
+				.join();
 
 		Map<String, User> userMap = nameFuture.join();
 		Map<String, UserContactInfo> contactMap = contactInfoFuture.join();
 		Map<String, UserLocation> locationMap = locationFuture.join();
+
+		Map<String, List<AdvocateRating>> advocateRatingMap = advocateRatingMapFuture.join();
 
 		for (Advocate advocate : advocates) {
 
@@ -736,6 +761,26 @@ public class AdvocateServiceImpl implements AdvocateService {
 				response.setContactInfoId(contactMap.get(advocate.getUserId()).getId());
 				response.setEmail(contactMap.get(advocate.getUserId()).getEmail());
 				response.setPhone(contactMap.get(advocate.getUserId()).getPhone());
+
+			} catch (Exception e) {
+
+			}
+
+			try {
+
+				List<AdvocateRating> list = advocateRatingMap.get(advocate.getId());
+
+				double sum = 0.0;
+
+				for (AdvocateRating rating : list) {
+
+					sum += rating.getRating();
+
+				}
+
+				double average = sum / list.size();
+
+				response.setRating(average);
 
 			} catch (Exception e) {
 

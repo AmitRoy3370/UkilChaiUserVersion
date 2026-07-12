@@ -19,6 +19,8 @@ public class AdvocateResponse {
 
 	private String cvHexKey;
 
+	private double rating;
+	
 	private String degrees[];
 
 	private String workingExperiences[];
@@ -32,7 +34,7 @@ public class AdvocateResponse {
 	public AdvocateResponse(String id, String contactInfoId, String locationId, String userId, String name,
 			String profileImageId, Set<AdvocateSpeciality> advocateSpeciality, int experience, String licenseKey,
 			String cvHexKey, String[] degrees, String[] workingExperiences, String email, String phone,
-			String locationName, double lattitude, double longitude) {
+			String locationName, double lattitude, double longitude, double rating) {
 		super();
 		this.id = id;
 		this.contactInfoId = contactInfoId;
@@ -51,6 +53,7 @@ public class AdvocateResponse {
 		this.locationName = locationName;
 		this.lattitude = lattitude;
 		this.longitude = longitude;
+		this.rating = rating;
 	}
 
 	public AdvocateResponse(String id, String contactInfoId, String locationId, String district, String userId,
@@ -260,15 +263,23 @@ public class AdvocateResponse {
 		this.fullName = fullName;
 	}
 
+	public double getRating() {
+		return rating;
+	}
+
+	public void setRating(double rating) {
+		this.rating = rating;
+	}
+
 	@Override
 	public String toString() {
 		return "AdvocateResponse [id=" + id + ", contactInfoId=" + contactInfoId + ", locationId=" + locationId
 				+ ", district=" + district + ", userId=" + userId + ", name=" + name + ", fullName=" + fullName
 				+ ", profileImageId=" + profileImageId + ", advocateSpeciality=" + advocateSpeciality + ", experience="
-				+ experience + ", licenseKey=" + licenseKey + ", cvHexKey=" + cvHexKey + ", degrees="
-				+ Arrays.toString(degrees) + ", workingExperiences=" + Arrays.toString(workingExperiences) + ", email="
-				+ email + ", phone=" + phone + ", locationName=" + locationName + ", lattitude=" + lattitude
-				+ ", longitude=" + longitude + "]";
+				+ experience + ", licenseKey=" + licenseKey + ", cvHexKey=" + cvHexKey + ", rating=" + rating
+				+ ", degrees=" + Arrays.toString(degrees) + ", workingExperiences="
+				+ Arrays.toString(workingExperiences) + ", email=" + email + ", phone=" + phone + ", locationName="
+				+ locationName + ", lattitude=" + lattitude + ", longitude=" + longitude + "]";
 	}
 
 }

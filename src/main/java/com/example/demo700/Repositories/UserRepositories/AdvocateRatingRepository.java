@@ -12,6 +12,7 @@ public interface AdvocateRatingRepository extends MongoRepository<AdvocateRating
 
 	public List<AdvocateRating> findByUserId(String userId);
 	public List<AdvocateRating> findByAdvocateId(String advocateId);
+	public List<AdvocateRating> findByAdvocateIdIn(List<String> advocatesId);
 	
 	public List<AdvocateRating> findByRatingGreaterThan(int rating);
 	
