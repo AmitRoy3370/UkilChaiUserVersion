@@ -125,9 +125,9 @@ public class UserGenderController {
 
     // ============ FIND BY GENDER ============
     @GetMapping("/find-by-gender")
-    public ResponseEntity<?> findByGender(@RequestParam Gender gender) {
+    public ResponseEntity<?> findByGender(@RequestParam String gender) {
         try {
-            List<UserGender> userGenders = userGenderService.findByGender(gender);
+            List<UserGender> userGenders = userGenderService.findByGender(Gender.valueOf(gender));
             return ResponseEntity.ok(userGenders);
         } catch (NullPointerException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
