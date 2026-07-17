@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.DTOFiles.AdvocateResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
+import com.example.demo700.ENums.Gender;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 
 public interface AdvocateService {
@@ -16,6 +17,7 @@ public interface AdvocateService {
 	public List<AdvocateResponse> seeAllAdvocate(List<String> list);
 	public AdvocateResponse findByUserId(String userId);
 	public List<AdvocateResponse> findByAdvocateSpeciality(AdvocateSpeciality AdvocateSpeciality);
+	public List<AdvocateResponse> findByGender(Gender gender);
 	public AdvocateResponse findByLicenseKey(String licenseKey);
 	public List<AdvocateResponse> findByDistrict(String district);
 	public List<AdvocateResponse> findByExperienceGreaterThan(int experience);

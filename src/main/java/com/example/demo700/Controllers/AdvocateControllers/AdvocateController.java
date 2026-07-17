@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.DTOFiles.AdvocateResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
-
+import com.example.demo700.ENums.Gender;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 
 import com.example.demo700.Services.AdvocateServices.AdvocateService;
@@ -42,7 +42,7 @@ public class AdvocateController {
 			@RequestPart("advocateSpeciality") String advocateSpeciality, @RequestPart("experience") String experience,
 			@RequestPart("licenseKey") String licenseKey, @RequestPart("degrees") String degreesJson,
 			@RequestPart("workingExperiences") String workJson,
-			@RequestPart(value="district", required=false) String district,
+			@RequestPart(value = "district", required = false) String district,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 
 		try {
@@ -78,7 +78,7 @@ public class AdvocateController {
 
 				request.setDistrict(district);
 
-			} catch(Exception e) {
+			} catch (Exception e) {
 
 			}
 
@@ -129,6 +129,22 @@ public class AdvocateController {
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
+	}
+
+	// --------------------- FIND BY GENDER ---------------------
+	@GetMapping("/findByGender/{gender}")
+	public ResponseEntity<?> getByGender(@PathVariable Gender gender) {
+
+		try {
+
+			return ResponseEntity.status(200).body(advocateService.findByGender(gender));
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(404).body(e.getMessage());
+
+		}
+
 	}
 
 	// --------------------- FIND BY USER ID ---------------------
@@ -188,7 +204,7 @@ public class AdvocateController {
 
 			return ResponseEntity.status(200).body(advocateService.findByDistrict(district));
 
-		} catch(Exception e) {
+		} catch (Exception e) {
 
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 
@@ -212,7 +228,7 @@ public class AdvocateController {
 			@RequestPart("userId") String userId, @RequestPart("advocateSpeciality") String advocateSpeciality,
 			@RequestPart("experience") String experience, @RequestPart("licenseKey") String licenseKey,
 			@RequestPart("degrees") String degreesJson, @RequestPart("workingExperiences") String workJson,
-			@RequestPart(value="district", required=false) String district,
+			@RequestPart(value = "district", required = false) String district,
 			@RequestPart(value = "file", required = false) MultipartFile file) {
 
 		try {
@@ -258,7 +274,7 @@ public class AdvocateController {
 
 				request.setDistrict(district);
 
-			} catch(Exception e) {
+			} catch (Exception e) {
 
 			}
 

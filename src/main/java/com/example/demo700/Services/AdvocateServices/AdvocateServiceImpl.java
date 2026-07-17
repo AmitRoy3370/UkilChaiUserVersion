@@ -21,16 +21,19 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.demo700.CyclicCleaner.Cleaner;
 import com.example.demo700.DTOFiles.AdvocateResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
+import com.example.demo700.ENums.Gender;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.UserModels.AdvocateRating;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Model.UserModels.UserContactInfo;
+import com.example.demo700.Model.UserModels.UserGender;
 import com.example.demo700.Model.UserModels.UserLocation;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
 import com.example.demo700.Repositories.UserRepositories.AdvocateRatingRepository;
 import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
+import com.example.demo700.Repositories.UserRepositories.UserGenderRepository;
 import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 import com.example.demo700.Utils.FileHexConverter;
@@ -43,6 +46,9 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private UserGenderRepository genderRepository;
 
 	@Autowired
 	private CenterAdminRepository centerAdminRepository;
@@ -627,6 +633,44 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 	}
 
+	public List<AdvocateResponse> findByGender(Gender gender) {
+
+		if (gender == null) {
+
+			throw new NullPointerException("False request...");
+
+		}
+
+		try {
+
+			List<UserGender> list = genderRepository.findByGender(gender);
+
+			if (list.isEmpty()) {
+
+				throw new Exception();
+
+			}
+
+			List<String> userIds = list.stream().map(UserGender::getUserId).collect(Collectors.toList());
+
+			List<Advocate> advocates = advocateRepository.findByUserIdIn(userIds);
+
+			if (advocates.isEmpty()) {
+
+				throw new Exception();
+
+			}
+
+			return getAdvocateResponseFromAdvocateList(advocates);
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such advocate exist at here...");
+
+		}
+
+	}
+
 	public List<AdvocateResponse> findByLocation(String location) {
 
 		if (location == null) {
@@ -680,6 +724,10 @@ public class AdvocateServiceImpl implements AdvocateService {
 		CompletableFuture<List<String>> allAdvocateId = CompletableFuture
 				.supplyAsync(() -> advocates.stream().map(Advocate::getId).collect(Collectors.toList()), executor);
 
+		CompletableFuture<Map<String, UserGender>> genderMapFuture = CompletableFuture
+				.supplyAsync(() -> genderRepository.findByUserIdIn(allUserId).stream()
+						.collect(Collectors.toMap(UserGender::getUserId, Function.identity())), executor);
+
 		CompletableFuture<Map<String, List<AdvocateRating>>> advocateRatingMapFuture = allAdvocateId
 				.thenApplyAsync(allId -> {
 
@@ -717,13 +765,13 @@ public class AdvocateServiceImpl implements AdvocateService {
 								UserLocation::getUserId, Function.identity(), (existing, replacement) -> existing)),
 				executor);
 
-		CompletableFuture.allOf(nameFuture, contactInfoFuture, locationFuture, allAdvocateId, advocateRatingMapFuture)
-				.join();
+		CompletableFuture.allOf(nameFuture, contactInfoFuture, locationFuture, allAdvocateId, advocateRatingMapFuture,
+				genderMapFuture).join();
 
 		Map<String, User> userMap = nameFuture.join();
 		Map<String, UserContactInfo> contactMap = contactInfoFuture.join();
 		Map<String, UserLocation> locationMap = locationFuture.join();
-
+		Map<String, UserGender> genderMap = genderMapFuture.join();
 		Map<String, List<AdvocateRating>> advocateRatingMap = advocateRatingMapFuture.join();
 
 		for (Advocate advocate : advocates) {
@@ -741,6 +789,19 @@ public class AdvocateServiceImpl implements AdvocateService {
 				response.setLicenseKey(advocate.getLicenseKey());
 				response.setUserId(advocate.getUserId());
 				response.setDistrict(advocate.getDistrict());
+
+			} catch (Exception e) {
+
+			}
+
+			try {
+
+				if (genderMap.containsKey(advocate.getUserId())) {
+
+					response.setUserGenderId(genderMap.get(advocate.getUserId()).getId());
+					response.setGender(genderMap.get(advocate.getUserId()).getGender());
+
+				}
 
 			} catch (Exception e) {
 

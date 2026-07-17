@@ -35,6 +35,7 @@ import com.example.demo700.Model.UserModels.ClientFeedback;
 import com.example.demo700.Model.UserModels.PostReaction;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Model.UserModels.UserContactInfo;
+import com.example.demo700.Model.UserModels.UserGender;
 import com.example.demo700.Model.UserModels.UserLocation;
 
 import com.example.demo700.Repositories.AdminRepositories.AdminJoinRequestRepository;
@@ -65,6 +66,7 @@ import com.example.demo700.Repositories.UserRepositories.AdvocateRatingRepositor
 import com.example.demo700.Repositories.UserRepositories.ClientFeedbackRepository;
 import com.example.demo700.Repositories.UserRepositories.PostReactionRepository;
 import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
+import com.example.demo700.Repositories.UserRepositories.UserGenderRepository;
 import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 import com.example.demo700.Services.UserServices.ImageService;
@@ -165,6 +167,9 @@ public class Cleaner {
 	@Autowired
 	private UserLiveLocationRepository userLiveLocationRepository;
 	
+	@Autowired
+	private UserGenderRepository userGenderRepository;
+	
 	public void removeUser(String userId) {
 
 		try {
@@ -183,6 +188,22 @@ public class Cleaner {
 
 			if (count != userRepository.count()) {
 
+				try {
+					
+					UserGender gender = userGenderRepository.findByUserId(user.getId());
+					
+					if(gender == null) {
+						
+						throw new Exception();
+						
+					}
+					
+					removeUserGender(gender.getId());
+					
+				} catch(Exception e) {
+					
+				}
+				
 				try {
 					
 					LiveLocationData data = userLiveLocationRepository.findByUserId(user.getId());
@@ -1653,6 +1674,32 @@ public class Cleaner {
 			userLiveLocationRepository.deleteById(id);
 			
 			if(count != userLiveLocationRepository.count()) {
+				
+			}
+			
+		} catch(Exception e) {
+			
+		}
+		
+	}
+	
+	public void removeUserGender(String id) {
+		
+		try {
+			
+			UserGender gender = userGenderRepository.findById(id).get();
+			
+			if(gender == null) {
+				
+				throw new Exception();
+				
+			}
+			
+			long count = userGenderRepository.count();
+			
+			userGenderRepository.deleteById(id);
+			
+			if(count != userGenderRepository.count()) {
 				
 			}
 			

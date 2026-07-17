@@ -4,11 +4,14 @@ import java.util.Arrays;
 import java.util.Set;
 
 import com.example.demo700.ENums.AdvocateSpeciality;
+import com.example.demo700.ENums.Gender;
 
 public class AdvocateResponse {
 
-	private String id, contactInfoId, locationId, district;
+	private String id, contactInfoId, locationId, userGenderId, district;
 
+	private Gender gender;
+	
 	private String userId, name, fullName, profileImageId;
 
 	private Set<AdvocateSpeciality> advocateSpeciality;
@@ -30,6 +33,65 @@ public class AdvocateResponse {
 	private String locationName;
 
 	private double lattitude, longitude;
+
+	public AdvocateResponse(String id, String contactInfoId, String locationId, String userGenderId, String district,
+			String userId, String name, String fullName, String profileImageId,
+			Set<AdvocateSpeciality> advocateSpeciality, int experience, String licenseKey, String cvHexKey,
+			double rating, String[] degrees, String[] workingExperiences, String email, String phone,
+			String locationName, double lattitude, double longitude) {
+		super();
+		this.id = id;
+		this.contactInfoId = contactInfoId;
+		this.locationId = locationId;
+		this.userGenderId = userGenderId;
+		this.district = district;
+		this.userId = userId;
+		this.name = name;
+		this.fullName = fullName;
+		this.profileImageId = profileImageId;
+		this.advocateSpeciality = advocateSpeciality;
+		this.experience = experience;
+		this.licenseKey = licenseKey;
+		this.cvHexKey = cvHexKey;
+		this.rating = rating;
+		this.degrees = degrees;
+		this.workingExperiences = workingExperiences;
+		this.email = email;
+		this.phone = phone;
+		this.locationName = locationName;
+		this.lattitude = lattitude;
+		this.longitude = longitude;
+	}
+
+	public AdvocateResponse(String id, String contactInfoId, String locationId, String userGenderId, String district,
+			Gender gender, String userId, String name, String fullName, String profileImageId,
+			Set<AdvocateSpeciality> advocateSpeciality, int experience, String licenseKey, String cvHexKey,
+			double rating, String[] degrees, String[] workingExperiences, String email, String phone,
+			String locationName, double lattitude, double longitude) {
+		super();
+		this.id = id;
+		this.contactInfoId = contactInfoId;
+		this.locationId = locationId;
+		this.userGenderId = userGenderId;
+		this.district = district;
+		this.gender = gender;
+		this.userId = userId;
+		this.name = name;
+		this.fullName = fullName;
+		this.profileImageId = profileImageId;
+		this.advocateSpeciality = advocateSpeciality;
+		this.experience = experience;
+		this.licenseKey = licenseKey;
+		this.cvHexKey = cvHexKey;
+		this.rating = rating;
+		this.degrees = degrees;
+		this.workingExperiences = workingExperiences;
+		this.email = email;
+		this.phone = phone;
+		this.locationName = locationName;
+		this.lattitude = lattitude;
+		this.longitude = longitude;
+	}
 
 	public AdvocateResponse(String id, String contactInfoId, String locationId, String userId, String name,
 			String profileImageId, Set<AdvocateSpeciality> advocateSpeciality, int experience, String licenseKey,
@@ -271,15 +333,32 @@ public class AdvocateResponse {
 		this.rating = rating;
 	}
 
+	public String getUserGenderId() {
+		return userGenderId;
+	}
+
+	public void setUserGenderId(String userGenderId) {
+		this.userGenderId = userGenderId;
+	}
+
+	public Gender getGender() {
+		return gender;
+	}
+
+	public void setGender(Gender gender) {
+		this.gender = gender;
+	}
+
 	@Override
 	public String toString() {
 		return "AdvocateResponse [id=" + id + ", contactInfoId=" + contactInfoId + ", locationId=" + locationId
-				+ ", district=" + district + ", userId=" + userId + ", name=" + name + ", fullName=" + fullName
-				+ ", profileImageId=" + profileImageId + ", advocateSpeciality=" + advocateSpeciality + ", experience="
-				+ experience + ", licenseKey=" + licenseKey + ", cvHexKey=" + cvHexKey + ", rating=" + rating
-				+ ", degrees=" + Arrays.toString(degrees) + ", workingExperiences="
-				+ Arrays.toString(workingExperiences) + ", email=" + email + ", phone=" + phone + ", locationName="
-				+ locationName + ", lattitude=" + lattitude + ", longitude=" + longitude + "]";
+				+ ", userGenderId=" + userGenderId + ", district=" + district + ", gender=" + gender + ", userId="
+				+ userId + ", name=" + name + ", fullName=" + fullName + ", profileImageId=" + profileImageId
+				+ ", advocateSpeciality=" + advocateSpeciality + ", experience=" + experience + ", licenseKey="
+				+ licenseKey + ", cvHexKey=" + cvHexKey + ", rating=" + rating + ", degrees=" + Arrays.toString(degrees)
+				+ ", workingExperiences=" + Arrays.toString(workingExperiences) + ", email=" + email + ", phone="
+				+ phone + ", locationName=" + locationName + ", lattitude=" + lattitude + ", longitude=" + longitude
+				+ "]";
 	}
 
 }
