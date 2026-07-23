@@ -1,5 +1,6 @@
 package com.example.demo700.Security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,9 @@ public class SecurityConfig {
 
 	private final JwtFilter jwtFilter;
 
+	@Autowired
+	private RateLimitingFilter rateLimitingFilter;
+	
 	public SecurityConfig(JwtFilter jwtFilter) {
 		this.jwtFilter = jwtFilter;
 	}
@@ -47,7 +51,8 @@ public class SecurityConfig {
 						.anyRequest().authenticated())
 
 				// 🔴 Add JWT filter
-				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+				.addFilterAfter(rateLimitingFilter, JwtFilter.class);
 
 		return http.build();
 	}
