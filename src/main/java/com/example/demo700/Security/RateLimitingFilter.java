@@ -24,7 +24,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
 	@Autowired
 	private BucketService bucketService;
-	
+
 	private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
 	@Override
@@ -63,10 +63,10 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-		
+
 		String path = request.getRequestURI();
-		
-		return pathMatcher.match("/api/user-active/heartbeat/**", path);
+
+		return pathMatcher.match("/api/user-active/**", path) || pathMatcher.match("/api/user-live-location/**", path);
 	}
 
 	private String extractClientToken(HttpServletRequest http) {
