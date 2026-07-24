@@ -66,7 +66,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
 		String path = request.getRequestURI();
 
-		return pathMatcher.match("/api/user-active/**", path) || pathMatcher.match("/api/user-live-location/**", path);
+		return pathMatcher.match("/api/user-active/**", path) || pathMatcher.match("/api/user-live-location/**", path) || pathMatcher.match("/api/notifications/**", path);
 	}
 
 	private String extractClientToken(HttpServletRequest http) {
