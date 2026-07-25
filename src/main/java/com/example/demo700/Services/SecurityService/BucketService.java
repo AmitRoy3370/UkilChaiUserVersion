@@ -26,7 +26,7 @@ public class BucketService {
 
 	private Bucket createNewBucket(String key) {
 
-		return Bucket.builder().addLimit(Bandwidth.classic(40, Refill.intervally(40, Duration.ofMinutes(1)))).build();
+		return Bucket.builder().addLimit(Bandwidth.classic(100, Refill.intervally(100, Duration.ofMinutes(1)))).build();
 
 	}
 
