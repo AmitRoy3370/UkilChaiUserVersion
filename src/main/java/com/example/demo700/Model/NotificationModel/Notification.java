@@ -1,5 +1,6 @@
 package com.example.demo700.Model.NotificationModel;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 import org.springframework.data.annotation.Id;
@@ -9,8 +10,12 @@ import lombok.Data;
 
 @Data
 @Document(collection = "notifications")
-public class Notification {
+public class Notification implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 35L;
 	@Id
 	private String id;
 	private String userId;

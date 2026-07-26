@@ -13,6 +13,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -42,7 +44,10 @@ public class AdminServiceImpl implements AdminService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue="Admin";
+	
 	@Override
+	@CacheEvict(value=cacheValue, allEntries = true)
 	public Admin addAdmin(Admin admin, String userId) {
 
 		if (admin == null || userId == null) {
@@ -121,6 +126,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
+	@Cacheable(value=cacheValue, key="seeAll")
 	public List<AdminDTO> seeAll() {
 
 		List<Admin> list = adminRepository.findAll();
@@ -135,6 +141,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
+	@Cacheable(value=cacheValue, key="#userId")
 	public AdminDTO findByUserId(String userId) {
 
 		if (userId == null) {
@@ -164,6 +171,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
+	@Cacheable(value=cacheValue, key="#advocateSpeciality")
 	public List<AdminDTO> findByAdvocateSpecialityContainingIgnoreCase(String advocateSpeciality) {
 
 		if (advocateSpeciality == null) {
@@ -193,6 +201,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
+	@Cacheable(value=cacheValue, key="'SeeAllFromList_' + #list")
 	public List<AdminDTO> seeAll(List<String> list) {
 		
 		List<Admin> admins = adminRepository.findAllById(list);
@@ -202,6 +211,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 	
 	@Override
+	@CacheEvict(value=cacheValue, allEntries = true)
 	public Admin updateAdmin(Admin admin, String userId, String adminId) {
 
 		if (admin == null || userId == null || adminId == null) {
@@ -290,6 +300,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
+	@CacheEvict(value=cacheValue, allEntries = true)
 	public boolean deleteAdmin(String adminId, String userId) {
 
 		if (adminId == null || userId == null) {

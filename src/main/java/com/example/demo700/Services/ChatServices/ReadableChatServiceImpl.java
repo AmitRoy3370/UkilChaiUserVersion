@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -34,7 +36,10 @@ public class ReadableChatServiceImpl implements ReadableChatService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue = "ReadableChat";
+	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public ReadableChat addReadability(ReadableChat readableChat, String userId) {
 
 		if (readableChat == null || userId == null) {
@@ -119,6 +124,7 @@ public class ReadableChatServiceImpl implements ReadableChatService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public ReadableChat updateReadability(ReadableChat readableChat, String userId, String id) {
 
 		if (readableChat == null || userId == null || id == null) {
@@ -231,6 +237,7 @@ public class ReadableChatServiceImpl implements ReadableChatService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public ReadableChat findById(String id) {
 
 		if (id == null) {
@@ -260,6 +267,7 @@ public class ReadableChatServiceImpl implements ReadableChatService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<ReadableChat> seeAll() {
 
 		try {
@@ -283,6 +291,7 @@ public class ReadableChatServiceImpl implements ReadableChatService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByChatId_' + #ChatId")
 	public ReadableChat findByChatId(String chatId) {
 
 		if (chatId == null) {
@@ -312,6 +321,7 @@ public class ReadableChatServiceImpl implements ReadableChatService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByIsRead_' + #isRead")
 	public List<ReadableChat> findByIsRead(boolean isRead) {
 
 		try {
@@ -334,6 +344,7 @@ public class ReadableChatServiceImpl implements ReadableChatService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean removeReadability(String id, String userId) {
 
 		if (id == null || userId == null) {

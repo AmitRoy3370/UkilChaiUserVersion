@@ -1,5 +1,6 @@
 package com.example.demo700.Model.CaseModels;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 import org.springframework.data.annotation.Id;
@@ -9,7 +10,12 @@ import com.example.demo700.ENums.CasePayment;
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "CaseTracking")
-public class CaseTracking {
+public class CaseTracking implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 28L;
 
 	@Id
 	private String id;

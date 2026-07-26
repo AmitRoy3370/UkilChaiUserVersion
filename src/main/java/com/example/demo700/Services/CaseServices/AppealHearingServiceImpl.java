@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -40,8 +42,11 @@ public class AppealHearingServiceImpl implements AppealHearingService {
 
 	@Autowired
 	private Cleaner cleaner;
+	
+	private static final String cacheValue = "AppealHearing";
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AppealHearings addAppealHearings(AppealHearings appealHearings, String userId) {
 
 		if (appealHearings == null || userId == null) {
@@ -126,6 +131,7 @@ public class AppealHearingServiceImpl implements AppealHearingService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AppealHearings updateAppealHearings(AppealHearings appealHearings, String userId, String appealHearingsId) {
 
 		if (appealHearings == null || userId == null || appealHearingsId == null) {
@@ -232,6 +238,7 @@ public class AppealHearingServiceImpl implements AppealHearingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'hearingId_' + #hearingId")
 	public AppealHearings findByHearingId(String hearingId) {
 
 		if (hearingId == null) {
@@ -261,6 +268,7 @@ public class AppealHearingServiceImpl implements AppealHearingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'reason_' + #reason")
 	public List<AppealHearings> findByReasonContainingIgnoreCase(String reason) {
 
 		if (reason == null) {
@@ -281,6 +289,7 @@ public class AppealHearingServiceImpl implements AppealHearingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'appealHearingTimeBefore_' + #appealHearingTime")
 	public List<AppealHearings> findByAppealHearingTimeBefore(Instant appealHearingTime) {
 
 		if (appealHearingTime == null) {
@@ -301,6 +310,7 @@ public class AppealHearingServiceImpl implements AppealHearingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'appealHearingTimeAfter_' + #appealHearingTime")
 	public List<AppealHearings> findByAppealHearingTimeAfter(Instant appealHearingTime) {
 
 		if (appealHearingTime == null) {
@@ -321,6 +331,7 @@ public class AppealHearingServiceImpl implements AppealHearingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'seeAll'")
 	public List<AppealHearings> seeAll() {
 
 		List<AppealHearings> list = appealHearingRepository.findAll();
@@ -335,6 +346,7 @@ public class AppealHearingServiceImpl implements AppealHearingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public AppealHearings findById(String id) {
 
 		if (id == null) {
@@ -356,6 +368,7 @@ public class AppealHearingServiceImpl implements AppealHearingService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean removeAppealHearings(String id, String userId) {
 
 		if (id == null || userId == null) {

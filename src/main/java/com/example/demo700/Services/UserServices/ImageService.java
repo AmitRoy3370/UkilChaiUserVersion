@@ -5,6 +5,8 @@ import com.mongodb.DBObject;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,8 +21,11 @@ public class ImageService {
 
 	@Autowired
 	private GridFsTemplate gridFsTemplate;
+	
+	private static final String cacheValue = "Image";
 
 	// UPLOAD
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public String upload(MultipartFile file) throws IOException {
 
 		DBObject meta = new BasicDBObject();
@@ -33,6 +38,7 @@ public class ImageService {
 		return id.toHexString();
 	}
 
+	@Cacheable(value = cacheValue, key = "'parseObjectId_' + #id")
 	private ObjectId parseObjectId(String id) {
 	    if (!ObjectId.isValid(id)) {
 	        throw new IllegalArgumentException("Invalid attachment id");
@@ -42,6 +48,7 @@ public class ImageService {
 
 	
 	// GET FILE
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public GridFSFile getFile(String id) {
 	    return gridFsTemplate.findOne(
 	        new Query(Criteria.where("_id").is(parseObjectId(id)))
@@ -55,11 +62,13 @@ public class ImageService {
 	}
 
 	// DELETE
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public void delete(String id) {
 		gridFsTemplate.delete(new org.springframework.data.mongodb.core.query.Query(
 				org.springframework.data.mongodb.core.query.Criteria.where("_id").is(parseObjectId(id))));
 	}
 
+	@Cacheable(value = cacheValue, key = "'attachmentExists_' + #id")
 	public boolean attachmentExists(String id) {
 	    try {
 	        return gridFsTemplate.findOne(
@@ -72,6 +81,7 @@ public class ImageService {
 
 	
 	// UPDATE = delete + new upload
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public String update(String oldId, MultipartFile newFile) throws IOException {
 
 		try {

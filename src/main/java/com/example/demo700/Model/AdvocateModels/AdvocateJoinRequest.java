@@ -1,5 +1,6 @@
 package com.example.demo700.Model.AdvocateModels;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -11,7 +12,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "AdvocateJoinRequest")
-public class AdvocateJoinRequest {
+public class AdvocateJoinRequest implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 20L;
 
 	@Id
 	private String id;

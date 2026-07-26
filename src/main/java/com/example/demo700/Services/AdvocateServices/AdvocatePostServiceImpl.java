@@ -14,6 +14,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -58,8 +60,11 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 	@Autowired
 	private Cleaner cleaner;
+	
+	private static final String cacheValue = "AdvocatePost";
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AdvocatePost uploadPost(AdvocatePost advocatePost, String userId, MultipartFile file) {
 
 		if (advocatePost == null || userId == null) {
@@ -126,6 +131,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "#advocateId")
 	public List<PostResponse> findByAdvocateId(String advocateId) {
 
 		if (advocateId == null) {
@@ -146,6 +152,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "#postType")
 	public List<PostResponse> findByPostType(AdvocateSpeciality postType) {
 
 		if (postType == null) {
@@ -166,6 +173,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'advocate_' + #advocateId + '_postType_' + #postType")
 	public List<PostResponse> findByAdvocateIdAndPostType(String advocateId, AdvocateSpeciality postType) {
 
 		if (advocateId == null || postType == null) {
@@ -186,6 +194,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'keyWord_' + #keyWord")
 	public List<PostResponse> findByPostContentContainingIgnoreCase(String keyword) {
 
 		if (keyword == null) {
@@ -206,6 +215,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findLatestPost'")
 	public List<PostResponse> findLatestPosts() {
 
 		List<AdvocatePost> list = advocatePostRepository.findLatestPosts();
@@ -219,6 +229,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 		return getPostResponseFromPostList(list);
 	}
 
+	@Cacheable(value = cacheValue, key = "'postTitle_' + #postTitle")
 	public List<PostResponse> findByPostTitle(String postTitle) {
 		
 		if(postTitle == null) {
@@ -248,6 +259,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 	
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAttachmentIdIsNotNull'")
 	public List<PostResponse> findByAttachmentIdIsNotNull() {
 
 		List<AdvocatePost> list = advocatePostRepository.findByAttachmentIdIsNotNull();
@@ -262,6 +274,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AdvocatePost updateAdvocatePost(String postId, String userId, AdvocatePost advocatePost,
 			MultipartFile file) {
 
@@ -353,6 +366,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteAdvocatePost(String postId, String userId) {
 
 		if (postId == null || userId == null) {
@@ -441,6 +455,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "seeAll")
 	public List<PostResponse> seeAll() {
 
 		List<AdvocatePost> list = advocatePostRepository.findAll();
@@ -455,6 +470,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'postId_' + #postId")
 	public PostResponse searchPost(String postId) {
 
 		if (postId == null) {

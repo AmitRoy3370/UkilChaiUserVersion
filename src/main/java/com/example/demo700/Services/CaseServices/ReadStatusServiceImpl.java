@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -40,7 +42,10 @@ public class ReadStatusServiceImpl implements ReadStatusService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue = "ReadStatus";
+	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public ReadStatus addReadStatus(ReadStatus readStatus, String userId) {
 
 		if (readStatus == null || userId == null) {
@@ -136,6 +141,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public ReadStatus updateReadStatus(ReadStatus readStatus, String userId, String id) {
 
 		if (readStatus == null || userId == null || id == null) {
@@ -263,6 +269,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseId_' + #caseId")
 	public List<ReadStatus> findByCaseId(String caseId) {
 
 		if (caseId == null) {
@@ -292,6 +299,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAdvocateId_' + #advocateId")
 	public List<ReadStatus> findByAdvocateId(String advocateId) {
 
 		if (advocateId == null) {
@@ -321,6 +329,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByStatus_' + #status")
 	public List<ReadStatus> findByStatusContainingIgnoreCase(String status) {
 
 		if (status == null) {
@@ -350,6 +359,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByIssuedTimeBefore_' + #issuedTime")
 	public List<ReadStatus> findByIssuedTimeBefore(Instant issuedTime) {
 
 		if (issuedTime == null) {
@@ -379,6 +389,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByIssuedTimeAfter_' + #issuedTime")
 	public List<ReadStatus> findByIssuedTimeAfter(Instant issuedTime) {
 
 		if (issuedTime == null) {
@@ -408,6 +419,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByIssuedTime_' + #issuedTime")
 	public List<ReadStatus> findByIssuedTime(Instant issuedTime) {
 
 		if (issuedTime == null) {
@@ -437,6 +449,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteReadStatus(String id, String userId) {
 
 		if (id == null || userId == null) {
@@ -546,6 +559,7 @@ public class ReadStatusServiceImpl implements ReadStatusService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<ReadStatus> findAll() {
 
 		try {

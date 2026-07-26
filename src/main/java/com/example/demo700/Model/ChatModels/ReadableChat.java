@@ -1,12 +1,19 @@
 package com.example.demo700.Model.ChatModels;
 
+import java.io.Serializable;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "ChatReadablity")
-public class ReadableChat {
+public class ReadableChat implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 33L;
 
 	@Id
 	private String id;

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -29,8 +31,11 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 	private PhoneValidator phoneValidator;
 
 	private EmailValidator emailValidator;
+	
+	private static final String cacheValue = "UserContactInfo";
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public UserContactInfo addUserContactInfo(UserContactInfo userContactInfo, String userId) {
 
 		if (userContactInfo == null || userId == null || userContactInfo.getUserId() == null) {
@@ -178,6 +183,7 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<UserContactInfo> seeAllUserContactInfo() {
 
 		List<UserContactInfo> list = userContactInfoRepository.findAll();
@@ -192,6 +198,7 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByEmail_' + #email")
 	public UserContactInfo searchByEmail(String email) {
 
 		if (email == null) {
@@ -212,6 +219,7 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByPhone_' + #phone")
 	public UserContactInfo searchByPhone(String phone) {
 
 		if (phone == null) {
@@ -234,6 +242,7 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public UserContactInfo searchByUserId(String userId) {
 
 		if (userId == null) {
@@ -254,6 +263,7 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public UserContactInfo updateUserContactInfo(String userContactInfoId, String userId,
 			UserContactInfo userContactInfo) {
 
@@ -442,6 +452,7 @@ public class UserContactInfoServiceImpl implements UserContactInfoService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteUserContactInfo(String userContactInfoId, String userId) {
 
 		if (userContactInfoId == null || userId == null) {

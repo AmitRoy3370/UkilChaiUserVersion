@@ -1,10 +1,16 @@
 package com.example.demo700.DTOFiles;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import com.example.demo700.ENums.AdvocateSpeciality;
 
-public class AdminDTO {
+public class AdminDTO implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private String id, profileImageId;
 

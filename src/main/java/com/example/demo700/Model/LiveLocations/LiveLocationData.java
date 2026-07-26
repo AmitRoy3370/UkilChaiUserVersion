@@ -1,5 +1,6 @@
 package com.example.demo700.Model.LiveLocations;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
@@ -8,7 +9,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "UsersLiveLocation")
-public class LiveLocationData {
+public class LiveLocationData implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 34L;
 
 	@Id
 	private String id;

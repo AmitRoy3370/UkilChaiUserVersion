@@ -1,6 +1,13 @@
 package com.example.demo700.DTOFiles;
 
-public class UserLiveLocationDataResponse {
+import java.io.Serializable;
+
+public class UserLiveLocationDataResponse implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 15L;
 
 	private String id;
 

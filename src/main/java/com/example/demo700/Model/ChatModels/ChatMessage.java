@@ -1,4 +1,5 @@
 package com.example.demo700.Model.ChatModels;
+import java.io.Serializable;
 import java.time.Instant;
 
 import org.springframework.data.annotation.Id;
@@ -8,7 +9,12 @@ import lombok.Data;
 
 @Document(collection = "chat_messages")
 @Data
-public class ChatMessage {
+public class ChatMessage implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 32L;
 
 	@Id
 	private String id;

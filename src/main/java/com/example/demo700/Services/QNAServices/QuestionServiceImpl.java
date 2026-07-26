@@ -14,6 +14,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,7 +52,10 @@ public class QuestionServiceImpl implements QuestionService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue = "Question";
+	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AskQuestion AskQuestion(AskQuestion askQuestion, String userId, MultipartFile file) {
 
 		if (askQuestion == null || userId == null) {
@@ -106,12 +111,14 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "findAll")
 	public List<QuestionResponse> seeAll() {
 
 		return getQuestionResponseFromQuestionList(questionRepository.findAll());
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUser_' + #userId")
 	public List<QuestionResponse> findByUserId(String userId) {
 
 		if (userId == null) {
@@ -132,6 +139,7 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByMessage_' + #keyWord")
 	public List<QuestionResponse> findByMessageContainingIgnoreCase(String keyWord) {
 
 		if (keyWord == null) {
@@ -152,6 +160,7 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByPostTimeAfter_' + #time")
 	public List<QuestionResponse> findByPostTimeAfter(Instant time) {
 
 		if (time == null) {
@@ -172,6 +181,7 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByPostTimeBefore_' + #time")
 	public List<QuestionResponse> findByPostTimeBefore(Instant time) {
 
 		if (time == null) {
@@ -192,6 +202,7 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByPostTimeBetween_' + #start + '_' + #end")
 	public List<QuestionResponse> findByPostTimeBetween(Instant start, Instant end) {
 
 		if (start == null || end == null) {
@@ -212,6 +223,7 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByQuestionType_' + #questionType")
 	public List<QuestionResponse> findByQuestionType(AdvocateSpeciality questionType) {
 
 		if (questionType == null) {
@@ -232,6 +244,7 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByQuestionId_' + #questionId")
 	public QuestionResponse findByQuestionId(String questionId) {
 
 		try {
@@ -255,6 +268,7 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AskQuestion updateQuestion(AskQuestion askQuestion, String userId, String questionId, MultipartFile file) {
 
 		if (askQuestion == null || userId == null) {
@@ -334,6 +348,7 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean removeQuestion(String userId, String questionId) {
 
 		if (userId == null || questionId == null) {

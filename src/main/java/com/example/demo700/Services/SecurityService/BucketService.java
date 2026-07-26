@@ -14,7 +14,7 @@ import io.github.bucket4j.Refill;
 public class BucketService {
 
 	private Bucket globalBucket = Bucket.builder()
-			.addLimit(Bandwidth.classic(1000, Refill.intervally(1000, Duration.ofMinutes(1)))).build();
+			.addLimit(Bandwidth.classic(10000, Refill.intervally(10000, Duration.ofMinutes(1)))).build();
 
 	private Map<String, Bucket> userCatche = new ConcurrentHashMap<>();
 

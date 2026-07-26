@@ -1,5 +1,6 @@
 package com.example.demo700.Model.CaseModels;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Arrays;
 
@@ -9,7 +10,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "Hearings")
-public class Hearing {
+public class Hearing implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 30L;
 
 	@Id
 	private String id;

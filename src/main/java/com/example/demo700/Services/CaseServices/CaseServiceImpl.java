@@ -14,6 +14,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,8 +58,11 @@ public class CaseServiceImpl implements CaseService {
 
 	@Autowired
 	private ImageService fileUpload;
+	
+	private static final String cacheValue = "Case";
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public Case updateCase(Case acceptedCase, String userId, String caseRequestId, MultipartFile[] files) {
 
 		if (caseRequestId == null || userId == null || acceptedCase == null) {
@@ -242,6 +247,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'caseName_' #caseName")
 	public CaseResponse findByCaseNameIgnoreCase(String caseName) {
 
 		if (caseName == null) {
@@ -271,6 +277,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'caseNamePrefix_' #caseName")
 	public List<CaseResponse> findByCaseNameContainingIgnoreCase(String caseName) {
 
 		if (caseName == null) {
@@ -291,6 +298,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'caseUser_' #userId")
 	public List<CaseResponse> findByUserId(String userId) {
 
 		if (userId == null) {
@@ -312,6 +320,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'caseType_' #caseType")
 	public List<CaseResponse> findByCaseType(AdvocateSpeciality caseType) {
 
 		if (caseType == null) {
@@ -332,6 +341,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'caseAdvocate_' #advocateId")
 	public List<CaseResponse> findByAdvocateId(String advocateId) {
 
 		if (advocateId == null) {
@@ -352,6 +362,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'caseIssuedTimeAfter_' #issuedTime")
 	public List<CaseResponse> findByIssuedTimeAfter(Instant issuedTime) {
 
 		if (issuedTime == null) {
@@ -372,6 +383,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'caseIssuedTimeBefore_' #issuedTime")
 	public List<CaseResponse> findByIssuedTimeBefore(Instant issuedTime) {
 
 		if (issuedTime == null) {
@@ -392,6 +404,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<CaseResponse> findAllCase() {
 
 		List<Case> list = caseRepository.findAll();
@@ -406,6 +419,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #caseId")
 	public CaseResponse findById(String caseId) {
 
 		if (caseId == null) {
@@ -427,6 +441,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean removeCase(String caseId, String userId) {
 
 		if (caseId == null || userId == null) {

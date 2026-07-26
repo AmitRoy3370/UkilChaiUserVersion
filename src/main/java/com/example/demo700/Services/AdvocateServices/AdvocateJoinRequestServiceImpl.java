@@ -15,6 +15,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -69,8 +71,11 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 	@Autowired
 	private Cleaner cleaner;
+	
+	private static final String cacheValue = "AdvocateJoinRequest";
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AdvocateJoinRequest addVocate(AdvocateJoinRequest advocateJoinRequest, String userId, MultipartFile file) {
 
 		if (advocateJoinRequest == null || userId == null) {
@@ -200,6 +205,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "SeeAll")
 	public List<AdvocateJoinRequestDTO> seeAllAdvocate() {
 
 		List<AdvocateJoinRequest> list = advocateJoinRequestRepository.findAll();
@@ -214,6 +220,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "#userId")
 	public AdvocateJoinRequestDTO findByUserId(String userId) {
 
 		if (userId == null) {
@@ -243,6 +250,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "#advocateSpeciality")
 	public List<AdvocateJoinRequestDTO> findByAdvocateSpeciality(String advocateSpeciality) {
 
 		if (advocateSpeciality == null) {
@@ -295,6 +303,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "#licenseKey")
 	public AdvocateJoinRequestDTO findByLicenseKey(String licenseKey) {
 
 		if (licenseKey == null) {
@@ -324,6 +333,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'experienceGreaterThan_' + #experience")
 	public List<AdvocateJoinRequestDTO> findByExperienceGreaterThan(int experience) {
 
 		try {
@@ -347,6 +357,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "#degree")
 	public List<AdvocateJoinRequestDTO> findByDegreesContainingIgnoreCase(String degree) {
 
 		if (degree == null) {
@@ -367,6 +378,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByWorkingExperience_' + #experience")
 	public List<AdvocateJoinRequestDTO> findByWorkingExperiencesContainingIgnoreCase(String experience) {
 		if (experience == null) {
 
@@ -387,6 +399,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AdvocateJoinRequest updateAdvocate(AdvocateJoinRequest advocateJoinRequest, String userId, String advocateId,
 			MultipartFile file) {
 
@@ -573,6 +586,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByDistrict_' + #district")
 	public List<AdvocateJoinRequestDTO> findByDistrict(String district) {
 
 		if (district == null) {
@@ -602,6 +616,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteAdvocate(String userId, String advocateId) {
 
 		if (userId == null || advocateId == null) {
@@ -666,6 +681,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public Advocate handleJoinRequest(String userId, String advocateJoinRequestId) {
 
 		if (userId == null || advocateJoinRequestId == null) {

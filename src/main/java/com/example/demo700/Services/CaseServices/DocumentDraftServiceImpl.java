@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,7 +50,10 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue = "DocumentDraft";
+	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public DocumentDraft addDocumentDraft(DocumentDraft documentDraft, String userId, MultipartFile files[]) {
 
 		if (documentDraft == null || userId == null) {
@@ -185,6 +190,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public DocumentDraft updateDocumentDraft(DocumentDraft documentDraft, String userId, String documentDraftId,
 			MultipartFile files[]) {
 
@@ -380,6 +386,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAdvocateId_' + #advocateId")
 	public List<DocumentDraft> findByAdvocateId(String advocateId) {
 
 		if (advocateId == null) {
@@ -409,6 +416,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseId_' + #caseId")
 	public DocumentDraft findByCaseId(String caseId) {
 
 		if (caseId == null) {
@@ -438,6 +446,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByIssuedDateAfter_' + #issuedDate")
 	public List<DocumentDraft> findByIssuedDateAfter(Instant issuedDate) {
 
 		if (issuedDate == null) {
@@ -467,6 +476,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByIssuedDateBefore_' + #issuedDate")
 	public List<DocumentDraft> findByIssuedDateBefore(Instant issuedDate) {
 
 		if (issuedDate == null) {
@@ -496,6 +506,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<DocumentDraft> seeAll() {
 
 		try {
@@ -519,6 +530,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public DocumentDraft findById(String id) {
 
 		if (id == null) {
@@ -548,6 +560,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean removeDocumentDraft(String id, String userId) {
 
 		if (id == null || userId == null) {

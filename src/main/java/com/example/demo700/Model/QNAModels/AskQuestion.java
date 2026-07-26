@@ -1,5 +1,6 @@
 package com.example.demo700.Model.QNAModels;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 import org.springframework.data.annotation.Id;
@@ -9,7 +10,12 @@ import com.example.demo700.ENums.AdvocateSpeciality;
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "Question")
-public class AskQuestion {
+public class AskQuestion implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 38L;
 
 	@Id
 	private String id;

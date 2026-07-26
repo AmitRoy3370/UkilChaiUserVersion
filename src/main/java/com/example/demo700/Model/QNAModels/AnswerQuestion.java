@@ -1,5 +1,6 @@
 package com.example.demo700.Model.QNAModels;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 import org.springframework.data.annotation.Id;
@@ -8,8 +9,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "Answer")
-public class AnswerQuestion {
+public class AnswerQuestion implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 37L;
 	@Id
 	private String id;
 	@NonNull

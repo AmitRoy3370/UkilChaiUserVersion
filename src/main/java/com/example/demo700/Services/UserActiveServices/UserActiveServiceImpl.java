@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -38,7 +40,10 @@ public class UserActiveServiceImpl implements UserActiveService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue = "UserActive";
+	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public UserActive addUserActive(UserActive userActive) {
 
 		if (userActive == null) {
@@ -94,6 +99,7 @@ public class UserActiveServiceImpl implements UserActiveService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public UserActive updateUserActive(UserActive userActive, String userId, String id) {
 
 		if (userActive == null || userId == null || id == null) {
@@ -179,6 +185,7 @@ public class UserActiveServiceImpl implements UserActiveService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public UserActive findById(String id) {
 
 		if (id == null) {
@@ -208,6 +215,7 @@ public class UserActiveServiceImpl implements UserActiveService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<UserActive> findAll() {
 
 		try {
@@ -230,6 +238,7 @@ public class UserActiveServiceImpl implements UserActiveService {
 
 	}
 
+	@Cacheable(value = cacheValue, key = "'findByExpiredRecords_' + #expiryTime")
 	public List<UserActive> findExpiredRecords(Date expiryTime) {
 
 		if (expiryTime == null) {
@@ -258,6 +267,7 @@ public class UserActiveServiceImpl implements UserActiveService {
 
 	}
 
+	@Cacheable(value = cacheValue, key = "'findByDate_' + #since")
 	public long countActiveUsers(Date since) {
 
 		if (since == null) {
@@ -280,6 +290,7 @@ public class UserActiveServiceImpl implements UserActiveService {
 
 	}
 
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public void updateLastActivity(String userId, Date lastActivity) {
 
 		if (userId == null || lastActivity == null) {
@@ -311,6 +322,7 @@ public class UserActiveServiceImpl implements UserActiveService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public UserActive findByUserId(String userId) {
 
 		if (userId == null) {
@@ -340,6 +352,7 @@ public class UserActiveServiceImpl implements UserActiveService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByActive_' + #active")
 	public List<UserActive> findByActive(boolean active) {
 
 		try {
@@ -363,6 +376,7 @@ public class UserActiveServiceImpl implements UserActiveService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean removeUserActive(String id, String userId) {
 
 		if (id == null || userId == null) {

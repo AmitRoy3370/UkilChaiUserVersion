@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -60,7 +62,10 @@ public class ChatServiceImpl implements ChatService {
 	@Autowired
 	private CenterAdminService centerAdminService;
 
+	private static final String cacheValue = "Message";
+	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public ChatMessage saveMessage(ChatMessage message) {
 
 		if (message == null) {
@@ -112,6 +117,7 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'chatHistory_' + #user1 + '_' + #user2")
 	public List<ChatMessage> getChatHistory(String user1, String user2) {
 		List<ChatMessage> sent = chatMessageRepository.findBySenderAndReceiver(user1, user2);
 		List<ChatMessage> received = chatMessageRepository.findByReceiverAndSender(user1, user2);
@@ -121,6 +127,7 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteChatMessage(String sender, String receiver, String chatId) {
 
 		if (sender == null || receiver == null || chatId == null) {
@@ -176,6 +183,7 @@ public class ChatServiceImpl implements ChatService {
 
 	@SuppressWarnings("unused")
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public ChatMessage editChatMessage(String sender, String chatId, String newContent) {
 
 		if (sender == null || chatId == null || newContent == null) {
@@ -240,6 +248,7 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'userChatList_' + #userId")
 	public List<ChatResponse> getAllUsersChatList(String userId) {
 
 		try {
@@ -263,6 +272,7 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'getAdminsChatList_' + #userId")
 	public List<ChatResponse> getAllAdminsChatList(String userId) {
 
 		try {
@@ -292,6 +302,7 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'getAdminsChatListFromDistrict_' + #userId + '_' + #district")
 	public List<ChatResponse> getAllAdminsChatListFromDistrict(String district, String userId) {
 
 		try {
@@ -328,6 +339,7 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'getCenterAdminsChatList_' + #userId")
 	public List<ChatResponse> getAllCenterAdminChatList(String userId) {
 
 		try {

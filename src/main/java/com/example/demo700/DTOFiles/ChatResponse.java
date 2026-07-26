@@ -1,9 +1,14 @@
 package com.example.demo700.DTOFiles;
 
+import java.io.Serializable;
 import java.time.Instant;
 
-public class ChatResponse {
+public class ChatResponse implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9L;
 	private String id;
 	private String senderId;
 	private String senderName, senderFullName;

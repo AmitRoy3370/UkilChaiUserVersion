@@ -5,6 +5,8 @@ import java.util.NoSuchElementException;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
@@ -25,7 +27,10 @@ public class CVUploadService {
 	@Autowired
 	private GridFsTemplate gridFsTemplate;
 
+	private static final String cacheValue = "CVDocument";
+	
 	// UPLOAD
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public String upload(MultipartFile file) throws IOException, java.io.IOException {
 		// null চেক
 		if (file == null || file.isEmpty()) {
@@ -96,6 +101,7 @@ public class CVUploadService {
 	}
 
 	// হেল্পার মেথড: ফাইল থেকে এক্সটেনশন বের করা
+	@Cacheable(value = cacheValue, key = "'filename_' + #fileName")
 	private String getFileExtension(String filename) {
 		if (filename == null || filename.isEmpty()) {
 			return null;
@@ -109,6 +115,7 @@ public class CVUploadService {
 		return filename.substring(lastDotIndex); // .pdf, .doc etc.
 	}
 
+	@Cacheable(value = cacheValue, key = "'parseObjectId_' + #id")
 	private ObjectId parseObjectId(String id) {
 		if (!ObjectId.isValid(id)) {
 			throw new IllegalArgumentException("Invalid attachment id");
@@ -117,6 +124,7 @@ public class CVUploadService {
 	}
 
 	// GET FILE
+	@Cacheable(value = cacheValue, key = "'getFile' + #id ")
 	public GridFSFile getFile(String id) {
 		return gridFsTemplate.findOne(new Query(Criteria.where("_id").is(parseObjectId(id))));
 	}
@@ -127,11 +135,13 @@ public class CVUploadService {
 	}
 
 	// DELETE
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public void delete(String id) {
 		gridFsTemplate.delete(new org.springframework.data.mongodb.core.query.Query(
 				org.springframework.data.mongodb.core.query.Criteria.where("_id").is(parseObjectId(id))));
 	}
 
+	@Cacheable(value = cacheValue, key = "'attachmentExists_' + #id")
 	public boolean attachmentExists(String id) {
 		try {
 			return gridFsTemplate.findOne(new Query(Criteria.where("_id").is(parseObjectId(id)))) != null;
@@ -141,6 +151,7 @@ public class CVUploadService {
 	}
 
 	// UPDATE = delete + new upload
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public String update(String oldId, MultipartFile newFile) throws IOException, java.io.IOException {
 
 		try {

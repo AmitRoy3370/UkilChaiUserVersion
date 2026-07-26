@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -40,7 +42,10 @@ public class CaseAppealServiceImpl implements CaseAppealService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue = "CaseAppeal";
+	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AppealCase addAppealCase(AppealCase caseAppeal, String userId) {
 
 		if (caseAppeal == null || userId == null) {
@@ -159,6 +164,7 @@ public class CaseAppealServiceImpl implements CaseAppealService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AppealCase updateAppealCase(AppealCase caseAppeal, String userId, String appealCaseId) {
 
 		if (caseAppeal == null || userId == null || appealCaseId == null) {
@@ -309,6 +315,7 @@ public class CaseAppealServiceImpl implements CaseAppealService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "#caseId")
 	public AppealCase findByCaseId(String caseId) {
 
 		if (caseId == null) {
@@ -338,6 +345,7 @@ public class CaseAppealServiceImpl implements CaseAppealService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByReason_' + #caseId")
 	public List<AppealCase> findByReasonContaingingIgnoreCase(String reason) {
 
 		if (reason == null) {
@@ -358,6 +366,7 @@ public class CaseAppealServiceImpl implements CaseAppealService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAppealDateBefore_' + #appealDate")
 	public List<AppealCase> findByAppealDateBefore(Instant appealDate) {
 
 		if (appealDate == null) {
@@ -378,6 +387,7 @@ public class CaseAppealServiceImpl implements CaseAppealService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAppealDateAfter_' + #appealDate")
 	public List<AppealCase> findByAppealDateAfter(Instant appealDate) {
 
 		if (appealDate == null) {
@@ -398,6 +408,7 @@ public class CaseAppealServiceImpl implements CaseAppealService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'seeAll'")
 	public List<AppealCase> seeAll() {
 
 		List<AppealCase> list = caseAppealRepository.findAll();
@@ -412,6 +423,7 @@ public class CaseAppealServiceImpl implements CaseAppealService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public AppealCase findById(String id) {
 
 		if (id == null) {
@@ -441,6 +453,7 @@ public class CaseAppealServiceImpl implements CaseAppealService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean removeAppealCase(String id, String userId) {
 
 		if (id == null || userId == null) {

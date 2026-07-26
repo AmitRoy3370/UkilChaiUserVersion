@@ -14,6 +14,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,8 +61,11 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 
 	@Autowired
 	private Cleaner cleaner;
+	
+	private static final String cacheValue = "Answer";
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AnswerQuestion answer(AnswerQuestion answerQuestion, String userId, MultipartFile file) {
 
 		if (answerQuestion == null || userId == null) {
@@ -129,6 +134,7 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AnswerQuestion updateAnswer(AnswerQuestion answerQuestion, String userID, String answerId,
 			MultipartFile file) {
 
@@ -238,6 +244,7 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAdvocateId_' + #advocateId")
 	public List<AnswerResponse> findByAdvocateId(String advocateId) {
 
 		if (advocateId == null) {
@@ -258,6 +265,7 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByQuestionId_' + #questionId")
 	public List<AnswerResponse> findByQuestionId(String questionId) {
 
 		if (questionId == null) {
@@ -278,6 +286,7 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByMessage_' + #keyWord")
 	public List<AnswerResponse> findByMessageContainingIgnoreCase(String keyword) {
 
 		if (keyword == null) {
@@ -298,6 +307,7 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByTimeAfter_' + #time")
 	public List<AnswerResponse> findByTimeAfter(Instant time) {
 
 		if (time == null) {
@@ -318,6 +328,7 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByTimeBefore_' + #time")
 	public List<AnswerResponse> findByTimeBefore(Instant time) {
 
 		if (time == null) {
@@ -338,6 +349,7 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByTimeBetween_' + #startTime + '_' + #endTime")
 	public List<AnswerResponse> findByTimeBetween(Instant startTime, Instant endTime) {
 
 		if (startTime == null | endTime == null) {
@@ -358,6 +370,7 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<AnswerResponse> findAll() {
 
 		List<AnswerQuestion> list = answerRepository.findAll();
@@ -372,6 +385,7 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByQuestionIdIn_' + #questionId")
 	public List<AnswerResponse> findByQuestionIdIn(List<String> questionId) {
 
 		try {
@@ -395,6 +409,7 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAnswerId_' + #answerId")
 	public AnswerResponse findByAnswerId(String answerId) {
 
 		if (answerId == null) {
@@ -424,6 +439,7 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteAnswer(String answerId, String userId) {
 
 		if (answerId == null || userId == null) {

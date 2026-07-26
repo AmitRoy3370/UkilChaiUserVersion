@@ -1,5 +1,7 @@
 package com.example.demo700.Model.PaymentModels;
 
+import java.io.Serializable;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -7,7 +9,12 @@ import com.example.demo700.ENums.CasePayment;
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "PaymentDetails")
-public class PaymentDetails {
+public class PaymentDetails implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 36L;
 
 	@Id
 	private String id;

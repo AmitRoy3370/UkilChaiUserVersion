@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -34,8 +36,11 @@ public class CaseCloseServiceImpl implements CaseCloseService {
 
 	@Autowired
 	private Cleaner cleaner;
+	
+	private static final String cacheValue = "CaseClose";
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public CaseClose addCaseClose(CaseClose caseClose, String userId) {
 
 		if (caseClose == null || userId == null) {
@@ -135,6 +140,7 @@ public class CaseCloseServiceImpl implements CaseCloseService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public CaseClose updateCaseClose(CaseClose caseClose, String userId, String closedCaseId) {
 
 		if (caseClose == null || userId == null || closedCaseId == null) {
@@ -247,6 +253,7 @@ public class CaseCloseServiceImpl implements CaseCloseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public CaseClose findById(String id) {
 
 		if (id == null) {
@@ -276,6 +283,7 @@ public class CaseCloseServiceImpl implements CaseCloseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<CaseClose> findAll() {
 
 		try {
@@ -299,6 +307,7 @@ public class CaseCloseServiceImpl implements CaseCloseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseId_' + #caseId")
 	public CaseClose findByCaseId(String caseId) {
 		
 		if(caseId == null) {
@@ -329,6 +338,7 @@ public class CaseCloseServiceImpl implements CaseCloseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseCloseDateBefore_' + #closedDate")
 	public List<CaseClose> findByClosedDateBefore(Instant closedDate) {
 
 		if (closedDate == null) {
@@ -357,6 +367,7 @@ public class CaseCloseServiceImpl implements CaseCloseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseCloseDateAfter_' + #closedDate")
 	public List<CaseClose> findByClosedDateAfter(Instant closedDate) {
 
 		if (closedDate == null) {
@@ -385,6 +396,7 @@ public class CaseCloseServiceImpl implements CaseCloseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseCloseDate_' + #closedDate")
 	public List<CaseClose> findByClosedDate(Instant closedDate) {
 
 		if (closedDate == null) {
@@ -413,6 +425,7 @@ public class CaseCloseServiceImpl implements CaseCloseService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByOpen_' + #open")
 	public List<CaseClose> findByOpen(boolean open) {
 
 		try {
@@ -435,6 +448,7 @@ public class CaseCloseServiceImpl implements CaseCloseService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteClosedCase(String closedCaseId, String userId) {
 
 		if (closedCaseId == null || userId == null) {

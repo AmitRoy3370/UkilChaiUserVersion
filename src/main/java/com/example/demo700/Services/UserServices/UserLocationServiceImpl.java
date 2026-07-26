@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -27,7 +29,10 @@ public class UserLocationServiceImpl implements UserlocationService {
 
 	private AddressValidator adressValidator;
 
+	private static final String cacheValue = "UserLocation";
+	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public UserLocation addUserLocation(UserLocation userLocation) {
 
 		if (userLocation == null) {
@@ -92,6 +97,7 @@ public class UserLocationServiceImpl implements UserlocationService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "findAll")
 	public List<UserLocation> seeAllUserLocation() {
 
 		List<UserLocation> list = userLocationRepository.findAll();
@@ -106,6 +112,7 @@ public class UserLocationServiceImpl implements UserlocationService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public UserLocation updateUserLocation(UserLocation userLocation, String userId, String userLocationId) {
 
 		if (userLocation == null) {
@@ -198,6 +205,7 @@ public class UserLocationServiceImpl implements UserlocationService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteUserLocation(String userLocationId, String userId) {
 
 		if (userLocationId == null || userId == null) {
@@ -252,6 +260,7 @@ public class UserLocationServiceImpl implements UserlocationService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public UserLocation findByUserId(String userId) {
 
 		if (userId == null) {
@@ -272,6 +281,7 @@ public class UserLocationServiceImpl implements UserlocationService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByLocationName_' + #locationName")
 	public List<UserLocation> findByLocationName(String locationName) {
 
 		if (locationName == null) {
@@ -292,6 +302,7 @@ public class UserLocationServiceImpl implements UserlocationService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByLatAndLong_' + #lattitude + '_' + #longitude")
 	public List<UserLocation> findByLattitudeAndLongitude(double lattitude, double longitude) {
 
 		List<UserLocation> list = userLocationRepository.findByLattitudeAndLongitude(lattitude, longitude);

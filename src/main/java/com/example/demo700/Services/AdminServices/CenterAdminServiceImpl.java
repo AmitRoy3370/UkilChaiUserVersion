@@ -3,10 +3,12 @@ package com.example.demo700.Services.AdminServices;
 import java.util.ArrayList;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,6 +16,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -54,7 +58,10 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue = "CenterAdmin";
+
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public CenterAdmin addCenterAdmin(CenterAdmin centerAdmin, String userId) {
 
 		if (centerAdmin == null || userId == null) {
@@ -185,12 +192,14 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "seeAll")
 	public List<CenterAdminDTO> seeAll() {
 
 		return getCenterAdminResponse(centerAdminRepository.findAll());
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "#userId")
 	public CenterAdminDTO findByUserId(String userId) {
 
 		if (userId == null) {
@@ -220,6 +229,7 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "#admin")
 	public CenterAdminDTO findByAdminsContainingIgnoreCase(String admin) {
 
 		if (admin == null) {
@@ -249,6 +259,7 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "#districts")
 	public List<CenterAdminDTO> findByDistrictsContainingIgnoreCase(String districts) {
 
 		if (districts == null) {
@@ -269,6 +280,7 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "#advocates")
 	public CenterAdminDTO findByAdvocatesContainingIgnoreCase(String advocates) {
 
 		if (advocates == null) {
@@ -289,6 +301,7 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public CenterAdmin updateCenterAdmin(CenterAdmin centerAdmin, String userId, String centerAdminId) {
 
 		if (centerAdmin == null || userId == null) {
@@ -445,6 +458,7 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean removeCentralAdmin(String centerAdminId, String userId) {
 
 		if (centerAdminId == null || userId == null) {
@@ -477,6 +491,7 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'admin_' + #district")
 	public List<Admin> findAdminByDistricts(String district) {
 
 		if (district == null) {
@@ -495,6 +510,8 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 
 		}
 
+		Set<String> set = new HashSet<>();
+
 		for (CenterAdmin i : centerAdmins) {
 
 			List<String> admins = i.getAdmins();
@@ -503,15 +520,19 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 
 				try {
 
-					Admin admin = adminRepository.findById(j).get();
+					set.add(j);
 
-					if (admin == null) {
-
-						throw new Exception();
-
-					}
-
-					list.add(admin);
+					/*
+					 * Admin admin = adminRepository.findById(j).get();
+					 * 
+					 * if (admin == null) {
+					 * 
+					 * throw new Exception();
+					 * 
+					 * }
+					 * 
+					 * list.add(admin);
+					 */
 
 				} catch (Exception e) {
 
@@ -520,6 +541,8 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 			}
 
 		}
+
+		list = adminRepository.findAllById(set);
 
 		if (list.isEmpty()) {
 

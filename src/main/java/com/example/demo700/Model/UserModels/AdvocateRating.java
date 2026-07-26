@@ -1,12 +1,19 @@
 package com.example.demo700.Model.UserModels;
 
+import java.io.Serializable;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "AdvocateRating")
-public class AdvocateRating {
+public class AdvocateRating implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 40L;
 
 	@Id
 	private String id;

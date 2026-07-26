@@ -1,5 +1,6 @@
 package com.example.demo700.Model.UserActiveModel;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
@@ -10,7 +11,12 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "UserActive")
-public class UserActive {
+public class UserActive implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 39L;
 
 	@Id
 	private String id;

@@ -1,5 +1,6 @@
 package com.example.demo700.Model.CaseModels;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Arrays;
 
@@ -10,7 +11,12 @@ import com.example.demo700.ENums.AdvocateSpeciality;
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "CaseRequest")
-public class CaseRequest {
+public class CaseRequest implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 27L;
 
 	@Id
 	private String id;

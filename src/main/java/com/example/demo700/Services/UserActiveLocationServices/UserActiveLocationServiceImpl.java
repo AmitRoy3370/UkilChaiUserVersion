@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -56,6 +58,8 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	
+	private static final String cacheValue = "UserActiveLocation";
+	
 	@PostConstruct
 	public void init() {
 		// Schedule a task to remove expired locations every 10 seconds
@@ -69,6 +73,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public LiveLocationData addLocation(LiveLocationData liveLocation, String userId) {
 
 		if (liveLocation == null || userId == null) {
@@ -162,6 +167,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public LiveLocationData updateLocation(LiveLocationData liveLocation, String userId, String id) {
 
 		if (liveLocation == null || userId == null) {
@@ -285,6 +291,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "findAll")
 	public List<UserLiveLocationDataResponse> seeAll() {
 
 		try {
@@ -311,6 +318,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public UserLiveLocationDataResponse getById(String id) {
 
 		if (id == null) {
@@ -340,6 +348,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAdvocateId_' + #advocateId")
 	public UserLiveLocationDataResponse findByAdvocateId(String advocateId) {
 
 		if (advocateId == null) {
@@ -369,6 +378,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public UserLiveLocationDataResponse findByUserId(String userId) {
 
 		if (userId == null) {
@@ -398,6 +408,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByLocationName_' + #locationName")
 	public List<UserLiveLocationDataResponse> findByLocationNameContainingIgnoreCase(String locationName) {
 
 		if (locationName == null) {
@@ -431,6 +442,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAdvocateIdIn_' + #advocatesId")
 	public List<UserLiveLocationDataResponse> findByAdvocateIdIn(List<String> advocatesId) {
 
 		if (advocatesId == null || advocatesId.isEmpty()) {
@@ -463,6 +475,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserIdIn_' + #usersId")
 	public List<UserLiveLocationDataResponse> findByUserIdIn(List<String> usersId) {
 
 		if (usersId == null || usersId.isEmpty()) {
@@ -495,6 +508,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteLiveLocation(String id, String userId) {
 
 		if (id == null || userId == null) {
@@ -572,6 +586,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public UserLiveLocationDataResponse heartbeat(String userId, LiveLocationData liveLocation) {
 		
 		if (userId == null || liveLocation == null) {
@@ -609,6 +624,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public void removeExpiredLocations() {
 		try {
 			Date expiryTime = Date.from(Instant.now().minus(heartbeatTimeoutSeconds, ChronoUnit.SECONDS));

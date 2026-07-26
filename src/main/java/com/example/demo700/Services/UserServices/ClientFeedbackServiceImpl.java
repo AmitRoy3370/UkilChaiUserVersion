@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -34,7 +36,10 @@ public class ClientFeedbackServiceImpl implements ClientFeedbackService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue = "ClientFeedback";
+	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public ClientFeedback addClientFeedback(ClientFeedback clientFeedback, String userId) {
 
 		if (clientFeedback == null || userId == null) {
@@ -107,6 +112,7 @@ public class ClientFeedbackServiceImpl implements ClientFeedbackService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public ClientFeedback updateCientFeedback(ClientFeedback clientFeedback, String userId, String clientFeedbackId) {
 
 		if (clientFeedback == null || userId == null || clientFeedbackId == null) {
@@ -197,6 +203,7 @@ public class ClientFeedbackServiceImpl implements ClientFeedbackService {
 	}
 
 	@Override
+	@Cacheable(value=cacheValue, key = "'findByCaseId_' + #caseId" )
 	public List<ClientFeedback> findByCaseId(String caseId) {
 
 		if (caseId == null) {
@@ -226,6 +233,7 @@ public class ClientFeedbackServiceImpl implements ClientFeedbackService {
 	}
 
 	@Override
+	@Cacheable(value=cacheValue, key = "'findByUserId_' + #userId" )
 	public List<ClientFeedback> findByUserId(String userId) {
 
 		if (userId == null) {
@@ -255,6 +263,7 @@ public class ClientFeedbackServiceImpl implements ClientFeedbackService {
 	}
 
 	@Override
+	@Cacheable(value=cacheValue, key = "'findByFeedback_' + #feedback" )
 	public List<ClientFeedback> findByFeedbackContainingIgnoreCase(String feedback) {
 
 		if (feedback == null) {
@@ -284,6 +293,7 @@ public class ClientFeedbackServiceImpl implements ClientFeedbackService {
 	}
 
 	@Override
+	@Cacheable(value=cacheValue, key = "'findAll'" )
 	public List<ClientFeedback> findAll() {
 
 		try {
@@ -307,6 +317,7 @@ public class ClientFeedbackServiceImpl implements ClientFeedbackService {
 	}
 
 	@Override
+	@Cacheable(value=cacheValue, key = "'findById_' + #id" )
 	public ClientFeedback findById(String id) {
 
 		if (id == null) {
@@ -336,6 +347,7 @@ public class ClientFeedbackServiceImpl implements ClientFeedbackService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean removeClientFeedback(String id, String userId) {
 
 		if (id == null || userId == null) {

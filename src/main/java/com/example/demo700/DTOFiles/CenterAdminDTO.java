@@ -1,8 +1,14 @@
 package com.example.demo700.DTOFiles;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class CenterAdminDTO {
+public class CenterAdminDTO implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8L;
 
 	String id, profileImageId;
 

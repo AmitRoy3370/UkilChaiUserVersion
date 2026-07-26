@@ -14,6 +14,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -62,8 +64,11 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 	@Autowired
 	private Cleaner cleaner;
+	
+	private static final String cacheValue = "CaseRequest";
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public CaseRequest addCaseRequest(CaseRequest caseRequest, String userId, MultipartFile files[]) {
 
 		if (caseRequest == null || userId == null) {
@@ -200,6 +205,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public CaseRequest updateCaseRequest(CaseRequest caseRequest, String userId, String caseRequestId,
 			MultipartFile files[]) {
 
@@ -411,6 +417,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseName_' + #caseName")
 	public List<CaseRequestResponse> findByCaseNameContainingIgnoreCase(String caseName) {
 
 		if (caseName == null) {
@@ -431,6 +438,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public List<CaseRequestResponse> findByUserId(String userId) {
 
 		if (userId == null) {
@@ -451,6 +459,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseType_' + #caseType")
 	public List<CaseRequestResponse> findByCaseType(AdvocateSpeciality caseType) {
 
 		if (caseType == null) {
@@ -471,6 +480,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByIssuedDateAfter_' + #issuedTime")
 	public List<CaseRequestResponse> findByIssuedTimeAfter(Instant issuedTime) {
 
 		if (issuedTime == null) {
@@ -491,6 +501,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByIssuedDateBefore_' + #issuedTime")
 	public List<CaseRequestResponse> findByIssuedTimeBefore(Instant issuedTime) {
 
 		if (issuedTime == null) {
@@ -511,6 +522,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #caseRequestId")
 	public CaseRequestResponse findById(String caseRequestId) {
 
 		if (caseRequestId == null) {
@@ -532,6 +544,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<CaseRequestResponse> allCaseRequest() {
 
 		List<CaseRequest> list = caseRequestRepository.findAll();
@@ -546,6 +559,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean removeCaseRequest(String caseRequestId, String userId) {
 
 		if (caseRequestId == null || userId == null) {
@@ -602,6 +616,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public Case handleCaseRequest(String caseRequestId, String userId) {
 
 		if (caseRequestId == null || userId == null) {
@@ -736,6 +751,7 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByRequestedAdvocateId_' + #requestedAdvocateId")
 	public List<CaseRequestResponse> findByRequestedAdvocateId(String requestedAdvocateId) {
 
 		if (requestedAdvocateId == null) {

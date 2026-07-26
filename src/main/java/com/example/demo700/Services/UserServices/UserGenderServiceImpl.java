@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -30,7 +32,10 @@ public class UserGenderServiceImpl implements UserGenderService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue = "UserGender";
+	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public UserGender addUserGender(UserGender userGender, String userId) {
 
 		if (userGender == null || userId == null || userGender.getUserId() == null
@@ -87,6 +92,7 @@ public class UserGenderServiceImpl implements UserGenderService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public UserGender updateUserGender(UserGender userGender, String userId, String id) {
 
 		if (id == null || userGender == null || userId == null || userGender.getUserId() == null
@@ -171,6 +177,7 @@ public class UserGenderServiceImpl implements UserGenderService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public UserGender findById(String id) {
 
 		if (id == null) {
@@ -200,6 +207,7 @@ public class UserGenderServiceImpl implements UserGenderService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<UserGender> findAll() {
 
 		try {
@@ -223,6 +231,7 @@ public class UserGenderServiceImpl implements UserGenderService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public UserGender findByUserId(String userId) {
 
 		if (userId == null) {
@@ -252,6 +261,7 @@ public class UserGenderServiceImpl implements UserGenderService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByGender_' + #gender")
 	public List<UserGender> findByGender(Gender gender) {
 
 		if (gender == null) {
@@ -281,6 +291,7 @@ public class UserGenderServiceImpl implements UserGenderService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserIdIn_' + #usersId")
 	public List<UserGender> findByUserIdIn(List<String> usersId) {
 
 		if (usersId == null || usersId.isEmpty()) {
@@ -310,6 +321,7 @@ public class UserGenderServiceImpl implements UserGenderService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean removeUserGender(String id, String userId) {
 
 		if (id == null || userId == null) {

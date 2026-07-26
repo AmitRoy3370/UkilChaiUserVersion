@@ -13,6 +13,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -45,7 +47,10 @@ public class PostReactionServiceImpl implements PostReactionService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue = "PostReaction";
+	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public PostReaction addPostReaction(PostReaction postReaction, String userId) {
 
 		if (postReaction == null || userId == null) {
@@ -98,6 +103,7 @@ public class PostReactionServiceImpl implements PostReactionService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public PostReaction updatePostReaction(PostReaction postReaction, String userId, String postReactionId) {
 
 		if (postReaction == null || userId == null || postReactionId == null) {
@@ -174,6 +180,7 @@ public class PostReactionServiceImpl implements PostReactionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public List<PostReactionResponse> findByUserId(String userId) {
 
 		if (userId == null) {
@@ -194,6 +201,7 @@ public class PostReactionServiceImpl implements PostReactionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAdvocatePostId_' + #advocatePostId")
 	public List<PostReactionResponse> findByAdvocatePostId(String advocatePostId) {
 
 		if (advocatePostId == null) {
@@ -214,6 +222,7 @@ public class PostReactionServiceImpl implements PostReactionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAdvocatePostIdAndPostReaction_' + #advocatePostId + '_' + #postReaction")
 	public List<PostReactionResponse> findByAdvocatePostIdAndPostReaction(String advocatePostId,
 			PostReactions postReaction) {
 
@@ -236,6 +245,7 @@ public class PostReactionServiceImpl implements PostReactionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByComment_' + #comment")
 	public List<PostReactionResponse> findByCommentContainingIgnoreCase(String comment) {
 
 		if (comment == null) {
@@ -256,6 +266,7 @@ public class PostReactionServiceImpl implements PostReactionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<PostReactionResponse> findAll() {
 
 		List<PostReaction> list = postReactionRepository.findAll();
@@ -270,6 +281,7 @@ public class PostReactionServiceImpl implements PostReactionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public PostReactionResponse findById(String id) {
 
 		try {
@@ -293,6 +305,7 @@ public class PostReactionServiceImpl implements PostReactionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAdvocateIdIn_' + #advocatePostIds")
 	public List<PostReactionResponse> findByAdvocateIdIn(List<String> advocatePostIds) {
 
 		try {
@@ -316,6 +329,7 @@ public class PostReactionServiceImpl implements PostReactionService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean removePostReaction(String id, String userId) {
 
 		if (id == null || userId == null) {

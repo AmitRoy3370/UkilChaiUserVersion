@@ -1,5 +1,6 @@
 package com.example.demo700.Model.CaseModels;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 import org.springframework.data.annotation.Id;
@@ -8,7 +9,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "CaseJudgement")
-public class CaseJudgment {
+public class CaseJudgment implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 26L;
 
 	@Id
 	private String id;

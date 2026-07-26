@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -50,8 +52,11 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 	@Autowired
 	private Cleaner cleaner;
+	
+	private static final String cacheValue = "CaseTracking";
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public CaseTracking addCaseTracking(CaseTracking caseTracking, String userId) {
 
 		if (caseTracking == null || userId == null) {
@@ -177,6 +182,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public CaseTracking updateCaseTracking(CaseTracking caseTracking, String userId, String id) {
 
 		if (caseTracking == null || userId == null || id == null) {
@@ -316,6 +322,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public List<CaseTracking> swapOrder(String caseTrackingId1, String caseTrackingId2) {
 
 		if (caseTrackingId1 == null || caseTrackingId2 == null) {
@@ -390,6 +397,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "findAll")
 	public List<CaseTracking> findAll() {
 
 		try {
@@ -413,6 +421,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByVisibility_' + #visibility")
 	public List<CaseTracking> findByVisibility(boolean visibility) {
 
 		try {
@@ -436,6 +445,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseId_' + #caseId")
 	public List<CaseTracking> findByCaseId(String caseId) {
 
 		if (caseId == null) {
@@ -465,6 +475,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCasePayment_' + #caseStage")
 	public List<CaseTracking> findByCaseStage(CasePayment caseStage) {
 
 		if (caseStage == null) {
@@ -494,6 +505,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseIdAndStageNumber_' + #caseId + '_' + #stageNumber")
 	public CaseTracking findByCaseIdAndStageNumber(String caseId, int stageNumber) {
 
 		if (caseId == null) {
@@ -523,6 +535,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseIdAndCaseStage_' + #caseId + '_' + #caseStage")
 	public CaseTracking findByCaseIdAndCaseStage(String caseId, CasePayment caseStage) {
 
 		if (caseId == null || caseStage == null) {
@@ -552,6 +565,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseIdAndStageNumberGreaterThan_' + #caseId + '_' + #stageNumber")
 	public List<CaseTracking> findByCaseIdAndStageNumberGreaterThan(String caseId, int stageNumber) {
 
 		if (caseId == null) {
@@ -581,6 +595,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean removeCaseTracking(String id, String userId) {
 
 		if (id == null || userId == null) {

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,7 +39,10 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private ImageService imageService;
 
+	private static final String cacheValue = "User";
+	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public JwtResponse addUser(User user, MultipartFile file) {
 
 		if (user == null) {
@@ -118,6 +123,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<User> seeAllUsers() {
 
 		List<User> list = userRepository.findAll();
@@ -132,6 +138,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByFullName_' + #fullNamePartial")
 	public List<User> findByFullNamePartial(String fullNamePartial) {
 		
 		if(fullNamePartial == null) {
@@ -161,6 +168,7 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public User updateUser(User user, String userId, MultipartFile file) {
 
 		if (user == null || userId == null) {
@@ -265,6 +273,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteUser(String userId, String tryingToDelete) {
 
 		if (userId == null || tryingToDelete == null) {
@@ -305,6 +314,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByName_' + #name")
 	public User findByName(String name) {
 
 		if (name == null) {
@@ -334,6 +344,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByProfileImageId_' + #profileImageId")
 	public List<User> findByProfileImageId(String profileImageId) {
 
 		if (profileImageId == null) {
@@ -406,6 +417,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public User searchUser(String userId) {
 
 		if (userId == null) {

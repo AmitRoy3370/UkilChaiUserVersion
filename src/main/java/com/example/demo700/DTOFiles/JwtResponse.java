@@ -1,10 +1,16 @@
 package com.example.demo700.DTOFiles;
 
+import java.io.Serializable;
+
 import lombok.Data;
 
 @Data
-public class JwtResponse {
+public class JwtResponse implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 10L;
 	private String token;
 	private String type = "Bearer";
 	private String userId;

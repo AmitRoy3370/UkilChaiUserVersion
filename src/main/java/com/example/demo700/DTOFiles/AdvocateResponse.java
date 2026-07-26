@@ -1,12 +1,18 @@
 package com.example.demo700.DTOFiles;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Set;
 
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.ENums.Gender;
 
-public class AdvocateResponse {
+public class AdvocateResponse implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4L;
 
 	private String id, contactInfoId, locationId, userGenderId, district;
 

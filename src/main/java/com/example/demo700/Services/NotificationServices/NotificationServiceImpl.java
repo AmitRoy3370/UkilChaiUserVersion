@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ import com.example.demo700.Model.NotificationModel.Notification;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Repositories.NotificationRepository.NotificationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
+
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
@@ -29,7 +32,10 @@ public class NotificationServiceImpl implements NotificationService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue = "Notification";
+
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public void sendNotification(String userId, String message) {
 
 		try {
@@ -60,6 +66,7 @@ public class NotificationServiceImpl implements NotificationService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public List<Notification> getUnreadNotifications(String userId) {
 
 		try {
@@ -83,6 +90,7 @@ public class NotificationServiceImpl implements NotificationService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteNotification(String notificationId) {
 
 		if (notificationId == null) {
@@ -98,12 +106,16 @@ public class NotificationServiceImpl implements NotificationService {
 		return count != notificationRepository.count();
 	}
 
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public Notification markAsRead(String notificationId) {
 		Notification notification = notificationRepository.findById(notificationId)
 				.orElseThrow(() -> new NoSuchElementException("Notification not found..."));
-		notification.setRead(true);
-		notification.setTimeStamp(Instant.now());
-		return notificationRepository.save(notification);
+
+		notification = notificationRepository.save(notification);
+
+		notificationRepository.deleteById(notificationId);
+
+		return notification;
 	}
 
 }

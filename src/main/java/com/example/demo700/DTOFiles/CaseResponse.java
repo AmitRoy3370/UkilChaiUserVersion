@@ -1,11 +1,17 @@
 package com.example.demo700.DTOFiles;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Arrays;
 
 import com.example.demo700.ENums.AdvocateSpeciality;
 
-public class CaseResponse {
+public class CaseResponse implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7L;
 
 	private String id;
 

@@ -1,6 +1,12 @@
 package com.example.demo700.DTOFiles;
 
-public class LoginRequest {
+import java.io.Serializable;
+
+public class LoginRequest implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 11L;
 	private String userName;
 	private String password;
 

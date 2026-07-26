@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -34,7 +36,10 @@ public class AdvocateRatingServiceImpl implements AdvocateRatingService {
 	@Autowired
 	private CenterAdminRepository centerAdminRepository;
 
+	private static final String cacheValue = "AdvocateRating";
+	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AdvocateRating giveAdvocateRating(AdvocateRating advocateRating, String userId) {
 
 		if (advocateRating == null || userId == null) {
@@ -87,6 +92,7 @@ public class AdvocateRatingServiceImpl implements AdvocateRatingService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AdvocateRating updateAdvocateRating(AdvocateRating advocateRating, String userId, String advocateRatingId) {
 
 		if (advocateRating == null || userId == null) {
@@ -157,6 +163,7 @@ public class AdvocateRatingServiceImpl implements AdvocateRatingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<AdvocateRating> seeAllAdvocateRating() {
 
 		List<AdvocateRating> list = advocateRatingRepository.findAll();
@@ -171,6 +178,7 @@ public class AdvocateRatingServiceImpl implements AdvocateRatingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public List<AdvocateRating> findByUserId(String userId) {
 
 		if (userId == null) {
@@ -191,6 +199,7 @@ public class AdvocateRatingServiceImpl implements AdvocateRatingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAdvocateId_' + #advocateId")
 	public List<AdvocateRating> findByAdvocateId(String advocateId) {
 
 		if (advocateId == null) {
@@ -211,6 +220,7 @@ public class AdvocateRatingServiceImpl implements AdvocateRatingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAdvocateRatingId_' + #advocateRatingId")
 	public AdvocateRating findByAdvocateRatingId(String advocateRatingId) {
 
 		if (advocateRatingId == null) {
@@ -240,6 +250,7 @@ public class AdvocateRatingServiceImpl implements AdvocateRatingService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAdvocateRatingGreaterThan_' + #rating")
 	public List<AdvocateRating> findByRatingGreaterThan(int rating) {
 
 		List<AdvocateRating> list = advocateRatingRepository.findByRatingGreaterThan(rating);
@@ -254,6 +265,7 @@ public class AdvocateRatingServiceImpl implements AdvocateRatingService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteAdvocateRating(String userId, String ratingId) {
 
 		if (userId == null || ratingId == null) {

@@ -1,5 +1,7 @@
 package com.example.demo700.Model.UserModels;
 
+import java.io.Serializable;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -8,7 +10,12 @@ import com.example.demo700.ENums.Gender;
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "UserGender")
-public class UserGender {
+public class UserGender implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 45L;
 
 	@Id
 	private String id;

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -45,7 +47,10 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue = "PaymentDetails";
+	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public PaymentDetails addPaymentDetails(PaymentDetails paymentDetails, String userId) {
 
 		if (paymentDetails == null || userId == null) {
@@ -177,6 +182,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public PaymentDetails updatePaymentDetails(PaymentDetails paymentDetails, String userId, String paymentDetailsId) {
 
 		if (paymentDetails == null || userId == null || paymentDetailsId == null) {
@@ -318,6 +324,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public PaymentDetails findById(String id) {
 
 		if (id == null) {
@@ -347,6 +354,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<PaymentDetails> findAll() {
 
 		try {
@@ -370,6 +378,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByPaymentFor_' + #paymentFor")
 	public List<PaymentDetails> findByPaymentFor(CasePayment paymentFor) {
 
 		if (paymentFor == null) {
@@ -399,6 +408,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByPriceGreaterThanEqual_' + #price")
 	public List<PaymentDetails> findByPriceGreaterThanEqual(double price) {
 
 		if (price <= 0.0) {
@@ -428,6 +438,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByPriceLessThanEqual_' + #price")
 	public List<PaymentDetails> findByPriceLessThanEqual(double price) {
 
 		if (price <= 0.0) {
@@ -457,6 +468,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public List<PaymentDetails> findByUserId(String userId) {
 
 		if (userId == null) {
@@ -486,6 +498,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseId_' + #caseId")
 	public List<PaymentDetails> findByCaseId(String caseId) {
 
 		if (caseId == null) {
@@ -515,6 +528,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseIdAndPaymentFor_' + #caseId + '_' + #paymentFor")
 	public List<PaymentDetails> findByCaseIdAndPaymentFor(String caseId, CasePayment paymentFor) {
 
 		if (caseId == null || paymentFor == null) {
@@ -544,6 +558,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deletePaymentDetails(String id, String userId) {
 
 		if (id == null || userId == null) {

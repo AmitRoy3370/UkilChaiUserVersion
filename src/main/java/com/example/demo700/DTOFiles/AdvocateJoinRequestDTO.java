@@ -1,11 +1,17 @@
 package com.example.demo700.DTOFiles;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Set;
 
 import com.example.demo700.ENums.AdvocateSpeciality;
 
-public class AdvocateJoinRequestDTO {
+public class AdvocateJoinRequestDTO implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3L;
 
 	private String id, profileImageId;
 

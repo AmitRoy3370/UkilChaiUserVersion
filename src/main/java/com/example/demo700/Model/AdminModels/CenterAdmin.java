@@ -1,5 +1,6 @@
 package com.example.demo700.Model.AdminModels;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -8,7 +9,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "CenterAdmin")
-public class CenterAdmin {
+public class CenterAdmin implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 18L;
 
 	@Id
 	String id;

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,8 +46,11 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 
 	@Autowired
 	private Cleaner cleaner;
+	
+	private static final String cacheValue = "CaseJudgement";
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public CaseJudgment addCaseJudgment(CaseJudgment caseJudgment, String userId, MultipartFile file) {
 
 		if (caseJudgment == null || userId == null) {
@@ -170,6 +175,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public CaseJudgment updateCaseJudgment(CaseJudgment caseJudgment, String userId, String caseJudgmentId,
 			MultipartFile file) {
 
@@ -353,6 +359,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseId_' + #caseId")
 	public CaseJudgment findByCaseId(String caseId) {
 
 		try {
@@ -375,6 +382,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByResult_' + #result")
 	public List<CaseJudgment> findByResultContainingIgnoreCase(String result) {
 
 		if (result == null) {
@@ -403,6 +411,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByDateAfter_' + #date")
 	public List<CaseJudgment> findByDateAfter(Instant date) {
 
 		if (date == null) {
@@ -432,6 +441,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByDateBefore_' + #date")
 	public List<CaseJudgment> findByDateBefore(Instant date) {
 
 		if (date == null) {
@@ -461,6 +471,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<CaseJudgment> findAll() {
 
 		try {
@@ -484,6 +495,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public CaseJudgment findById(String id) {
 
 		if (id == null) {
@@ -513,6 +525,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean removeCaseJudgment(String id, String userId) {
 
 		if (id == null || userId == null) {

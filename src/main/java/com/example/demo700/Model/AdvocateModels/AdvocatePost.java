@@ -1,5 +1,7 @@
 package com.example.demo700.Model.AdvocateModels;
 
+import java.io.Serializable;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -7,7 +9,12 @@ import com.example.demo700.ENums.AdvocateSpeciality;
 import com.mongodb.lang.NonNull;
 
 @Document(collection = "Post")
-public class AdvocatePost {
+public class AdvocatePost implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 21L;
 
 	@Id
 	private String id;

@@ -1,8 +1,15 @@
 package com.example.demo700.DTOFiles;
 
+import java.io.Serializable;
+
 import com.example.demo700.ENums.PostReactions;
 
-public class PostReactionResponse {
+public class PostReactionResponse implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 12L;
 
 	private String id;
 
