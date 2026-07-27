@@ -30,7 +30,8 @@ public class CVUploadService {
 	private static final String cacheValue = "CVDocument";
 	
 	// UPLOAD
-	@CacheEvict(value = cacheValue, allEntries = true)
+	
+	//@CacheEvict(value = cacheValue, allEntries = true)
 	public String upload(MultipartFile file) throws IOException, java.io.IOException {
 		// null চেক
 		if (file == null || file.isEmpty()) {
@@ -101,7 +102,7 @@ public class CVUploadService {
 	}
 
 	// হেল্পার মেথড: ফাইল থেকে এক্সটেনশন বের করা
-	@Cacheable(value = cacheValue, key = "'filename_' + #fileName")
+	//@Cacheable(value = cacheValue, key = "'filename_' + #fileName")
 	private String getFileExtension(String filename) {
 		if (filename == null || filename.isEmpty()) {
 			return null;
@@ -124,7 +125,7 @@ public class CVUploadService {
 	}
 
 	// GET FILE
-	@Cacheable(value = cacheValue, key = "'getFile' + #id ")
+	//@Cacheable(value = cacheValue, key = "'getFile' + #id ")
 	public GridFSFile getFile(String id) {
 		return gridFsTemplate.findOne(new Query(Criteria.where("_id").is(parseObjectId(id))));
 	}
@@ -135,13 +136,13 @@ public class CVUploadService {
 	}
 
 	// DELETE
-	@CacheEvict(value = cacheValue, allEntries = true)
+	//@CacheEvict(value = cacheValue, allEntries = true)
 	public void delete(String id) {
 		gridFsTemplate.delete(new org.springframework.data.mongodb.core.query.Query(
 				org.springframework.data.mongodb.core.query.Criteria.where("_id").is(parseObjectId(id))));
 	}
 
-	@Cacheable(value = cacheValue, key = "'attachmentExists_' + #id")
+	//@Cacheable(value = cacheValue, key = "'attachmentExists_' + #id")
 	public boolean attachmentExists(String id) {
 		try {
 			return gridFsTemplate.findOne(new Query(Criteria.where("_id").is(parseObjectId(id)))) != null;
@@ -151,7 +152,7 @@ public class CVUploadService {
 	}
 
 	// UPDATE = delete + new upload
-	@CacheEvict(value = cacheValue, allEntries = true)
+	//@CacheEvict(value = cacheValue, allEntries = true)
 	public String update(String oldId, MultipartFile newFile) throws IOException, java.io.IOException {
 
 		try {

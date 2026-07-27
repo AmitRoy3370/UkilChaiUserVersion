@@ -25,7 +25,7 @@ public class ImageService {
 	private static final String cacheValue = "Image";
 
 	// UPLOAD
-	@CacheEvict(value = cacheValue, allEntries = true)
+	//@CacheEvict(value = cacheValue, allEntries = true)
 	public String upload(MultipartFile file) throws IOException {
 
 		DBObject meta = new BasicDBObject();
@@ -48,7 +48,7 @@ public class ImageService {
 
 	
 	// GET FILE
-	@Cacheable(value = cacheValue, key = "'findById_' + #id")
+	//@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public GridFSFile getFile(String id) {
 	    return gridFsTemplate.findOne(
 	        new Query(Criteria.where("_id").is(parseObjectId(id)))
@@ -62,13 +62,13 @@ public class ImageService {
 	}
 
 	// DELETE
-	@CacheEvict(value = cacheValue, allEntries = true)
+	//@CacheEvict(value = cacheValue, allEntries = true)
 	public void delete(String id) {
 		gridFsTemplate.delete(new org.springframework.data.mongodb.core.query.Query(
 				org.springframework.data.mongodb.core.query.Criteria.where("_id").is(parseObjectId(id))));
 	}
 
-	@Cacheable(value = cacheValue, key = "'attachmentExists_' + #id")
+	//@Cacheable(value = cacheValue, key = "'attachmentExists_' + #id")
 	public boolean attachmentExists(String id) {
 	    try {
 	        return gridFsTemplate.findOne(
@@ -81,7 +81,7 @@ public class ImageService {
 
 	
 	// UPDATE = delete + new upload
-	@CacheEvict(value = cacheValue, allEntries = true)
+	//@CacheEvict(value = cacheValue, allEntries = true)
 	public String update(String oldId, MultipartFile newFile) throws IOException {
 
 		try {
