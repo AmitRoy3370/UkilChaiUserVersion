@@ -1,6 +1,12 @@
 package com.example.demo700.Controllers.UserControllers;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +28,7 @@ import com.example.demo700.Services.UserServices.UserService;
 import com.mongodb.client.gridfs.model.GridFSFile;
 
 import io.jsonwebtoken.io.IOException;
-
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
@@ -35,6 +41,19 @@ public class UserController {
 	@Autowired
 	private ImageService imageService;
 
+	private final Path rootPath = Paths.get("Attachments");
+
+	@PostConstruct
+	public void init() {
+		try {
+			if (!Files.exists(rootPath)) {
+				Files.createDirectories(rootPath);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	// ----------------- SEE ALL USERS --------------------
 	@GetMapping("/all")
 	public ResponseEntity<?> getAllUsers() {
@@ -156,7 +175,10 @@ public class UserController {
 	@GetMapping("/download/{imageId}")
 	public ResponseEntity<?> downloadImage(@PathVariable String imageId) {
 		try {
-			GridFSFile file = imageService.getFile(imageId);
+			
+			return serveAttachment(imageId, "attachment");
+			
+			/*GridFSFile file = imageService.getFile(imageId);
 
 			if (file == null) {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Image not found");
@@ -166,14 +188,11 @@ public class UserController {
 
 			return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().get("type").toString()))
 					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
-					.body(new InputStreamResource(stream));
+					.body(new InputStreamResource(stream));*/
 
 		} catch (IOException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
 		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
-		} catch (java.io.IOException e) {
 			// TODO Auto-generated catch block
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
 		}
@@ -203,5 +222,58 @@ public class UserController {
 		}
 
 	}
+	
+	private ResponseEntity<?> serveAttachment(String attachmentId, String dispositionType) {
+		try {
+			Path filePath = rootPath.resolve(attachmentId);
+			File localFile = filePath.toFile();
+
+			// 1. CASE 1: Local Disk Cache Hit (সরাসরি লোকাল ফাইল থেকে সার্ভ করবে)
+			if (localFile.exists()) {
+				String contentType = Files.probeContentType(filePath);
+				if (contentType == null) {
+					contentType = "application/octet-stream";
+				}
+
+				InputStream localStream = new FileInputStream(localFile);
+
+				return ResponseEntity.ok()
+						.contentType(MediaType.parseMediaType(contentType))
+						.header(HttpHeaders.CACHE_CONTROL, "public, max-age=15552000") // 180 Days Browser Caching
+						.header(HttpHeaders.CONTENT_DISPOSITION, dispositionType + "; filename=\"" + localFile.getName() + "\"")
+						.body(new InputStreamResource(localStream));
+			}
+
+			// 2. CASE 2: Cache Miss - MongoDB GridFS থেকে ফাইল সংগ্রহ
+			GridFSFile file = imageService.getFile(attachmentId);
+
+			if (file == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Attachment/File not found");
+			}
+
+			String mimeType = file.getMetadata() != null && file.getMetadata().get("type") != null
+					? file.getMetadata().get("type").toString()
+					: "application/octet-stream";
+
+			// MongoDB থেকে ফাইল রিড করে লোকাল Attachments ফোল্ডারে সেভ (ক্যাশ) করা
+			try (InputStream dbStream = imageService.getStream(file)) {
+				Files.copy(dbStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+			}
+
+			// এবার নতুন তৈরি হওয়া লোকাল ক্যাশ ফাইল থেকে রেসপন্স রিটার্ন করা
+			InputStream cachedStream = new FileInputStream(localFile);
+
+			return ResponseEntity.ok()
+					.contentType(MediaType.parseMediaType(mimeType))
+					.header(HttpHeaders.CACHE_CONTROL, "public, max-age=15552000")
+					.header(HttpHeaders.CONTENT_DISPOSITION, dispositionType + "; filename=\"" + file.getFilename() + "\"")
+					.body(new InputStreamResource(cachedStream));
+
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Failed to process attachment: " + e.getMessage());
+		}
+	}
+	
 
 }

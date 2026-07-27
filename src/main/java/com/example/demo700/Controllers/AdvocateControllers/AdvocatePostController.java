@@ -1,6 +1,12 @@
 package com.example.demo700.Controllers.AdvocateControllers;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +23,11 @@ import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdvocateModels.AdvocatePost;
 import com.example.demo700.Services.AdvocateServices.AdvocatePostService;
 import com.example.demo700.Services.AdvocateServices.PostContentService;
+import com.example.demo700.Services.UserServices.ImageService;
 import com.mongodb.client.gridfs.model.GridFSFile;
 
 import io.jsonwebtoken.io.IOException;
+import jakarta.annotation.PostConstruct;
 
 @RestController
 @RequestMapping("/api/advocate/posts")
@@ -30,6 +38,22 @@ public class AdvocatePostController {
 
 	@Autowired
 	private PostContentService postContentService;
+
+	@Autowired
+	private ImageService imageService;
+	
+	private final Path rootPath = Paths.get("Attachments");
+
+	@PostConstruct
+	public void init() {
+		try {
+			if (!Files.exists(rootPath)) {
+				Files.createDirectories(rootPath);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	// -------------------------------------------------
 	// UPLOAD POST (with optional file)
@@ -246,7 +270,9 @@ public class AdvocatePostController {
 
 			}
 
-			String imageId = attachmentId;
+			return serveAttachment(attachmentId, "attachment");
+			
+			/*String imageId = attachmentId;
 
 			try {
 				GridFSFile file = postContentService.getFile(imageId);
@@ -270,7 +296,7 @@ public class AdvocatePostController {
 			} catch (java.io.IOException e) {
 				// TODO Auto-generated catch block
 				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
-			}
+			}*/
 
 		} catch (Exception e) {
 
@@ -285,7 +311,7 @@ public class AdvocatePostController {
 	@GetMapping("/attachment/view/{attachmentId}")
 	public ResponseEntity<?> viewAttachment(@PathVariable String attachmentId) {
 		try {
-			GridFSFile file = postContentService.getFile(attachmentId);
+			/*GridFSFile file = postContentService.getFile(attachmentId);
 
 			if (file == null) {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
@@ -295,7 +321,9 @@ public class AdvocatePostController {
 
 			return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().get("type").toString()))
 					.header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
-					.body(new InputStreamResource(stream));
+					.body(new InputStreamResource(stream));*/
+			
+			return serveAttachment(attachmentId, "inline");
 
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to load file");
@@ -317,4 +345,59 @@ public class AdvocatePostController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
+	
+
+	private ResponseEntity<?> serveAttachment(String attachmentId, String dispositionType) {
+		try {
+			Path filePath = rootPath.resolve(attachmentId);
+			File localFile = filePath.toFile();
+
+			// 1. CASE 1: Local Disk Cache Hit (সরাসরি লোকাল ফাইল থেকে সার্ভ করবে)
+			if (localFile.exists()) {
+				String contentType = Files.probeContentType(filePath);
+				if (contentType == null) {
+					contentType = "application/octet-stream";
+				}
+
+				InputStream localStream = new FileInputStream(localFile);
+
+				return ResponseEntity.ok()
+						.contentType(MediaType.parseMediaType(contentType))
+						.header(HttpHeaders.CACHE_CONTROL, "public, max-age=15552000") // 180 Days Browser Caching
+						.header(HttpHeaders.CONTENT_DISPOSITION, dispositionType + "; filename=\"" + localFile.getName() + "\"")
+						.body(new InputStreamResource(localStream));
+			}
+
+			// 2. CASE 2: Cache Miss - MongoDB GridFS থেকে ফাইল সংগ্রহ
+			GridFSFile file = imageService.getFile(attachmentId);
+
+			if (file == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Attachment/File not found");
+			}
+
+			String mimeType = file.getMetadata() != null && file.getMetadata().get("type") != null
+					? file.getMetadata().get("type").toString()
+					: "application/octet-stream";
+
+			// MongoDB থেকে ফাইল রিড করে লোকাল Attachments ফোল্ডারে সেভ (ক্যাশ) করা
+			try (InputStream dbStream = imageService.getStream(file)) {
+				Files.copy(dbStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+			}
+
+			// এবার নতুন তৈরি হওয়া লোকাল ক্যাশ ফাইল থেকে রেসপন্স রিটার্ন করা
+			InputStream cachedStream = new FileInputStream(localFile);
+
+			return ResponseEntity.ok()
+					.contentType(MediaType.parseMediaType(mimeType))
+					.header(HttpHeaders.CACHE_CONTROL, "public, max-age=15552000")
+					.header(HttpHeaders.CONTENT_DISPOSITION, dispositionType + "; filename=\"" + file.getFilename() + "\"")
+					.body(new InputStreamResource(cachedStream));
+
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Failed to process attachment: " + e.getMessage());
+		}
+	}
+	
+	
 }

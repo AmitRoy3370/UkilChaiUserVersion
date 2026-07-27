@@ -1,6 +1,9 @@
 package com.example.demo700.Services.AdvocateServices;
 
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.NoSuchElementException;
 
 import org.bson.types.ObjectId;
@@ -140,6 +143,17 @@ public class CVUploadService {
 	public void delete(String id) {
 		gridFsTemplate.delete(new org.springframework.data.mongodb.core.query.Query(
 				org.springframework.data.mongodb.core.query.Criteria.where("_id").is(parseObjectId(id))));
+		
+
+		try {
+	        Path filePath = Paths.get("Attachments").resolve(id);
+	        Files.deleteIfExists(filePath);
+	    } catch (Exception e) {
+	       
+	    	System.out.println("file delete error :- " + e);
+	    	
+	    }
+		
 	}
 
 	//@Cacheable(value = cacheValue, key = "'attachmentExists_' + #id")
