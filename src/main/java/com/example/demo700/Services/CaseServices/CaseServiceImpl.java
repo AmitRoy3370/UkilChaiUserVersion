@@ -247,7 +247,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'caseName_' #caseName")
+	@Cacheable(value = cacheValue, key = "'caseName_' + #caseName")
 	public CaseResponse findByCaseNameIgnoreCase(String caseName) {
 
 		if (caseName == null) {
@@ -277,7 +277,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'caseNamePrefix_' #caseName")
+	@Cacheable(value = cacheValue, key = "'caseNamePrefix_' + #caseName")
 	public List<CaseResponse> findByCaseNameContainingIgnoreCase(String caseName) {
 
 		if (caseName == null) {
@@ -298,7 +298,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'caseUser_' #userId")
+	@Cacheable(value = cacheValue, key = "'caseUser_' + #userId")
 	public List<CaseResponse> findByUserId(String userId) {
 
 		if (userId == null) {
@@ -320,7 +320,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'caseType_' #caseType")
+	@Cacheable(value = cacheValue, key = "'caseType_' + #caseType")
 	public List<CaseResponse> findByCaseType(AdvocateSpeciality caseType) {
 
 		if (caseType == null) {
@@ -341,7 +341,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'caseAdvocate_' #advocateId")
+	@Cacheable(value = cacheValue, key = "'caseAdvocate_' + #advocateId")
 	public List<CaseResponse> findByAdvocateId(String advocateId) {
 
 		if (advocateId == null) {
@@ -362,7 +362,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'caseIssuedTimeAfter_' #issuedTime")
+	@Cacheable(value = cacheValue, key = "'caseIssuedTimeAfter_' + #issuedTime")
 	public List<CaseResponse> findByIssuedTimeAfter(Instant issuedTime) {
 
 		if (issuedTime == null) {
@@ -383,7 +383,7 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'caseIssuedTimeBefore_' #issuedTime")
+	@Cacheable(value = cacheValue, key = "'caseIssuedTimeBefore_' + #issuedTime")
 	public List<CaseResponse> findByIssuedTimeBefore(Instant issuedTime) {
 
 		if (issuedTime == null) {
