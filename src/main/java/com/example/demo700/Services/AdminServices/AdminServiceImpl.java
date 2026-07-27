@@ -45,7 +45,7 @@ public class AdminServiceImpl implements AdminService {
 	private Cleaner cleaner;
 
 	private static final String cacheValue="Admin";
-	
+
 	@Override
 	@CacheEvict(value=cacheValue, allEntries = true)
 	public Admin addAdmin(Admin admin, String userId) {
@@ -126,7 +126,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	@Cacheable(value=cacheValue, key="seeAll")
+	@Cacheable(value=cacheValue, key="'seeAll'")
 	public List<AdminDTO> seeAll() {
 
 		List<Admin> list = adminRepository.findAll();
@@ -203,13 +203,13 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	@Cacheable(value=cacheValue, key="'SeeAllFromList_' + #list")
 	public List<AdminDTO> seeAll(List<String> list) {
-		
+
 		List<Admin> admins = adminRepository.findAllById(list);
-		
+
 		return getAdminResponse(admins);
-		
+
 	}
-	
+
 	@Override
 	@CacheEvict(value=cacheValue, allEntries = true)
 	public Admin updateAdmin(Admin admin, String userId, String adminId) {
@@ -408,13 +408,13 @@ public class AdminServiceImpl implements AdminService {
 				adminDTO.setFullName(userMap.get(admin.getUserId()).getFullName());
 
 				try {
-					
+
 					adminDTO.setProfileImageId(userMap.get(admin.getUserId()).getProfileImageId());
-					
+
 				} catch(Exception e) {
-					
+
 				}
-				
+
 				responses.add(adminDTO);
 
 			} catch (Exception e) {

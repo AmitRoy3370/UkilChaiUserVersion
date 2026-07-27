@@ -37,6 +37,8 @@ import com.example.demo700.Repositories.UserRepositories.UserGenderRepository;
 import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 import com.example.demo700.Utils.FileHexConverter;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 
 @Service
 public class AdvocateServiceImpl implements AdvocateService {
@@ -67,8 +69,11 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 	@Autowired
 	private CVUploadService cvUpload;
+	
+	private static final String cacheValue = "Advocate";
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public Advocate addVocate(Advocate advocate, String userId, MultipartFile file) {
 
 		if (userId == null || advocate == null) {
@@ -157,12 +162,14 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<AdvocateResponse> seeAllAdvocate() {
 
 		return getAdvocateResponseFromAdvocateList(advocateRepository.findAll());
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAllFromList_' + #list")
 	public List<AdvocateResponse> seeAllAdvocate(List<String> list) {
 
 		List<Advocate> advocates = advocateRepository.findAllById(list);
@@ -172,6 +179,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public AdvocateResponse findByUserId(String userId) {
 
 		if (userId == null) {
@@ -201,6 +209,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAdvocateSpeciality_' + #advocateSpeciality")
 	public List<AdvocateResponse> findByAdvocateSpeciality(AdvocateSpeciality advocateSpeciality) {
 
 		if (advocateSpeciality == null) {
@@ -230,6 +239,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByLicenseKey_' + #licenseKey")
 	public AdvocateResponse findByLicenseKey(String licenseKey) {
 
 		if (licenseKey == null) {
@@ -259,6 +269,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByExperience_' + #experience")
 	public List<AdvocateResponse> findByExperienceGreaterThan(int experience) {
 
 		try {
@@ -282,6 +293,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByDistrict_' + #district")
 	public List<AdvocateResponse> findByDistrict(String district) {
 
 		if (district == null) {
@@ -311,6 +323,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByDegrees_' + #degree")
 	public List<AdvocateResponse> findByDegreesContainingIgnoreCase(String degree) {
 
 		if (degree == null) {
@@ -340,6 +353,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByWorkingExperiencePrefix_' + #experience")
 	public List<AdvocateResponse> findByWorkingExperiencesContainingIgnoreCase(String experience) {
 
 		if (experience == null) {
@@ -369,6 +383,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public Advocate updateAdvocate(Advocate advocate, String userId, String advocateId, MultipartFile file) {
 
 		if (userId == null || advocate == null || advocateId == null) {
@@ -521,6 +536,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteAdvocate(String userId, String advocateId) {
 
 		if (userId == null || advocateId == null) {
@@ -605,6 +621,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
+    @Cacheable(value = cacheValue, key = "'findById_' + #advocateId")
 	public AdvocateResponse findById(String advocateId) {
 
 		if (advocateId == null) {
@@ -632,7 +649,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 		}
 
 	}
-
+    @Cacheable(value = cacheValue, key = "'findByGender_' + #gender")
 	public List<AdvocateResponse> findByGender(Gender gender) {
 
 		if (gender == null) {
@@ -670,7 +687,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 		}
 
 	}
-
+    @Cacheable(value = cacheValue, key = "'findByLocation_' + #location")
 	public List<AdvocateResponse> findByLocation(String location) {
 
 		if (location == null) {

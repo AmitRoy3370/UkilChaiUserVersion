@@ -71,7 +71,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 	@Autowired
 	private Cleaner cleaner;
-	
+
 	private static final String cacheValue = "AdvocateJoinRequest";
 
 	@Override
@@ -205,7 +205,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "SeeAll")
+	@Cacheable(value = cacheValue, key = "'SeeAll'")
 	public List<AdvocateJoinRequestDTO> seeAllAdvocate() {
 
 		List<AdvocateJoinRequest> list = advocateJoinRequestRepository.findAll();

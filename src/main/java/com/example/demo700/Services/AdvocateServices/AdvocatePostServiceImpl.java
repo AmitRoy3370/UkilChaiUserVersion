@@ -60,7 +60,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 	@Autowired
 	private Cleaner cleaner;
-	
+
 	private static final String cacheValue = "AdvocatePost";
 
 	@Override
@@ -231,33 +231,33 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 	@Cacheable(value = cacheValue, key = "'postTitle_' + #postTitle")
 	public List<PostResponse> findByPostTitle(String postTitle) {
-		
+
 		if(postTitle == null) {
-			
+
 			throw new NullPointerException("False request....");
-			
+
 		}
-		
+
 		try {
-			
+
 			List<AdvocatePost> list = advocatePostRepository.findByPostTitleContainingIgnoreCase(postTitle);
-			
+
 			if(list.isEmpty()) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return getPostResponseFromPostList(list);
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such post find at here...");
-			
+
 		}
-		
+
 	}
-	
+
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByAttachmentIdIsNotNull'")
 	public List<PostResponse> findByAttachmentIdIsNotNull() {
@@ -455,7 +455,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "seeAll")
+	@Cacheable(value = cacheValue, key = "'seeAll'")
 	public List<PostResponse> seeAll() {
 
 		List<AdvocatePost> list = advocatePostRepository.findAll();

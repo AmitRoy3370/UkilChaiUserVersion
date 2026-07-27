@@ -192,7 +192,7 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "seeAll")
+	@Cacheable(value = cacheValue, key = "'seeAll'")
 	public List<CenterAdminDTO> seeAll() {
 
 		return getCenterAdminResponse(centerAdminRepository.findAll());
@@ -524,13 +524,13 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 
 					/*
 					 * Admin admin = adminRepository.findById(j).get();
-					 * 
+					 *
 					 * if (admin == null) {
-					 * 
+					 *
 					 * throw new Exception();
-					 * 
+					 *
 					 * }
-					 * 
+					 *
 					 * list.add(admin);
 					 */
 
@@ -634,7 +634,7 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 									 * return advocateResponses.stream().filter(Objects::nonNull)
 									 * .map(AdvocateResponse::getName).filter(Objects::nonNull)
 									 * .collect(Collectors.toList());
-									 * 
+									 *
 									 */
 
 									return advocateResponses;

@@ -291,7 +291,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "findAll")
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<UserLiveLocationDataResponse> seeAll() {
 
 		try {

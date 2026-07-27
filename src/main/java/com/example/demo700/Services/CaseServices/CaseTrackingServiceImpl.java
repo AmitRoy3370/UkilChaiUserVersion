@@ -397,7 +397,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "findAll")
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<CaseTracking> findAll() {
 
 		try {

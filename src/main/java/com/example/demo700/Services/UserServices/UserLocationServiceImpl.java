@@ -97,7 +97,7 @@ public class UserLocationServiceImpl implements UserlocationService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "findAll")
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<UserLocation> seeAllUserLocation() {
 
 		List<UserLocation> list = userLocationRepository.findAll();

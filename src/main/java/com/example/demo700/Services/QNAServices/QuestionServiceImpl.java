@@ -111,7 +111,7 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "findAll")
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<QuestionResponse> seeAll() {
 
 		return getQuestionResponseFromQuestionList(questionRepository.findAll());

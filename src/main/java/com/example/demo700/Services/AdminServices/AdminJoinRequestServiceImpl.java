@@ -56,7 +56,7 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 	private NotificationService notificationService;
 
 	private static final String cacheValue = "AdminJoinRequest";
-	
+
 	@Override
 	@CacheEvict(value = cacheValue, allEntries=true)
 	public AdminJoinRequest addAdmin(AdminJoinRequest admin, String userId) {
@@ -155,7 +155,7 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 	}
 
 	@Override
-	@Cacheable(value=cacheValue, key="seeAll")
+	@Cacheable(value=cacheValue, key="'seeAll'")
 	public List<AdminJoinRequestDTO> seeAll() {
 
 		return getAdminJoinRequestResponse(adminJoinRequestRepository.findAll());
@@ -597,7 +597,7 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 				response.setAdvocateSpeciality(adminJoinRequest.getAdvocateSpeciality());
 
 				responses.add(response);
-				
+
 			} catch (Exception e) {
 
 			}
