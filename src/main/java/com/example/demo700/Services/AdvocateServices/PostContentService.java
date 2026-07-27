@@ -39,7 +39,7 @@ public class PostContentService {
 		return id.toHexString();
 	}
 
-	@Cacheable(value = cacheValue, key = "'parseObjectId_' + #id")
+	//@Cacheable(value = cacheValue, key = "'parseObjectId_' + #id")
 	private ObjectId parseObjectId(String id) {
 	    if (!ObjectId.isValid(id)) {
 	        throw new IllegalArgumentException("Invalid attachment id");
