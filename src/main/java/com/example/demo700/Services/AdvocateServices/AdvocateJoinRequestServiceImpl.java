@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -681,7 +682,8 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Advocate", allEntries = true) })
 	public Advocate handleJoinRequest(String userId, String advocateJoinRequestId) {
 
 		if (userId == null || advocateJoinRequestId == null) {

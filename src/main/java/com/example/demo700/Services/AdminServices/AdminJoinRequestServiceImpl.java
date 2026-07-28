@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -58,7 +59,7 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 	private static final String cacheValue = "AdminJoinRequest";
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries=true)
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AdminJoinRequest addAdmin(AdminJoinRequest admin, String userId) {
 
 		if (admin == null || userId == null) {
@@ -155,7 +156,7 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 	}
 
 	@Override
-	@Cacheable(value=cacheValue, key="'seeAll'")
+	@Cacheable(value = cacheValue, key = "'seeAll'")
 	public List<AdminJoinRequestDTO> seeAll() {
 
 		return getAdminJoinRequestResponse(adminJoinRequestRepository.findAll());
@@ -163,7 +164,7 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 	}
 
 	@Override
-	@Cacheable(value=cacheValue, key="#userId")
+	@Cacheable(value = cacheValue, key = "#userId")
 	public AdminJoinRequestDTO findByUserId(String userId) {
 
 		if (userId == null) {
@@ -192,7 +193,7 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 	}
 
 	@Override
-	@Cacheable(value=cacheValue, key="#advocateSpeciality")
+	@Cacheable(value = cacheValue, key = "#advocateSpeciality")
 	public List<AdminJoinRequestDTO> findByAdvocateSpecialityContainingIgnoreCase(String advocateSpeciality) {
 
 		if (advocateSpeciality == null) {
@@ -223,7 +224,7 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 	}
 
 	@Override
-	@CacheEvict(value=cacheValue, allEntries = true)
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public AdminJoinRequest updateAdmin(AdminJoinRequest admin, String userId, String adminId) {
 
 		if (admin == null || userId == null || adminId == null) {
@@ -326,7 +327,7 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 	}
 
 	@Override
-	@CacheEvict(value=cacheValue, allEntries = true)
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteAdmin(String adminId, String userId) {
 
 		if (adminId == null || userId == null) {
@@ -388,7 +389,8 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 	}
 
 	@Override
-	@CacheEvict(value=cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Admin", allEntries = true) })
 	public Admin handleAdminJoinRequest(String userId, String adminJoinRequestId, String response) {
 
 		if (userId == null || adminJoinRequestId == null || response == null) {
