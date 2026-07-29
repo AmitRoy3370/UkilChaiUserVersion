@@ -18,6 +18,7 @@ import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 import com.example.demo700.Security.JwtUtil;
+import com.example.demo700.Services.RedisService;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -39,8 +40,11 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private ImageService imageService;
 
+	@Autowired
+	private RedisService redisService;
+
 	private static final String cacheValue = "User";
-	
+
 	@Override
 	@CacheEvict(value = cacheValue, allEntries = true)
 	public JwtResponse addUser(User user, MultipartFile file) {
@@ -140,33 +144,33 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByFullName_' + #fullNamePartial")
 	public List<User> findByFullNamePartial(String fullNamePartial) {
-		
-		if(fullNamePartial == null) {
-			
+
+		if (fullNamePartial == null) {
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			List<User> list = userRepository.findByFullNameContainingIgnoreCase(fullNamePartial);
-			
-			if(list == null || list.isEmpty()) {
-				
+
+			if (list == null || list.isEmpty()) {
+
 				throw new NoSuchElementException();
-				
+
 			}
-			
+
 			return list;
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException(e.getMessage());
-			
+
 		}
-		
+
 	}
-	
+
 	@Override
 	@CacheEvict(value = cacheValue, allEntries = true)
 	public User updateUser(User user, String userId, MultipartFile file) {
@@ -309,6 +313,12 @@ public class UserServiceImpl implements UserService {
 		long count = userRepository.count();
 
 		userCleaner.removeUser(userId);
+
+		if (count != userRepository.count()) {
+
+			redisService.clearAllCaches();
+
+		}
 
 		return count != userRepository.count();
 	}

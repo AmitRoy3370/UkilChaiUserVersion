@@ -17,7 +17,11 @@ public class ChatResponse implements Serializable {
 	private Instant timeStamp;
 
 	// Nested DTO for sender information
-	public static class SenderInfo {
+	public static class SenderInfo implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 100L;
 		private String receiverName, receiverFullName;
 		private String receiverId;
 		private String message;
@@ -86,7 +90,11 @@ public class ChatResponse implements Serializable {
 	}
 
 	// Nested DTO for receiver information
-	public static class ReceiverInfo {
+	public static class ReceiverInfo implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 101L;
 		private String senderId;
 		private String senderName, senderFullName;
 		private String message;
