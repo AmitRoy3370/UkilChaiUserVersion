@@ -327,7 +327,11 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = {
+			@CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Admin", allEntries = true),
+			@CacheEvict(value = "CenterAdmin", allEntries = true)
+	})
 	public boolean deleteAdmin(String adminId, String userId) {
 
 		if (adminId == null || userId == null) {
@@ -389,8 +393,11 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 	}
 
 	@Override
-	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "Admin", allEntries = true) })
+	@Caching(evict = {
+			@CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Admin", allEntries = true),
+			@CacheEvict(value = "CenterAdmin", allEntries = true)
+	})
 	public Admin handleAdminJoinRequest(String userId, String adminJoinRequestId, String response) {
 
 		if (userId == null || adminJoinRequestId == null || response == null) {

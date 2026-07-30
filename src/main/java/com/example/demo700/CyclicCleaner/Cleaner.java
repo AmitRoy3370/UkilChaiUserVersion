@@ -1,6 +1,7 @@
 package com.example.demo700.CyclicCleaner;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,8 @@ import com.example.demo700.Model.CaseModels.DocumentDraft;
 import com.example.demo700.Model.CaseModels.Hearing;
 import com.example.demo700.Model.CaseModels.ReadStatus;
 import com.example.demo700.Model.ChatModels.ChatMessage;
+import com.example.demo700.Model.ChatModels.Group;
+import com.example.demo700.Model.ChatModels.GroupMessage;
 import com.example.demo700.Model.ChatModels.ReadableChat;
 import com.example.demo700.Model.LiveLocations.LiveLocationData;
 import com.example.demo700.Model.NotificationModel.Notification;
@@ -55,6 +58,8 @@ import com.example.demo700.Repositories.CaseRepositories.DocumentDraftRepository
 import com.example.demo700.Repositories.CaseRepositories.HearingRepository;
 import com.example.demo700.Repositories.CaseRepositories.ReadStatusRepository;
 import com.example.demo700.Repositories.ChatRepositories.ChatMessageRepository;
+import com.example.demo700.Repositories.ChatRepositories.GroupMessageRepository;
+import com.example.demo700.Repositories.ChatRepositories.GroupRepository;
 import com.example.demo700.Repositories.ChatRepositories.ReadableChatRepository;
 import com.example.demo700.Repositories.NotificationRepository.NotificationRepository;
 import com.example.demo700.Repositories.PaymentRepositories.PaymentDetailsRepository;
@@ -166,10 +171,16 @@ public class Cleaner {
 
 	@Autowired
 	private UserLiveLocationRepository userLiveLocationRepository;
-	
+
 	@Autowired
 	private UserGenderRepository userGenderRepository;
-	
+
+	@Autowired
+	private GroupRepository groupRepository;
+
+	@Autowired
+	private GroupMessageRepository groupMessageRepository;
+
 	public void removeUser(String userId) {
 
 		try {
@@ -189,36 +200,55 @@ public class Cleaner {
 			if (count != userRepository.count()) {
 
 				try {
-					
-					UserGender gender = userGenderRepository.findByUserId(user.getId());
-					
-					if(gender == null) {
-						
+
+					List<Group> list = groupRepository.findByCreatedBy(user.getId());
+
+					if (list.isEmpty()) {
+
 						throw new Exception();
-						
+
 					}
-					
-					removeUserGender(gender.getId());
-					
-					
-				} catch(Exception e) {
-					
+
+					for (Group i : list) {
+
+						removeGroup(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
 				}
-				
+
 				try {
-					
-					LiveLocationData data = userLiveLocationRepository.findByUserId(user.getId());
-					
-					if(data != null) {
-						
-						removeUserLiveLocation(data.getId());
-						
+
+					UserGender gender = userGenderRepository.findByUserId(user.getId());
+
+					if (gender == null) {
+
+						throw new Exception();
+
 					}
-					
-				} catch(Exception e) {
-					
+
+					removeUserGender(gender.getId());
+
+				} catch (Exception e) {
+
 				}
-				
+
+				try {
+
+					LiveLocationData data = userLiveLocationRepository.findByUserId(user.getId());
+
+					if (data != null) {
+
+						removeUserLiveLocation(data.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
 				try {
 
 					UserActive userActive = userActiveRepository.findByUserId(user.getId());
@@ -473,7 +503,7 @@ public class Cleaner {
 
 			if (count != userContactInfoRepository.count()) {
 
-				//removeUser(userContactInfo.getUserId());
+				// removeUser(userContactInfo.getUserId());
 
 			}
 
@@ -501,7 +531,7 @@ public class Cleaner {
 
 			if (count != userLocationRepository.count()) {
 
-				removeUser(userLocation.getUserId());
+				//removeUser(userLocation.getUserId());
 
 			}
 
@@ -552,19 +582,19 @@ public class Cleaner {
 				if (count != advocateRepository.count()) {
 
 					try {
-						
+
 						LiveLocationData data = userLiveLocationRepository.findByAdvocateId(advocate.getId());
-						
-						if(data != null) {
-							
+
+						if (data != null) {
+
 							removeUserLiveLocation(data.getId());
-							
+
 						}
-						
-					} catch(Exception e) {
-						
+
+					} catch (Exception e) {
+
 					}
-					
+
 					try {
 
 						if (!advocate.getCvHexKey().isEmpty()) {
@@ -1657,57 +1687,121 @@ public class Cleaner {
 		}
 
 	}
-	
+
 	public void removeUserLiveLocation(String id) {
-		
+
 		try {
-			
+
 			LiveLocationData data = userLiveLocationRepository.findById(id).get();
-			
-			if(data == null) {
-				
+
+			if (data == null) {
+
 				throw new Exception();
-				
+
 			}
-			
+
 			long count = userLiveLocationRepository.count();
-			
+
 			userLiveLocationRepository.deleteById(id);
-			
-			if(count != userLiveLocationRepository.count()) {
-				
+
+			if (count != userLiveLocationRepository.count()) {
+
 			}
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 		}
-		
+
 	}
-	
+
 	public void removeUserGender(String id) {
-		
+
 		try {
-			
+
 			UserGender gender = userGenderRepository.findById(id).get();
-			
-			if(gender == null) {
-				
+
+			if (gender == null) {
+
 				throw new Exception();
-				
+
 			}
-			
+
 			long count = userGenderRepository.count();
-			
+
 			userGenderRepository.deleteById(id);
-			
-			if(count != userGenderRepository.count()) {
-				
+
+			if (count != userGenderRepository.count()) {
+
 			}
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 		}
-		
+
+	}
+
+	public void removeGroup(String id) {
+
+		try {
+
+			Group group = groupRepository.findById(id).get();
+
+			if (group == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = groupRepository.count();
+
+			groupRepository.deleteById(id);
+
+			if (count != groupRepository.count()) {
+
+				List<GroupMessage> list = groupMessageRepository.findByGroupIdOrderByTimestampAsc(group.getId());
+
+				if (list.isEmpty()) {
+
+					throw new Exception();
+
+				}
+
+				List<String> ids = list.stream().map(GroupMessage::getId).collect(Collectors.toList());
+
+				groupMessageRepository.deleteAllById(ids);
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeGroupMessage(String id) {
+
+		try {
+
+			GroupMessage groupMessage = groupMessageRepository.findById(id).get();
+
+			if (groupMessage == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = groupMessageRepository.count();
+
+			groupMessageRepository.deleteById(id);
+
+			if (count != groupMessageRepository.count()) {
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
 	}
 
 }

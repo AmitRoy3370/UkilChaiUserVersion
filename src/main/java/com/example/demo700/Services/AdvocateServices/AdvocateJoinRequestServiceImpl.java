@@ -617,7 +617,26 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = {
+			@CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Admin", allEntries = true),
+			@CacheEvict(value = "Advocate", allEntries = true),
+			@CacheEvict(value = "AdvocateRating", allEntries = true),
+			@CacheEvict(value = "AdvocatePost", allEntries = true),
+			@CacheEvict(value = "ClientFeedback", allEntries = true),
+			@CacheEvict(value = "PostReaction", allEntries = true),
+			@CacheEvict(value = "AppealHearing", allEntries = true),
+			@CacheEvict(value = "CaseAppeal", allEntries = true),
+			@CacheEvict(value = "CaseClose", allEntries = true),
+			@CacheEvict(value = "CaseJudgement", allEntries = true),
+			@CacheEvict(value = "Case", allEntries = true),
+			@CacheEvict(value = "CaseTracking", allEntries = true),
+			@CacheEvict(value = "DocumentDraft", allEntries = true),
+			@CacheEvict(value = "Hearing", allEntries = true),
+			@CacheEvict(value = "ReadStatus", allEntries = true),
+			@CacheEvict(value = "Answer", allEntries = true),
+			@CacheEvict(value = "Question", allEntries = true),
+	})
 	public boolean deleteAdvocate(String userId, String advocateId) {
 
 		if (userId == null || advocateId == null) {
@@ -682,8 +701,26 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	}
 
 	@Override
-	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "Advocate", allEntries = true) })
+	@Caching(evict = {
+			@CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Admin", allEntries = true),
+			@CacheEvict(value = "Advocate", allEntries = true),
+			@CacheEvict(value = "AdvocateRating", allEntries = true),
+			@CacheEvict(value = "AdvocatePost", allEntries = true),
+			@CacheEvict(value = "ClientFeedback", allEntries = true),
+			@CacheEvict(value = "PostReaction", allEntries = true),
+			@CacheEvict(value = "AppealHearing", allEntries = true),
+			@CacheEvict(value = "CaseAppeal", allEntries = true),
+			@CacheEvict(value = "CaseClose", allEntries = true),
+			@CacheEvict(value = "CaseJudgement", allEntries = true),
+			@CacheEvict(value = "Case", allEntries = true),
+			@CacheEvict(value = "CaseTracking", allEntries = true),
+			@CacheEvict(value = "DocumentDraft", allEntries = true),
+			@CacheEvict(value = "Hearing", allEntries = true),
+			@CacheEvict(value = "ReadStatus", allEntries = true),
+			@CacheEvict(value = "Answer", allEntries = true),
+			@CacheEvict(value = "Question", allEntries = true),
+	})
 	public Advocate handleJoinRequest(String userId, String advocateJoinRequestId) {
 
 		if (userId == null || advocateJoinRequestId == null) {

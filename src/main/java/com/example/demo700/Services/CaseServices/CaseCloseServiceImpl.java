@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -448,7 +449,23 @@ public class CaseCloseServiceImpl implements CaseCloseService {
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = {
+			@CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "AdvocateRating", allEntries = true),
+			@CacheEvict(value = "ClientFeedback", allEntries = true),
+			@CacheEvict(value = "PostReaction", allEntries = true),
+			@CacheEvict(value = "AppealHearing", allEntries = true),
+			@CacheEvict(value = "CaseAppeal", allEntries = true),
+			//@CacheEvict(value = "CaseClose", allEntries = true),
+			@CacheEvict(value = "CaseJudgement", allEntries = true),
+			@CacheEvict(value = "Case", allEntries = true),
+			@CacheEvict(value = "CaseTracking", allEntries = true),
+			@CacheEvict(value = "DocumentDraft", allEntries = true),
+			@CacheEvict(value = "Hearing", allEntries = true),
+			@CacheEvict(value = "ReadStatus", allEntries = true),
+			@CacheEvict(value = "PaymentDetails", allEntries = true),
+			@CacheEvict(value = "UserActiveLocation", allEntries = true)
+			})
 	public boolean deleteClosedCase(String closedCaseId, String userId) {
 
 		if (closedCaseId == null || userId == null) {
