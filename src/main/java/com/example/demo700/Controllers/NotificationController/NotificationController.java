@@ -42,7 +42,7 @@ public class NotificationController {
             @RequestBody NotificationRequest request) {
 
         try {
-            notificationService.sendNotification(userId, message, request.getDestinations(), request.getParams());
+            notificationService.sendNotification(userId, message, request.getDistinations(), request.getParams());
             return new ResponseEntity<>("Notification sent successfully!", HttpStatus.CREATED);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
