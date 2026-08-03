@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo700.Model.NotificationModel.Notification;
 import com.example.demo700.Services.NotificationServices.NotificationService;
+import com.example.demo700.DTOFiles.NotificationRequest;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -38,11 +39,10 @@ public class NotificationController {
     public ResponseEntity<?> sendNotification(
             @RequestParam String userId,
             @RequestParam String message,
-            @RequestBody List<String> destinations,
-            @RequestBody Map<String, String> params) {
+            @RequestBody NotificationRequest request) {
 
         try {
-            notificationService.sendNotification(userId, message, destinations, params);
+            notificationService.sendNotification(userId, message, request.getDestinations(), request.getParams());
             return new ResponseEntity<>("Notification sent successfully!", HttpStatus.CREATED);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
