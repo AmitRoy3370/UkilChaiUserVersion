@@ -26,7 +26,7 @@ public class NotificationRequest implements Serializable {
 
   public List<String> getDistinations() {
 
-       return this.distinations;
+       return this.destinations;
 
   }
 

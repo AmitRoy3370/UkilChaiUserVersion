@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo700.DTOFiles.NotificationRequest;
 import com.example.demo700.Model.NotificationModel.Notification;
 import com.example.demo700.Services.NotificationServices.NotificationService;
-import com.example.demo700.DTOFiles.NotificationRequest;
 
 @RestController
 @RequestMapping("/api/notifications")
