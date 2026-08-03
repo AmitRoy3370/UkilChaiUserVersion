@@ -11,7 +11,7 @@ public class NotificationRequest implements Serializable {
   private List<String> destinations = new ArrayList<>();
   private Map<String, String> params = new HashMap<>();
 
-  private static final long serialVersionUID = 2L;
+  private static final long serialVersionUID = 0L;
 
   public NotificationRequest() {
 
