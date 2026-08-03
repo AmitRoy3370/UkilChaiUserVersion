@@ -60,6 +60,8 @@ public class NotificationServiceImpl implements NotificationService {
 		notification.setMessage(message);
 		notification.setRead(false);
 		notification.setTimeStamp(Instant.now());
+		notification.setDestinations(destinations);
+		notification.setParams(params);
 		notificationRepository.save(notification);
 
 		messagingTemplate.convertAndSendToUser(userId, "/queue/notifications", notification);
