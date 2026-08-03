@@ -3,12 +3,15 @@ package com.example.demo700.DTOFiles;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class NotificationRequest {
+public class NotificationRequest implements Serializable {
 
   private List<String> destinations = new ArrayList<>();
   private Map<String, String> params = new HashMap<>();
+
+  private static final long serialVersionUID = 2L;
 
   public NotificationRequest() {
 
