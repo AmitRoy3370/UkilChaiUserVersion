@@ -87,10 +87,30 @@ public class GroupServiceImpl implements GroupService {
 
 		Group savedGroup = groupRepository.save(group);
 
+		List<String> destinations = new ArrayList<>();
+
+		destinations.add("GroupChat");
+		destinations.add("GroupChatScreen");
+		destinations.add("GroupChatScreen");
+
+		Map<String, User> memberMap = userRepository.findAllById(savedGroup.getMembers()).stream()
+				.collect(Collectors.toMap(User::getId, Function.identity()));
+
 		// গ্রুপ ক্রিয়েশনের নোটিফিকেশন সব সদস্যকে পাঠানো
 		for (String memberId : savedGroup.getMembers()) {
-			notificationService.sendNotification(memberId,
-					"You have been added to group: " + savedGroup.getGroupName());
+
+			Map<String, String> map = new HashMap<>();
+
+			User sender = memberMap.get(memberId);
+
+			map.put("groupId", group.getId());
+			map.put("groupName", group.getGroupName());
+			map.put("currentUserId", memberId);
+			map.put("currentUserName", sender.getFullName() == null ? sender.getName() : sender.getFullName());
+			map.put("isAdmin", "false");
+
+			notificationService.sendNotification(memberId, "You have been added to group: " + savedGroup.getGroupName(),
+					destinations, map);
 		}
 
 		return savedGroup;
@@ -122,14 +142,42 @@ public class GroupServiceImpl implements GroupService {
 		// ওয়েবসকেটের মাধ্যমে সব সদস্যকে মেসেজ পাঠানো
 		User sender = userRepository.findById(message.getSenderId()).get();
 
+		List<String> destinations = new ArrayList<>();
+
+		destinations.add("GroupChat");
+		destinations.add("GroupChatScreen");
+		destinations.add("GroupChatScreen");
+
+		Map<String, User> memberMap = userRepository.findAllById(group.getMembers()).stream()
+				.collect(Collectors.toMap(User::getId, Function.identity()));
+
 		for (String memberId : group.getMembers()) {
 			if (!memberId.equals(message.getSenderId())) {
 				// পার্সোনাল নোটিফিকেশন
 				messagingTemplate.convertAndSendToUser(memberId, "/queue/group-messages", savedMessage);
 
+				Map<String, String> map = new HashMap<>();
+
+				try {
+
+					User _sender = memberMap.get(memberId);
+
+					map.put("groupId", group.getId());
+					map.put("groupName", group.getGroupName());
+					map.put("currentUserId", memberId);
+					map.put("currentUserName",
+							_sender.getFullName() == null ? _sender.getName() : _sender.getFullName());
+					map.put("isAdmin", "false");
+
+				} catch (Exception e) {
+
+					System.out.println(e);
+
+				}
+
 				// পুশ নোটিফিকেশন (অপশনাল)
 				notificationService.sendNotification(memberId,
-						"New message from " + sender.getName() + " in " + group.getGroupName());
+						"New message from " + sender.getName() + " in " + group.getGroupName(), destinations, map);
 			}
 		}
 
@@ -221,10 +269,25 @@ public class GroupServiceImpl implements GroupService {
 
 		if (!group.getMembers().contains(memberId)) {
 			group.getMembers().add(memberId);
-			groupRepository.save(group);
+			group = groupRepository.save(group);
+
+			List<String> destinations = new ArrayList<>();
+
+			destinations.add("GroupChat");
+			destinations.add("GroupChatScreen");
+			destinations.add("GroupChatScreen");
+
+			Map<String, String> map = new HashMap<>();
+
+			map.put("groupId", group.getId());
+			map.put("groupName", group.getGroupName());
+			map.put("currentUserId", memberId);
+			map.put("currentUserName", newMember.getFullName() == null ? newMember.getName() : newMember.getFullName());
+			map.put("isAdmin", "false");
 
 			// নোটিফিকেশন পাঠানো
-			notificationService.sendNotification(memberId, "You have been added to group: " + group.getGroupName());
+			notificationService.sendNotification(memberId, "You have been added to group: " + group.getGroupName(),
+					destinations, map);
 
 			return true;
 		}

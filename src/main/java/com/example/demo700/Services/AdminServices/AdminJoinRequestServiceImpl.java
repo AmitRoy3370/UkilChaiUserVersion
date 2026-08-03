@@ -327,11 +327,8 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 	}
 
 	@Override
-	@Caching(evict = {
-			@CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "Admin", allEntries = true),
-			@CacheEvict(value = "CenterAdmin", allEntries = true)
-	})
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Admin", allEntries = true), @CacheEvict(value = "CenterAdmin", allEntries = true) })
 	public boolean deleteAdmin(String adminId, String userId) {
 
 		if (adminId == null || userId == null) {
@@ -393,11 +390,8 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 	}
 
 	@Override
-	@Caching(evict = {
-			@CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "Admin", allEntries = true),
-			@CacheEvict(value = "CenterAdmin", allEntries = true)
-	})
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Admin", allEntries = true), @CacheEvict(value = "CenterAdmin", allEntries = true) })
 	public Admin handleAdminJoinRequest(String userId, String adminJoinRequestId, String response) {
 
 		if (userId == null || adminJoinRequestId == null || response == null) {
@@ -517,7 +511,14 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 
 				if (admin != null) {
 
-					notificationService.sendNotification(requestedUserId, name + " you are accepted as an admin.");
+					List<String> destinations = new ArrayList<>();
+
+					destinations.add("ProfilePage");
+
+					Map<String, String> map = new HashMap<>();
+
+					notificationService.sendNotification(requestedUserId, name + " you are accepted as an admin.",
+							destinations, map);
 
 				}
 
@@ -533,7 +534,15 @@ public class AdminJoinRequestServiceImpl implements AdminJoinRequestService {
 
 			cleaner.removeAdminJoinRequest(adminJoinRequestId);
 
-			notificationService.sendNotification(requestedUserId, name + " you are rejected as an admin.");
+			List<String> destinations = new ArrayList<>();
+
+			destinations.add("ProfilePage");
+			destinations.add("SeeMyProfile");
+
+			Map<String, String> map = new HashMap<>();
+
+			notificationService.sendNotification(requestedUserId, name + " you are rejected as an admin.", destinations,
+					map);
 
 			throw new ArithmeticException("Admin join request denied...");
 

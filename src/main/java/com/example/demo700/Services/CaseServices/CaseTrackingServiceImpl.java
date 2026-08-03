@@ -1,7 +1,9 @@
 package com.example.demo700.Services.CaseServices;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +55,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 	@Autowired
 	private Cleaner cleaner;
-	
+
 	private static final String cacheValue = "CaseTracking";
 
 	@Override
@@ -66,7 +68,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 		}
 
-		String advocateName, userName;
+		String advocateName, userName, advocateUserId, userFullName;
 
 		try {
 
@@ -94,7 +96,8 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 			}
 
-			advocateName = user.getName();
+			advocateName = user.getFullName() == null ? user.getName() : user.getFullName();
+			advocateUserId = user.getId();
 
 			Case acceptedCase = caseRepository.findById(caseTracking.getCaseId()).get();
 
@@ -161,22 +164,39 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 		}
 
-                if(caseTracking.isVisibility()) {
+		if (caseTracking.isVisibility()) {
 
-		Case _case = caseRepository.findById(caseTracking.getCaseId()).get();
+			Case _case = caseRepository.findById(caseTracking.getCaseId()).get();
 
-		User caseUser = userRepository.findById(_case.getUserId()).get();
+			User caseUser = userRepository.findById(_case.getUserId()).get();
 
-		userName = caseUser.getName();
+			userName = caseUser.getName();
+			userFullName = caseUser.getFullName();
 
-		String message = "Hi " + userName + ", your case " + _case.getCaseName() + " case stage "
-				+ caseTracking.getCaseStage() + " will be setted at " + caseTracking.getTrackingTime() + " by the "
-				+ advocateName;
+			String message = "Hi " + userName + ", your case " + _case.getCaseName() + " case stage "
+					+ caseTracking.getCaseStage() + " will be setted at " + caseTracking.getTrackingTime() + " by the "
+					+ advocateName;
 
-		notificationService.sendNotification(caseUser.getId(), message);
-		chatService.saveMessage(new ChatMessage(userId, caseUser.getId(), message));
+			List<String> destinations = new ArrayList<>();
 
-                }
+			destinations.add("CaseRelatedPages");
+			destinations.add("CaseDetailsPage");
+
+			Map<String, String> map = new HashMap<>();
+
+			map.put("userId", _case.getUserId());
+			map.put("caseId", _case.getId());
+			map.put("caseName", _case.getCaseName());
+			map.put("advocateId", _case.getAdvocateId());
+			map.put("issuedTime", _case.getIssuedTime().toString());
+			map.put("caseLawyer", advocateName);
+			map.put("advocateUserId", advocateUserId);
+			map.put("userName", userFullName);
+
+			notificationService.sendNotification(caseUser.getId(), message, destinations, map);
+			chatService.saveMessage(new ChatMessage(userId, caseUser.getId(), message));
+
+		}
 
 		return caseTracking;
 
@@ -192,7 +212,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 		}
 
-		String userName, advocateName;
+		String userName, advocateName, advocateUserId, userFullName;
 
 		try {
 
@@ -239,6 +259,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 			}
 
 			advocateName = user.getName();
+			advocateUserId = user.getId();
 
 			Case acceptedCase = caseRepository.findById(caseTracking.getCaseId()).get();
 
@@ -301,23 +322,39 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 		}
 
+		if (caseTracking.isVisibility()) {
 
-                if(caseTracking.isVisibility()) {
+			Case _case = caseRepository.findById(caseTracking.getCaseId()).get();
 
-		Case _case = caseRepository.findById(caseTracking.getCaseId()).get();
+			User caseUser = userRepository.findById(_case.getUserId()).get();
 
-		User caseUser = userRepository.findById(_case.getUserId()).get();
+			userName = caseUser.getName();
+			userFullName = caseUser.getFullName();
 
-		userName = caseUser.getName();
+			String message = "Hi " + userName + ", your case " + _case.getCaseName() + " case stage "
+					+ caseTracking.getCaseStage() + " will be setted at " + caseTracking.getTrackingTime() + " by the "
+					+ advocateName;
 
-		String message = "Hi " + userName + ", your case " + _case.getCaseName() + " case stage "
-				+ caseTracking.getCaseStage() + " will be setted at " + caseTracking.getTrackingTime() + " by the "
-				+ advocateName;
+			List<String> destinations = new ArrayList<>();
 
-		notificationService.sendNotification(caseUser.getId(), message);
-		chatService.saveMessage(new ChatMessage(userId, caseUser.getId(), message));
+			destinations.add("CaseRelatedPages");
+			destinations.add("CaseDetailsPage");
 
-                }
+			Map<String, String> map = new HashMap<>();
+
+			map.put("userId", _case.getUserId());
+			map.put("caseId", _case.getId());
+			map.put("caseName", _case.getCaseName());
+			map.put("advocateId", _case.getAdvocateId());
+			map.put("issuedTime", _case.getIssuedTime().toString());
+			map.put("caseLawyer", advocateName);
+			map.put("advocateUserId", advocateUserId);
+			map.put("userName", userFullName);
+			
+			notificationService.sendNotification(caseUser.getId(), message, destinations, map);
+			chatService.saveMessage(new ChatMessage(userId, caseUser.getId(), message));
+
+		}
 
 		return caseTracking;
 	}
@@ -596,22 +633,17 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	}
 
 	@Override
-	@Caching(evict = {
-			@CacheEvict(value = cacheValue, allEntries = true),
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
 			@CacheEvict(value = "AdvocateRating", allEntries = true),
 			@CacheEvict(value = "ClientFeedback", allEntries = true),
 			@CacheEvict(value = "PostReaction", allEntries = true),
 			@CacheEvict(value = "AppealHearing", allEntries = true),
-			@CacheEvict(value = "CaseAppeal", allEntries = true),
-			@CacheEvict(value = "CaseClose", allEntries = true),
-			@CacheEvict(value = "CaseJudgement", allEntries = true),
-			@CacheEvict(value = "Case", allEntries = true),
-			//@CacheEvict(value = "CaseTracking", allEntries = true),
-			@CacheEvict(value = "DocumentDraft", allEntries = true),
-			@CacheEvict(value = "Hearing", allEntries = true),
+			@CacheEvict(value = "CaseAppeal", allEntries = true), @CacheEvict(value = "CaseClose", allEntries = true),
+			@CacheEvict(value = "CaseJudgement", allEntries = true), @CacheEvict(value = "Case", allEntries = true),
+			// @CacheEvict(value = "CaseTracking", allEntries = true),
+			@CacheEvict(value = "DocumentDraft", allEntries = true), @CacheEvict(value = "Hearing", allEntries = true),
 			@CacheEvict(value = "ReadStatus", allEntries = true),
-			@CacheEvict(value = "PaymentDetails", allEntries = true)
-			})
+			@CacheEvict(value = "PaymentDetails", allEntries = true) })
 	public boolean removeCaseTracking(String id, String userId) {
 
 		if (id == null || userId == null) {

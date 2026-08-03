@@ -63,7 +63,7 @@ public class ChatServiceImpl implements ChatService {
 	private CenterAdminService centerAdminService;
 
 	private static final String cacheValue = "Message";
-	
+
 	@Override
 	@CacheEvict(value = cacheValue, allEntries = true)
 	public ChatMessage saveMessage(ChatMessage message) {
@@ -74,9 +74,13 @@ public class ChatServiceImpl implements ChatService {
 
 		}
 
+		User sender = null;
+		
+		User receiver = null;
+		
 		try {
 
-			User sender = userRepository.findById(message.getSender()).get();
+			sender = userRepository.findById(message.getSender()).get();
 
 			if (sender == null) {
 
@@ -84,7 +88,7 @@ public class ChatServiceImpl implements ChatService {
 
 			}
 
-			User receiver = userRepository.findById(message.getReceiver()).get();
+			receiver = userRepository.findById(message.getReceiver()).get();
 
 			if (receiver == null) {
 
@@ -111,8 +115,21 @@ public class ChatServiceImpl implements ChatService {
 
 		String name = user.getName();
 
+		List<String> destinations = new ArrayList<>();
+
+		destinations.add("ChatRelatedPages");
+		destinations.add("chat_screen");
+		destinations.add("ChatScreen");
+
+		Map<String, String> map = new HashMap<>();
+		
+		map.put("currentUser", message.getReceiver());
+		map.put("otherUser", message.getSender());
+		map.put("myName", receiver.getFullName() == null ? receiver.getName() : receiver.getFullName());
+		map.put("othersName", sender.getFullName() == null ? sender.getName() : sender.getFullName());
+
 		// নোটিফিকেশন পাঠানো
-		notificationService.sendNotification(message.getReceiver(), "New message from " + name);
+		notificationService.sendNotification(message.getReceiver(), "New message from " + name, destinations, map);
 		return saved;
 	}
 
@@ -209,8 +226,15 @@ public class ChatServiceImpl implements ChatService {
 
 		String name = user.getName();
 
+		List<String> destinations = new ArrayList<>();
+
+		destinations.add("ChatRelatedPages");
+		destinations.add("chat_screen");
+
+		Map<String, String> map = new HashMap<>();
+
 		// Optional: Notify receiver about edit
-		notificationService.sendNotification(message.getReceiver(), "Message edited by " + name);
+		notificationService.sendNotification(message.getReceiver(), "Message edited by " + name, destinations, map);
 
 		try {
 
@@ -646,14 +670,16 @@ public class ChatServiceImpl implements ChatService {
 						boolean isCurrentUserSender = latestMessage.getSender().equals(userId);
 
 						if (isCurrentUserSender) {
-							response.setSenderInfo(new ChatResponse.SenderInfo(otherUser.getName(), otherUser.getFullName(), otherUserId,
-									latestMessage.getContent(), readChat.getOrDefault(latestMessage.getId(),
+							response.setSenderInfo(new ChatResponse.SenderInfo(otherUser.getName(),
+									otherUser.getFullName(), otherUserId, latestMessage.getContent(),
+									readChat.getOrDefault(latestMessage.getId(),
 											readChat.getOrDefault(latestMessage.getId(), true))));
 							response.setReceiverInfo(null);
 						} else {
 							response.setSenderInfo(null);
-							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName(), otherUser.getFullName(),
-									latestMessage.getContent(), readChat.getOrDefault(latestMessage.getId(),
+							response.setReceiverInfo(new ChatResponse.ReceiverInfo(otherUserId, otherUser.getName(),
+									otherUser.getFullName(), latestMessage.getContent(),
+									readChat.getOrDefault(latestMessage.getId(),
 											readChat.getOrDefault(latestMessage.getId(), true))));
 						}
 

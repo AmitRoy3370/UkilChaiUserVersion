@@ -1,4 +1,4 @@
-package com.example.demo700.Model.NotificationModel;
+package com.example.demo700.DTOFiles;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -7,41 +7,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-import lombok.Data;
-
-@Data
-@Document(collection = "notifications")
-public class Notification implements Serializable {
+public class NotificationResponse implements Serializable {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 35L;
-	@Id
+	private static final long serialVersionUID = 121L;
+
 	private String id;
 	private String userId;
 	private String message;
 	private boolean read;
 
 	private Instant timeStamp;
-	
+
 	private List<String> destinations = new ArrayList<>();
 	private Map<String, String> params = new HashMap<>();
 
-	public Notification(String userId, String message, boolean read, List<String> destinations, Map<String, String> params) {
+	public NotificationResponse(String id, String userId, String message, boolean read, Instant timeStamp,
+			List<String> destinations, Map<String, String> params) {
 		super();
+		this.id = id;
 		this.userId = userId;
 		this.message = message;
 		this.read = read;
-		this.timeStamp = Instant.now();
+		this.timeStamp = timeStamp;
 		this.destinations = destinations;
 		this.params = params;
 	}
 
-	public Notification() {
+	public NotificationResponse() {
 		super();
 	}
 
@@ -107,9 +102,8 @@ public class Notification implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Notification [id=" + id + ", userId=" + userId + ", message=" + message + ", read=" + read
+		return "NotificationResponse [id=" + id + ", userId=" + userId + ", message=" + message + ", read=" + read
 				+ ", timeStamp=" + timeStamp + ", destinations=" + destinations + ", params=" + params + "]";
 	}
 
 }
-

@@ -1,6 +1,7 @@
 package com.example.demo700.Controllers.NotificationController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,10 +37,12 @@ public class NotificationController {
     @PostMapping("/send")
     public ResponseEntity<?> sendNotification(
             @RequestParam String userId,
-            @RequestParam String message) {
+            @RequestParam String message,
+            @RequestBody List<String> destinations,
+            @RequestBody Map<String, String> params) {
 
         try {
-            notificationService.sendNotification(userId, message);
+            notificationService.sendNotification(userId, message, destinations, params);
             return new ResponseEntity<>("Notification sent successfully!", HttpStatus.CREATED);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -87,7 +91,7 @@ public class NotificationController {
     @MessageMapping("/notify.send")
     public void sendNotificationSocket(@Payload Notification notification) {
         try {
-            notificationService.sendNotification(notification.getUserId(), notification.getMessage());
+            notificationService.sendNotification(notification.getUserId(), notification.getMessage(), notification.getDestinations(), notification.getParams());
             messagingTemplate.convertAndSendToUser(
                     notification.getUserId(),
                     "/queue/notifications",

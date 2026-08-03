@@ -773,7 +773,17 @@ public class CaseRequestServiceimpl implements CaseRequestService {
 
 		String advocateName = user.getName();
 
-		notificationService.sendNotification(requestedUserId, name + " your case is accepted by the " + advocateName);
+		List<String> destinations = new ArrayList<>();
+		
+		destinations.add("CaseRelatedPages");
+		destinations.add("CaseDetailsPage");
+		
+		Map<String, String> map = new HashMap<>();
+		
+		map.put("userId", acceptedCase.getUserId());
+		map.put("caseId", acceptedCase.getId());
+		
+		notificationService.sendNotification(requestedUserId, name + " your case is accepted by the " + advocateName, destinations, map);
 
 		return acceptedCase;
 	}

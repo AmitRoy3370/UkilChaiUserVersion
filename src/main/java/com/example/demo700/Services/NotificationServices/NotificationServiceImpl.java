@@ -2,6 +2,7 @@ package com.example.demo700.Services.NotificationServices;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 	@Override
 	@CacheEvict(value = cacheValue, allEntries = true)
-	public void sendNotification(String userId, String message) {
+	public void sendNotification(String userId, String message, List<String> destinations, Map<String, String> params) {
 
 		try {
 
