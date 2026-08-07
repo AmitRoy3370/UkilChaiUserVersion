@@ -1,5 +1,6 @@
 package com.example.demo700.Repositories.CaseRepositories;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -15,6 +16,10 @@ public interface CaseTrackingRepository extends MongoRepository<CaseTracking, St
 
 	public List<CaseTracking> findByCaseStage(CasePayment caseStage);
 
+	public List<CaseTracking> findByTrackingTime(Instant trackingTime);
+	public List<CaseTracking> findByTrackingTimeAfter(Instant trackingTime);
+	public List<CaseTracking> findByTrackingTimeBefore(Instant trackingTime);
+	
 	public CaseTracking findByCaseIdAndStageNumber(String caseId, int stageNumber);
 
 	public CaseTracking findByCaseIdAndCaseStage(String caseId, CasePayment caseStage);

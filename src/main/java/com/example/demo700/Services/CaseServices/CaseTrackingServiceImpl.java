@@ -1,15 +1,20 @@
 package com.example.demo700.Services.CaseServices;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -359,6 +364,49 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 		return caseTracking;
 	}
 
+	@Override
+	@Scheduled(cron = "0 0 0 * * *") // Runs at exactly 12:00 AM
+	public void processScheduledNotifications() {
+		
+		// 🟢 FIX: Truncate current time to the EXACT start of the day (00:00:00.000)
+		Instant presentDate = Instant.now().truncatedTo(ChronoUnit.DAYS);
+		
+		List<CaseTracking> list = caseTrackingRepository.findByTrackingTimeAfter(presentDate);
+		
+		List<String> caseIds = list.stream().map(CaseTracking::getCaseId).collect(Collectors.toList());
+		
+		Map<String, Case> caseMap = caseIds.isEmpty() ? new HashMap<>() : caseRepository.findAllById(caseIds).stream()
+				.collect(Collectors.toMap(Case::getId, Function.identity()));
+		
+		for(CaseTracking tracking : list) {
+			
+			Instant trackingTime = tracking.getTrackingTime().truncatedTo(ChronoUnit.DAYS); // 🟢 FIX: Truncate tracking time
+			Instant previousDayTime = tracking.getTrackingTime().minus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS); // 🟢 FIX
+			Instant previousSecondDayTime = tracking.getTrackingTime().minus(2, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS); // 🟢 FIX
+			
+			// 🟢 FIX: Now equals will compare only the Date, ignoring milliseconds
+			if(presentDate.equals(trackingTime) || presentDate.equals(previousDayTime) || presentDate.equals(previousSecondDayTime)) {
+				
+				List<String> destinations = new ArrayList<>();
+				destinations.add("CaseRelatedPages");
+				destinations.add("CaseDetailsPage");
+
+				Map<String, String> map = new HashMap<>();
+				Case _case = caseMap.get(tracking.getCaseId());
+				
+				map.put("userId", _case.getUserId());
+				map.put("caseId", _case.getId());
+				map.put("caseName", _case.getCaseName());
+				map.put("advocateId", _case.getAdvocateId());
+				map.put("issuedTime", _case.getIssuedTime().toString());
+				
+				String message = "Hi, your case " + _case.getCaseName() + "'s " + tracking.getCaseStage() + " stage will organized at " + tracking.getTrackingTime();
+				
+				notificationService.sendNotification(_case.getUserId(), message, destinations, map);
+			}
+		}
+	}
+	
 	@Override
 	@CacheEvict(value = cacheValue, allEntries = true)
 	public List<CaseTracking> swapOrder(String caseTrackingId1, String caseTrackingId2) {

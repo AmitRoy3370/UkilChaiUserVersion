@@ -27,6 +27,8 @@ public interface CaseTrackingService {
 
 	public List<CaseTracking> findByCaseIdAndStageNumberGreaterThan(String caseId, int stageNumber);
 
+	public void processScheduledNotifications();
+	
 	public boolean removeCaseTracking(String id, String userId);
 
 }
