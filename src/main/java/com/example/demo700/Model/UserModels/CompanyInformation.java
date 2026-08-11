@@ -35,9 +35,12 @@ public class CompanyInformation implements Serializable {
 	@Indexed
 	private String capital;
 
+	@Indexed
+	private String creatorId;
+	
 	public CompanyInformation(String companyName, String type, String natureOfBuisness, String category,
 			String officeRegistryId, List<String> shareHolders, List<String> documents, List<String> directors,
-			String authorized, String capital) {
+			String authorized, String capital, String creatorId) {
 		super();
 		this.companyName = companyName;
 		this.type = type;
@@ -49,6 +52,7 @@ public class CompanyInformation implements Serializable {
 		this.directorsId = directors;
 		this.authorized = authorized;
 		this.capital = capital;
+		this.creatorId = creatorId;
 	}
 
 	public CompanyInformation() {
@@ -147,12 +151,21 @@ public class CompanyInformation implements Serializable {
 		return serialVersionUID;
 	}
 
+	public String getCreatorId() {
+		return creatorId;
+	}
+
+	public void setCreatorId(String creatorId) {
+		this.creatorId = creatorId;
+	}
+
 	@Override
 	public String toString() {
 		return "CompanyInformation [id=" + id + ", companyName=" + companyName + ", type=" + type
 				+ ", natureOfBuisness=" + natureOfBuisness + ", category=" + category + ", officeRegistryId="
 				+ officeRegistryId + ", shareHolders=" + shareHolders + ", documents=" + documents + ", directorsId="
-				+ directorsId + ", authorized=" + authorized + ", capital=" + capital + "]";
+				+ directorsId + ", authorized=" + authorized + ", capital=" + capital + ", creatorId=" + creatorId
+				+ "]";
 	}
 
 }

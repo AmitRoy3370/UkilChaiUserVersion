@@ -1,8 +1,10 @@
 package com.example.demo700.Services.UserServices;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +64,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 	public CompanyInformation addCompanyInformation(CompanyInformation companyInformation, String userId,
 			MultipartFile files[]) {
 
-		if (companyInformation == null || userId == null) {
+		if (companyInformation == null || userId == null || !companyInformation.getCreatorId().equals(userId)) {
 
 			throw new NullPointerException("False request....");
 
@@ -220,7 +222,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 	public CompanyInformation updateCompanyInformation(CompanyInformation companyInformation, String id, String userId,
 			MultipartFile files[]) {
 
-		if (companyInformation == null || userId == null) {
+		if (companyInformation == null || userId == null || !companyInformation.getCreatorId().equals(userId)) {
 
 			throw new NullPointerException("False request....");
 
@@ -233,6 +235,12 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 			information = companyInformationRepository.findById(id).get();
 
 			if (information == null) {
+
+				throw new Exception();
+
+			}
+
+			if (!information.getCreatorId().equals(userId)) {
 
 				throw new Exception();
 
@@ -312,6 +320,14 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 			if (companyInformation.getDirectorsId() != null && !companyInformation.getDirectorsId().isEmpty()) {
 
+				Set<String> set = new HashSet<>(companyInformation.getDirectorsId());
+
+				if (set.size() != companyInformation.getDirectorsId().size()) {
+
+					throw new Exception();
+
+				}
+
 				List<Director> list = directorRepository.findAllById(companyInformation.getDirectorsId());
 
 				if (list == null || list.isEmpty() || list.size() != companyInformation.getDirectorsId().size()) {
@@ -331,6 +347,14 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 		try {
 
 			if (companyInformation.getShareHolders() != null && !companyInformation.getShareHolders().isEmpty()) {
+
+				Set<String> set = new HashSet<>(companyInformation.getShareHolders());
+
+				if (set.size() != companyInformation.getShareHolders().size()) {
+
+					throw new Exception();
+
+				}
 
 				List<Shareholder> list = holderRepository.findAllById(companyInformation.getShareHolders());
 
@@ -425,6 +449,8 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 		if (companyInformation.getCapital() != null)
 			update.set("capital", companyInformation.getCapital());
 
+		update.set("creatorId", companyInformation.getCreatorId());
+
 		mongoTemplate.updateFirst(query, update, CompanyInformation.class);
 
 		return mongoTemplate.findOne(query, CompanyInformation.class);
@@ -480,6 +506,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 		CompanyInformation information = null;
 
 		List<Director> directors = new ArrayList<>();
+		List<String> directorsId = new ArrayList<>();
 
 		try {
 
@@ -491,7 +518,13 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 			}
 
-			List<String> directorsId = information.getDirectorsId();
+			if (!information.getCreatorId().equals(userId)) {
+
+				throw new Exception();
+
+			}
+
+			directorsId = information.getDirectorsId();
 
 			if (!directorsId.contains(actionedDirector.getId())) {
 
@@ -504,6 +537,20 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 		} catch (Exception e) {
 
 			throw new NoSuchElementException("No such company information exist at here...");
+
+		}
+
+		try {
+
+			if (directorsId.contains(directorId)) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new ArithmeticException("This director is already added in your computer...");
 
 		}
 
@@ -553,6 +600,8 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 			update.set("authorized", information.getAuthorized());
 		if (information.getCapital() != null)
 			update.set("capital", information.getCapital());
+
+		update.set("creatorId", information.getCreatorId());
 
 		mongoTemplate.updateFirst(query, update, CompanyInformation.class);
 
@@ -613,6 +662,8 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 		List<Shareholder> holders = new ArrayList<>();
 
+		List<String> holdersId = new ArrayList<>();
+
 		try {
 
 			information = companyInformationRepository.findById(id).get();
@@ -623,7 +674,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 			}
 
-			List<String> holdersId = information.getShareHolders();
+			holdersId = information.getShareHolders();
 
 			List<String> directorsId = information.getDirectorsId();
 
@@ -638,6 +689,20 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 		} catch (Exception e) {
 
 			throw new NoSuchElementException("No such company information exist at here...");
+
+		}
+
+		try {
+
+			if (holdersId.contains(holderId)) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new ArithmeticException("This shareholder is already added in your group...");
 
 		}
 
@@ -687,6 +752,8 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 			update.set("authorized", information.getAuthorized());
 		if (information.getCapital() != null)
 			update.set("capital", information.getCapital());
+
+		update.set("creatorId", information.getCreatorId());
 
 		mongoTemplate.updateFirst(query, update, CompanyInformation.class);
 
