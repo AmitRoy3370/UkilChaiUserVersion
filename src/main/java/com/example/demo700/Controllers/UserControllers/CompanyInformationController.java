@@ -73,6 +73,38 @@ public class CompanyInformationController {
 		}
 	}
 
+	@PostMapping("/addDirector")
+	public ResponseEntity<?> addDirector(@RequestParam String id, @RequestParam String directorId,
+			@RequestParam String userId) {
+
+		try {
+
+			return ResponseEntity.status(200).body(addDirector(id, directorId, userId));
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(400).body(e.getMessage());
+
+		}
+
+	}
+
+	@PostMapping("/addShareholder")
+	public ResponseEntity<?> addShareholder(@RequestParam String id, @RequestParam String holderId,
+			@RequestParam String userId) {
+
+		try {
+
+			return ResponseEntity.status(200).body(addShareholder(id, holderId, userId));
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(400).body(e.getMessage());
+
+		}
+
+	}
+
 	// ==========================================
 	// 3. GET ALL COMPANY INFORMATION
 	// ==========================================

@@ -10,6 +10,8 @@ public interface CompanyInformationService {
 
 	public CompanyInformation addCompanyInformation(CompanyInformation companyInformation, String userId, MultipartFile files[]);
 	public CompanyInformation updateCompanyInformation(CompanyInformation companyInformation, String id, String userId, MultipartFile files[]);
+	public CompanyInformation addDirector(String id, String directorId, String userId);
+	public CompanyInformation addShareHolder(String id, String holderId, String userId);
 	
 	public List<CompanyInformation> findAll();
 	public CompanyInformation findById(String id);

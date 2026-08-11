@@ -3,6 +3,7 @@ package com.example.demo700.Services.UserServices;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -427,6 +428,272 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 		mongoTemplate.updateFirst(query, update, CompanyInformation.class);
 
 		return mongoTemplate.findOne(query, CompanyInformation.class);
+	}
+
+	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
+	public CompanyInformation addDirector(String id, String directorId, String userId) {
+
+		if (id == null || directorId == null || userId == null) {
+
+			throw new NullPointerException("False request....");
+
+		}
+
+		User user = null;
+
+		try {
+
+			user = userRepository.findById(userId).get();
+
+			if (user == null) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such user exist at here...");
+
+		}
+
+		Director actionedDirector = null;
+
+		try {
+
+			actionedDirector = directorRepository.findByUserId(user.getId());
+
+			if (actionedDirector == null) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new ArithmeticException(
+					"You have to be the director of this company to add another director at here...");
+
+		}
+
+		CompanyInformation information = null;
+
+		List<Director> directors = new ArrayList<>();
+
+		try {
+
+			information = companyInformationRepository.findById(id).get();
+
+			if (information == null) {
+
+				throw new Exception();
+
+			}
+
+			List<String> directorsId = information.getDirectorsId();
+
+			if (!directorsId.contains(actionedDirector.getId())) {
+
+				throw new Exception();
+
+			}
+
+			directors = directorRepository.findAllById(directorsId);
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such company information exist at here...");
+
+		}
+
+		Director newDirector = null;
+
+		try {
+
+			newDirector = directorRepository.findById(directorId).get();
+
+			if (newDirector == null) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new ArithmeticException("Your given new director is not valid...");
+
+		}
+
+		directors.add(newDirector);
+
+		information.setDirectorsId(directors.stream().map(Director::getId).collect(Collectors.toList()));
+
+		Query query = new Query(Criteria.where("_id").is(information.getId()));
+		Update update = new Update();
+
+		// Update ONLY the fields sent by Flutter
+		if (information.getCompanyName() != null)
+			update.set("companyName", information.getCompanyName());
+		if (information.getType() != null)
+			update.set("type", information.getType());
+		if (information.getNatureOfBuisness() != null)
+			update.set("natureOfBuisness", information.getNatureOfBuisness());
+		if (information.getCategory() != null)
+			update.set("category", information.getCategory());
+		if (information.getOfficeRegistryId() != null)
+			update.set("officeRegistryId", information.getOfficeRegistryId());
+		if (information.getDirectorsId() != null)
+			update.set("directorsId", information.getDirectorsId());
+		if (information.getShareHolders() != null)
+			update.set("shareHolders", information.getShareHolders());
+		if (information.getDocuments() != null)
+			update.set("documents", information.getDocuments());
+		if (information.getAuthorized() != null)
+			update.set("authorized", information.getAuthorized());
+		if (information.getCapital() != null)
+			update.set("capital", information.getCapital());
+
+		mongoTemplate.updateFirst(query, update, CompanyInformation.class);
+
+		information = mongoTemplate.findOne(query, CompanyInformation.class);
+
+		return information;
+
+	}
+
+	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
+	public CompanyInformation addShareHolder(String id, String holderId, String userId) {
+
+		if (id == null || holderId == null || userId == null) {
+
+			throw new NullPointerException("False request....");
+
+		}
+
+		User user = null;
+
+		try {
+
+			user = userRepository.findById(userId).get();
+
+			if (user == null) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such user exist at here...");
+
+		}
+
+		Director actionedDirector = null;
+
+		try {
+
+			actionedDirector = directorRepository.findByUserId(user.getId());
+
+			if (actionedDirector == null) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new ArithmeticException(
+					"You have to be the director of this company to add another director at here...");
+
+		}
+
+		CompanyInformation information = null;
+
+		List<Shareholder> holders = new ArrayList<>();
+
+		try {
+
+			information = companyInformationRepository.findById(id).get();
+
+			if (information == null) {
+
+				throw new Exception();
+
+			}
+
+			List<String> holdersId = information.getShareHolders();
+
+			List<String> directorsId = information.getDirectorsId();
+
+			if (!directorsId.contains(actionedDirector.getId())) {
+
+				throw new Exception();
+
+			}
+
+			holders = holderRepository.findAllById(holdersId);
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such company information exist at here...");
+
+		}
+
+		Shareholder newHolder = null;
+
+		try {
+
+			newHolder = holderRepository.findById(holderId).get();
+
+			if (newHolder == null) {
+
+				throw new Exception();
+
+			}
+
+			holders.add(newHolder);
+
+		} catch (Exception e) {
+
+			throw new ArithmeticException("Your given new share holder is not valid...");
+
+		}
+
+		information.setShareHolders(holders.stream().map(Shareholder::getId).collect(Collectors.toList()));
+
+		Query query = new Query(Criteria.where("_id").is(information.getId()));
+		Update update = new Update();
+
+		// Update ONLY the fields sent by Flutter
+		if (information.getCompanyName() != null)
+			update.set("companyName", information.getCompanyName());
+		if (information.getType() != null)
+			update.set("type", information.getType());
+		if (information.getNatureOfBuisness() != null)
+			update.set("natureOfBuisness", information.getNatureOfBuisness());
+		if (information.getCategory() != null)
+			update.set("category", information.getCategory());
+		if (information.getOfficeRegistryId() != null)
+			update.set("officeRegistryId", information.getOfficeRegistryId());
+		if (information.getDirectorsId() != null)
+			update.set("directorsId", information.getDirectorsId());
+		if (information.getShareHolders() != null)
+			update.set("shareHolders", information.getShareHolders());
+		if (information.getDocuments() != null)
+			update.set("documents", information.getDocuments());
+		if (information.getAuthorized() != null)
+			update.set("authorized", information.getAuthorized());
+		if (information.getCapital() != null)
+			update.set("capital", information.getCapital());
+
+		mongoTemplate.updateFirst(query, update, CompanyInformation.class);
+
+		information = mongoTemplate.findOne(query, CompanyInformation.class);
+
+		return information;
+
 	}
 
 	@Override
