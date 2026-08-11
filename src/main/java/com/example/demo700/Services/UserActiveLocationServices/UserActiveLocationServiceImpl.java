@@ -52,14 +52,14 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 
 	@Autowired
 	private Cleaner cleaner;
-	
+
 	@Value("${location.heartbeat.timeout.seconds:30}")
 	private long heartbeatTimeoutSeconds;
-	
+
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-	
+
 	private static final String cacheValue = "UserActiveLocation";
-	
+
 	@PostConstruct
 	public void init() {
 		// Schedule a task to remove expired locations every 10 seconds
@@ -73,7 +73,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	//@CacheEvict(value = cacheValue, allEntries = true)
 	public LiveLocationData addLocation(LiveLocationData liveLocation, String userId) {
 
 		if (liveLocation == null || userId == null) {
@@ -149,7 +149,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 		} catch (Exception e) {
 
 		}
-		
+
 		// Set initial heartbeat timestamp
 		liveLocation.setLastHeartbeat(Date.from(Instant.now()));
 		liveLocation.setActive(true);
@@ -167,7 +167,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	//@CacheEvict(value = cacheValue, allEntries = true)
 	public LiveLocationData updateLocation(LiveLocationData liveLocation, String userId, String id) {
 
 		if (liveLocation == null || userId == null) {
@@ -195,7 +195,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 		}
 
 		LiveLocationData existingData = null;
-		
+
 		try {
 
 			existingData = userLiveLocationRepository.findById(id).get();
@@ -271,7 +271,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 		} catch (Exception e) {
 
 		}
-		
+
 		// Preserve heartbeat information
 		//LiveLocationData existingData = userLiveLocationRepository.findById(id).get();
 		liveLocation.setLastHeartbeat(existingData.getLastHeartbeat());
@@ -291,7 +291,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'findAll'")
+	//@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<UserLiveLocationDataResponse> seeAll() {
 
 		try {
@@ -303,7 +303,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 				throw new Exception();
 
 			}
-			
+
 			// Filter only active locations
 			list = list.stream().filter(LiveLocationData::isActive).collect(Collectors.toList());
 
@@ -318,7 +318,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'findById_' + #id")
+	//@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public UserLiveLocationDataResponse getById(String id) {
 
 		if (id == null) {
@@ -348,7 +348,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'findByAdvocateId_' + #advocateId")
+	//@Cacheable(value = cacheValue, key = "'findByAdvocateId_' + #advocateId")
 	public UserLiveLocationDataResponse findByAdvocateId(String advocateId) {
 
 		if (advocateId == null) {
@@ -378,7 +378,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
+	//@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public UserLiveLocationDataResponse findByUserId(String userId) {
 
 		if (userId == null) {
@@ -408,7 +408,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'findByLocationName_' + #locationName")
+	//@Cacheable(value = cacheValue, key = "'findByLocationName_' + #locationName")
 	public List<UserLiveLocationDataResponse> findByLocationNameContainingIgnoreCase(String locationName) {
 
 		if (locationName == null) {
@@ -427,7 +427,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 				throw new Exception();
 
 			}
-			
+
 			// Filter only active locations
 			data = data.stream().filter(LiveLocationData::isActive).collect(Collectors.toList());
 
@@ -442,7 +442,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'findByAdvocateIdIn_' + #advocatesId")
+	//@Cacheable(value = cacheValue, key = "'findByAdvocateIdIn_' + #advocatesId")
 	public List<UserLiveLocationDataResponse> findByAdvocateIdIn(List<String> advocatesId) {
 
 		if (advocatesId == null || advocatesId.isEmpty()) {
@@ -460,7 +460,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 				throw new Exception();
 
 			}
-			
+
 			// Filter only active locations
 			data = data.stream().filter(LiveLocationData::isActive).collect(Collectors.toList());
 
@@ -475,7 +475,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'findByUserIdIn_' + #usersId")
+	//@Cacheable(value = cacheValue, key = "'findByUserIdIn_' + #usersId")
 	public List<UserLiveLocationDataResponse> findByUserIdIn(List<String> usersId) {
 
 		if (usersId == null || usersId.isEmpty()) {
@@ -493,7 +493,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 				throw new Exception();
 
 			}
-			
+
 			// Filter only active locations
 			data = data.stream().filter(LiveLocationData::isActive).collect(Collectors.toList());
 
@@ -508,7 +508,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	//@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteLiveLocation(String id, String userId) {
 
 		if (id == null || userId == null) {
@@ -584,19 +584,19 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 		return count != userLiveLocationRepository.count();
 
 	}
-	
+
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	//@CacheEvict(value = cacheValue, allEntries = true)
 	public UserLiveLocationDataResponse heartbeat(String userId, LiveLocationData liveLocation) {
-		
+
 		if (userId == null || liveLocation == null) {
 			throw new NullPointerException("False request...");
 		}
-		
+
 		try {
 			// Check if location exists for this user
 			LiveLocationData existingLocation = userLiveLocationRepository.findByUserId(userId);
-			
+
 			if (existingLocation == null) {
 				// First time - add new location
 				liveLocation.setUserId(userId);
@@ -610,43 +610,43 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 				existingLocation.setLocationName(liveLocation.getLocationName());
 				existingLocation.setLastHeartbeat(Date.from(Instant.now()));
 				existingLocation.setActive(true);
-				
+
 				if (liveLocation.getAdvocateId() != null) {
 					existingLocation.setAdvocateId(liveLocation.getAdvocateId());
 				}
-				
+
 				return getUserLiveLocationResponse(updateLocation(existingLocation, userId, existingLocation.getId()));
 			}
-			
+
 		} catch (Exception e) {
 			throw new RuntimeException("Heartbeat failed: " + e.getMessage(), e);
 		}
 	}
-	
+
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	//@CacheEvict(value = cacheValue, allEntries = true)
 	public void removeExpiredLocations() {
 		try {
 			Date expiryTime = Date.from(Instant.now().minus(heartbeatTimeoutSeconds, ChronoUnit.SECONDS));
 			List<LiveLocationData> allLocations = userLiveLocationRepository.findAll();
-			
+
 			List<LiveLocationData> expiredLocations = allLocations.stream()
 				.filter(location -> location.isActive() && location.getLastHeartbeat() != null)
 				.filter(location -> location.getLastHeartbeat().before(expiryTime))
 				.collect(Collectors.toList());
-			
+
 			for (LiveLocationData location : expiredLocations) {
 				location.setActive(false);
 				userLiveLocationRepository.save(location);
-				
+
 				// Also remove from cleaner if needed
 				try {
 					cleaner.removeUserLiveLocation(location.getId());
 				} catch (Exception e) {
 					System.err.println("Error removing expired location from cleaner: " + e.getMessage());
 				}
-				
-				System.out.println("Removed expired location for user: " + location.getUserId() + 
+
+				System.out.println("Removed expired location for user: " + location.getUserId() +
 								   " (Last heartbeat: " + location.getLastHeartbeat() + ")");
 			}
 		} catch (Exception e) {
@@ -712,7 +712,7 @@ public class UserActiveLocationServiceImpl implements UserActiveLocationService 
 					response.setUserName("Un Named");
 
 				}
-				
+
 				responses.add(response);
 
 			} catch (Exception e) {

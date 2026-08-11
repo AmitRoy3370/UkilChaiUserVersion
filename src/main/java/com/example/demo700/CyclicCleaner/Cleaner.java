@@ -1,6 +1,7 @@
 package com.example.demo700.CyclicCleaner;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,10 @@ import com.example.demo700.Model.QNAModels.AskQuestion;
 import com.example.demo700.Model.UserActiveModel.UserActive;
 import com.example.demo700.Model.UserModels.AdvocateRating;
 import com.example.demo700.Model.UserModels.ClientFeedback;
+import com.example.demo700.Model.UserModels.CompanyInformation;
+import com.example.demo700.Model.UserModels.Director;
 import com.example.demo700.Model.UserModels.PostReaction;
+import com.example.demo700.Model.UserModels.Shareholder;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Model.UserModels.UserContactInfo;
 import com.example.demo700.Model.UserModels.UserGender;
@@ -69,7 +73,10 @@ import com.example.demo700.Repositories.UserActiveRepositories.UserActiveReposit
 import com.example.demo700.Repositories.UserLiveLocationRepositories.UserLiveLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.AdvocateRatingRepository;
 import com.example.demo700.Repositories.UserRepositories.ClientFeedbackRepository;
+import com.example.demo700.Repositories.UserRepositories.CompanyInformationRepository;
+import com.example.demo700.Repositories.UserRepositories.DirectorRepository;
 import com.example.demo700.Repositories.UserRepositories.PostReactionRepository;
+import com.example.demo700.Repositories.UserRepositories.ShareholderRepository;
 import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
 import com.example.demo700.Repositories.UserRepositories.UserGenderRepository;
 import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
@@ -181,6 +188,15 @@ public class Cleaner {
 	@Autowired
 	private GroupMessageRepository groupMessageRepository;
 
+	@Autowired
+	private CompanyInformationRepository companyInformationRepository;
+
+	@Autowired
+	private DirectorRepository directorRepository;
+
+	@Autowired
+	private ShareholderRepository holderRepository;
+
 	public void removeUser(String userId) {
 
 		try {
@@ -198,6 +214,38 @@ public class Cleaner {
 			userRepository.deleteById(user.getId());
 
 			if (count != userRepository.count()) {
+
+				try {
+
+					Shareholder holder = holderRepository.findByUserId(user.getId());
+
+					if (holder == null) {
+
+						throw new Exception();
+
+					}
+
+					removeShareholder(holder.getId());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					Director director = directorRepository.findByUserId(userId);
+
+					if (director == null) {
+
+						throw new Exception();
+
+					}
+
+					removeDirector(director.getId());
+
+				} catch (Exception e) {
+
+				}
 
 				try {
 
@@ -531,7 +579,7 @@ public class Cleaner {
 
 			if (count != userLocationRepository.count()) {
 
-				//removeUser(userLocation.getUserId());
+				// removeUser(userLocation.getUserId());
 
 			}
 
@@ -1795,6 +1843,132 @@ public class Cleaner {
 			groupMessageRepository.deleteById(id);
 
 			if (count != groupMessageRepository.count()) {
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeCompanyInformation(String id) {
+
+		try {
+
+			CompanyInformation information = companyInformationRepository.findById(id).get();
+
+			if (information == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = companyInformationRepository.count();
+
+			companyInformationRepository.deleteById(id);
+
+			if (count != companyInformationRepository.count()) {
+
+				for (String i : information.getDocuments()) {
+
+					try {
+
+						if (imageService.attachmentExists(i)) {
+
+							imageService.delete(i);
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
+				}
+
+				try {
+
+					List<Shareholder> list = holderRepository.findByShareCompanyId(information.getId());
+
+					for (Shareholder holder : list) {
+
+						Map<String, List<Double>> map = holder.getSharePercentage();
+
+						map.remove(information.getId());
+
+						holder.setSharePercentage(map);
+
+						holderRepository.save(holder);
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeDirector(String id) {
+
+		try {
+
+			Director director = directorRepository.findById(id).get();
+
+			if (director == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = directorRepository.count();
+
+			directorRepository.deleteById(id);
+
+			if (count != directorRepository.count()) {
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeShareholder(String id) {
+
+		try {
+
+			Shareholder holder = holderRepository.findById(id).get();
+
+			if (holder == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = holderRepository.count();
+
+			holderRepository.deleteById(holder.getId());
+
+			if (count != holderRepository.count()) {
+
+				if (imageService.attachmentExists(holder.getNid())) {
+
+					imageService.delete(holder.getNid());
+
+				}
+
+				if (imageService.attachmentExists(holder.getTin())) {
+
+					imageService.delete(holder.getTin());
+
+				}
 
 			}
 
