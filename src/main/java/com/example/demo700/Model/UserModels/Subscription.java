@@ -18,7 +18,7 @@ public class Subscription {
 
 	@NonNull
 	@Indexed
-	private String SubscriberName;
+	private String subscriberName;
 
 	@Indexed
 	@NonNull
@@ -30,7 +30,7 @@ public class Subscription {
 	public Subscription(String companyId, String subscriberName, int numberOfShare, String signatureId) {
 		super();
 		this.companyId = companyId;
-		SubscriberName = subscriberName;
+		this.subscriberName = subscriberName;
 		this.numberOfShare = numberOfShare;
 		this.signatureId = signatureId;
 	}
@@ -56,11 +56,11 @@ public class Subscription {
 	}
 
 	public String getSubscriberName() {
-		return SubscriberName;
+		return this.subscriberName;
 	}
 
 	public void setSubscriberName(String subscriberName) {
-		SubscriberName = subscriberName;
+		this.subscriberName = subscriberName;
 	}
 
 	public int getNumberOfShare() {
@@ -81,7 +81,7 @@ public class Subscription {
 
 	@Override
 	public String toString() {
-		return "Subscription [id=" + id + ", companyId=" + companyId + ", SubscriberName=" + SubscriberName
+		return "Subscription [id=" + id + ", companyId=" + companyId + ", SubscriberName=" + subscriberName
 				+ ", numberOfShare=" + numberOfShare + ", signatureId=" + signatureId + "]";
 	}
 

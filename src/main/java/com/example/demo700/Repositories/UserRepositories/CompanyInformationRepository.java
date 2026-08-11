@@ -21,5 +21,6 @@ public interface CompanyInformationRepository extends MongoRepository<CompanyInf
 	public List<CompanyInformation> findByDirectorsIdContainingIgnoreCase(String directorsId);
 	public List<CompanyInformation> findByAuthorizedContainingIgnoreCase(String authorized);
 	public List<CompanyInformation> findByCapital(String capital);
+	List<CompanyInformation> findByCreatorId(String creatorId);
 	
 }

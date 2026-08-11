@@ -313,6 +313,14 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 				holder.setNid(nidId);
 
+			} else if(holder.getNid() != null) {
+				
+				if(!imageService.attachmentExists(holder.getNid())) {
+					
+					throw new Exception();
+					
+				}
+				
 			}
 
 		} catch (Exception e) {
@@ -343,6 +351,14 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 				holder.setTin(nidId);
 
+			} else if(holder.getTin() != null) {
+				
+				if(!imageService.attachmentExists(holder.getTin())) {
+					
+					throw new Exception();
+					
+				}
+				
 			}
 
 		} catch (Exception e) {

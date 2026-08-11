@@ -40,6 +40,7 @@ import com.example.demo700.Model.UserModels.CompanyInformation;
 import com.example.demo700.Model.UserModels.Director;
 import com.example.demo700.Model.UserModels.PostReaction;
 import com.example.demo700.Model.UserModels.Shareholder;
+import com.example.demo700.Model.UserModels.Subscription;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Model.UserModels.UserContactInfo;
 import com.example.demo700.Model.UserModels.UserGender;
@@ -77,6 +78,7 @@ import com.example.demo700.Repositories.UserRepositories.CompanyInformationRepos
 import com.example.demo700.Repositories.UserRepositories.DirectorRepository;
 import com.example.demo700.Repositories.UserRepositories.PostReactionRepository;
 import com.example.demo700.Repositories.UserRepositories.ShareholderRepository;
+import com.example.demo700.Repositories.UserRepositories.SubscriptionRepository;
 import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
 import com.example.demo700.Repositories.UserRepositories.UserGenderRepository;
 import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
@@ -197,6 +199,9 @@ public class Cleaner {
 	@Autowired
 	private ShareholderRepository holderRepository;
 
+	@Autowired
+	private SubscriptionRepository subscriptionRepository;
+
 	public void removeUser(String userId) {
 
 		try {
@@ -214,6 +219,20 @@ public class Cleaner {
 			userRepository.deleteById(user.getId());
 
 			if (count != userRepository.count()) {
+
+				try {
+
+					List<CompanyInformation> list = companyInformationRepository.findByCreatorId(userId);
+
+					for (CompanyInformation i : list) {
+
+						removeCompanyInformation(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
 
 				try {
 
@@ -1870,6 +1889,20 @@ public class Cleaner {
 
 			if (count != companyInformationRepository.count()) {
 
+				try {
+					
+					List<Subscription> list = subscriptionRepository.findByCompanyId(id);
+					
+					for(Subscription i : list) {
+						
+						removeSubscription(i.getId());
+						
+					}
+					
+				} catch(Exception e) {
+					
+				}
+				
 				for (String i : information.getDocuments()) {
 
 					try {
@@ -1970,6 +2003,38 @@ public class Cleaner {
 
 				}
 
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeSubscription(String id) {
+
+		try {
+
+			Subscription sub = subscriptionRepository.findById(id).get();
+
+			if (sub == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = subscriptionRepository.count();
+
+			subscriptionRepository.deleteById(id);
+
+			if (count != subscriptionRepository.count()) {
+
+				if(imageService.attachmentExists(sub.getSignatureId())) {
+					
+					imageService.delete(sub.getSignatureId());
+					
+				}
+				
 			}
 
 		} catch (Exception e) {
