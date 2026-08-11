@@ -673,6 +673,12 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 				throw new Exception();
 
 			}
+			
+			if(!information.getCreatorId().equals(userId)) {
+				
+				throw new Exception();
+				
+			}
 
 			holdersId = information.getShareHolders();
 
