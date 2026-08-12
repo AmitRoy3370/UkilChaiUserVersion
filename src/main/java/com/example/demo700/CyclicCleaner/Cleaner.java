@@ -35,6 +35,7 @@ import com.example.demo700.Model.QNAModels.AnswerQuestion;
 import com.example.demo700.Model.QNAModels.AskQuestion;
 import com.example.demo700.Model.UserActiveModel.UserActive;
 import com.example.demo700.Model.UserModels.AdvocateRating;
+import com.example.demo700.Model.UserModels.Capital;
 import com.example.demo700.Model.UserModels.ClientFeedback;
 import com.example.demo700.Model.UserModels.CompanyContact;
 import com.example.demo700.Model.UserModels.CompanyInformation;
@@ -74,6 +75,7 @@ import com.example.demo700.Repositories.QNARepositories.QuestionRepository;
 import com.example.demo700.Repositories.UserActiveRepositories.UserActiveRepository;
 import com.example.demo700.Repositories.UserLiveLocationRepositories.UserLiveLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.AdvocateRatingRepository;
+import com.example.demo700.Repositories.UserRepositories.CapitalRepository;
 import com.example.demo700.Repositories.UserRepositories.ClientFeedbackRepository;
 import com.example.demo700.Repositories.UserRepositories.CompanyContactRepository;
 import com.example.demo700.Repositories.UserRepositories.CompanyInformationRepository;
@@ -203,9 +205,12 @@ public class Cleaner {
 
 	@Autowired
 	private SubscriptionRepository subscriptionRepository;
-	
+
 	@Autowired
 	private CompanyContactRepository contactRepository;
+
+	@Autowired
+	private CapitalRepository capitalRepository;
 
 	public void removeUser(String userId) {
 
@@ -1895,33 +1900,47 @@ public class Cleaner {
 			if (count != companyInformationRepository.count()) {
 
 				try {
-					
-					List<CompanyContact> list = contactRepository.findByCompanyId(id);
-					
-					for(CompanyContact i : list) {
-						
-						removeCompanyContact(i.getId());
-						
+
+					List<Capital> list = capitalRepository.findByCompanyId(id);
+
+					for (Capital i : list) {
+
+						removeCapital(i.getId());
+
 					}
-					
-				} catch(Exception e) {
-					
+
+				} catch (Exception e) {
+
 				}
-				
+
 				try {
-					
-					List<Subscription> list = subscriptionRepository.findByCompanyId(id);
-					
-					for(Subscription i : list) {
-						
-						removeSubscription(i.getId());
-						
+
+					List<CompanyContact> list = contactRepository.findByCompanyId(id);
+
+					for (CompanyContact i : list) {
+
+						removeCompanyContact(i.getId());
+
 					}
-					
-				} catch(Exception e) {
-					
+
+				} catch (Exception e) {
+
 				}
-				
+
+				try {
+
+					List<Subscription> list = subscriptionRepository.findByCompanyId(id);
+
+					for (Subscription i : list) {
+
+						removeSubscription(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
 				for (String i : information.getDocuments()) {
 
 					try {
@@ -2048,12 +2067,12 @@ public class Cleaner {
 
 			if (count != subscriptionRepository.count()) {
 
-				if(imageService.attachmentExists(sub.getSignatureId())) {
-					
+				if (imageService.attachmentExists(sub.getSignatureId())) {
+
 					imageService.delete(sub.getSignatureId());
-					
+
 				}
-				
+
 			}
 
 		} catch (Exception e) {
@@ -2063,29 +2082,55 @@ public class Cleaner {
 	}
 
 	public void removeCompanyContact(String id) {
-		
+
 		try {
-			
+
 			CompanyContact contact = contactRepository.findById(id).get();
-			
-			if(contact == null) {
-				
+
+			if (contact == null) {
+
 				throw new Exception();
-				
+
 			}
-			
+
 			long count = contactRepository.count();
-			
+
 			contactRepository.deleteById(id);
-			
-			if(count != contactRepository.count()) {
-				
+
+			if (count != contactRepository.count()) {
+
 			}
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 		}
-		
+
 	}
-	
+
+	public void removeCapital(String id) {
+
+		try {
+
+			Capital capital = capitalRepository.findById(id).get();
+
+			if (capital == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = capitalRepository.count();
+
+			capitalRepository.deleteById(id);
+
+			if (count != capitalRepository.count()) {
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
 }
