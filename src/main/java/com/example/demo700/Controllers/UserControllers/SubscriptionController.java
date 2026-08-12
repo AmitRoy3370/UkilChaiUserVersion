@@ -163,7 +163,7 @@ public class SubscriptionController {
 		}
 	}
 
-	// ==================== DELETE SUBSCRIPTION ====================
+	// ====================DELETE SUBSCRIPTION ====================
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteSubscription(@PathVariable String id, @RequestParam("userId") String userId) {
 

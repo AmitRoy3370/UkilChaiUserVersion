@@ -36,6 +36,7 @@ import com.example.demo700.Model.QNAModels.AskQuestion;
 import com.example.demo700.Model.UserActiveModel.UserActive;
 import com.example.demo700.Model.UserModels.AdvocateRating;
 import com.example.demo700.Model.UserModels.ClientFeedback;
+import com.example.demo700.Model.UserModels.CompanyContact;
 import com.example.demo700.Model.UserModels.CompanyInformation;
 import com.example.demo700.Model.UserModels.Director;
 import com.example.demo700.Model.UserModels.PostReaction;
@@ -74,6 +75,7 @@ import com.example.demo700.Repositories.UserActiveRepositories.UserActiveReposit
 import com.example.demo700.Repositories.UserLiveLocationRepositories.UserLiveLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.AdvocateRatingRepository;
 import com.example.demo700.Repositories.UserRepositories.ClientFeedbackRepository;
+import com.example.demo700.Repositories.UserRepositories.CompanyContactRepository;
 import com.example.demo700.Repositories.UserRepositories.CompanyInformationRepository;
 import com.example.demo700.Repositories.UserRepositories.DirectorRepository;
 import com.example.demo700.Repositories.UserRepositories.PostReactionRepository;
@@ -201,6 +203,9 @@ public class Cleaner {
 
 	@Autowired
 	private SubscriptionRepository subscriptionRepository;
+	
+	@Autowired
+	private CompanyContactRepository contactRepository;
 
 	public void removeUser(String userId) {
 
@@ -1891,6 +1896,20 @@ public class Cleaner {
 
 				try {
 					
+					List<CompanyContact> list = contactRepository.findByCompanyId(id);
+					
+					for(CompanyContact i : list) {
+						
+						removeCompanyContact(i.getId());
+						
+					}
+					
+				} catch(Exception e) {
+					
+				}
+				
+				try {
+					
 					List<Subscription> list = subscriptionRepository.findByCompanyId(id);
 					
 					for(Subscription i : list) {
@@ -2043,4 +2062,30 @@ public class Cleaner {
 
 	}
 
+	public void removeCompanyContact(String id) {
+		
+		try {
+			
+			CompanyContact contact = contactRepository.findById(id).get();
+			
+			if(contact == null) {
+				
+				throw new Exception();
+				
+			}
+			
+			long count = contactRepository.count();
+			
+			contactRepository.deleteById(id);
+			
+			if(count != contactRepository.count()) {
+				
+			}
+			
+		} catch(Exception e) {
+			
+		}
+		
+	}
+	
 }
