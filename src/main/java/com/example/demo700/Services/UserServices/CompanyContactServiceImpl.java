@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -34,7 +36,10 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue = "CompanyContact";
+	
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public CompanyContact addCompanyContact(CompanyContact companyContact, String userId) {
 
 		if (companyContact == null || userId == null || companyContact.getCompanyId() == null
@@ -92,6 +97,7 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public CompanyContact updateCompanyContact(CompanyContact companyContact, String userId, String id) {
 
 		if (companyContact == null || userId == null || id == null || companyContact.getCompanyId() == null
@@ -166,6 +172,7 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<CompanyContact> findAll() {
 
 		try {
@@ -189,6 +196,7 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public CompanyContact findById(String id) {
 
 		if (id == null) {
@@ -218,6 +226,7 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByContactPersonName_' + #contactPersonName")
 	public List<CompanyContact> findByContactPersonNameContainingIgnoreCase(String contactPersonName) {
 
 		if (contactPersonName == null) {
@@ -247,6 +256,7 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCompanyId_' + #companyId")
 	public List<CompanyContact> findByCompanyId(String companyId) {
 
 		if (companyId == null) {
@@ -275,6 +285,7 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByContactPersonMobile_' + #contactPersonMobile")
 	public List<CompanyContact> findByContactPersonMobile(String contactPersonMobile) {
 
 		if (contactPersonMobile == null) {
@@ -303,6 +314,7 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByContactPersonEmail_' + #contactPersonEmail")
 	public List<CompanyContact> findByContactPersonEmail(String contactPersonEmail) {
 
 		if (contactPersonEmail == null) {
@@ -331,6 +343,7 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByHowDidHear_' + #howDidHear")
 	public List<CompanyContact> findByHowDidHear(String howDidHear) {
 
 		if (howDidHear == null) {
@@ -359,6 +372,7 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAnyOtherMessage_' + #anyOtherMessage")
 	public List<CompanyContact> findByAnyOtherMessageContainingIgnoreCase(String anyOtherMessage) {
 
 		if (anyOtherMessage == null) {
@@ -387,6 +401,7 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteCompanyContact(String id, String userId) {
 
 		if (id == null || userId == null) {

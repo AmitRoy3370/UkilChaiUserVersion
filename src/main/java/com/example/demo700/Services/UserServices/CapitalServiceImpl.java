@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -33,8 +35,11 @@ public class CapitalServiceImpl implements CapitalService {
 
 	@Autowired
 	private Cleaner cleaner;
+	
+	private static final String cacheValue = "Capital";
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public Capital addCapital(Capital capital, String userId) {
 
 		if (capital == null || userId == null || capital.getAuthorizedCapital() <= 0 || capital.getNumberOfShare() <= 0
@@ -91,6 +96,7 @@ public class CapitalServiceImpl implements CapitalService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public Capital updateCapital(Capital capital, String id, String userId) {
 
 		if (capital == null || userId == null || capital.getAuthorizedCapital() <= 0 || capital.getNumberOfShare() <= 0
@@ -164,6 +170,7 @@ public class CapitalServiceImpl implements CapitalService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public Capital findById(String id) {
 
 		if (id == null) {
@@ -193,6 +200,7 @@ public class CapitalServiceImpl implements CapitalService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<Capital> findAll() {
 
 		try {
@@ -215,6 +223,7 @@ public class CapitalServiceImpl implements CapitalService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCompanyId_' + #companyId")
 	public List<Capital> findByCompanyId(String companyId) {
 		if (companyId == null) {
 
@@ -242,6 +251,7 @@ public class CapitalServiceImpl implements CapitalService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAuthorizedCapitalLte_' + #authorizedCapital")
 	public List<Capital> findByAuthorizedCapitalLte(double authorizedCapital) {
 		if (authorizedCapital <= 0) {
 
@@ -269,6 +279,7 @@ public class CapitalServiceImpl implements CapitalService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAuthorizedCapitalGte_' + #authorizedCapital")
 	public List<Capital> findByAuthorizedCapitalGte(double authorizedCapital) {
 		if (authorizedCapital <= 0) {
 
@@ -296,6 +307,7 @@ public class CapitalServiceImpl implements CapitalService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByTotalShareLte_' + #totalShare")
 	public List<Capital> findByTotalShareLte(int totalShare) {
 		if (totalShare <= 0) {
 
@@ -323,6 +335,7 @@ public class CapitalServiceImpl implements CapitalService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByTotalShareGte_' + #totalShare")
 	public List<Capital> findByTotalShareGte(int totalShare) {
 		if (totalShare <= 0) {
 
@@ -350,6 +363,7 @@ public class CapitalServiceImpl implements CapitalService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByNumberOfShareLte_' + #numberOfShare")
 	public List<Capital> findByNumberOfShareLte(int numberOfShare) {
 		if (numberOfShare <= 0) {
 
@@ -377,6 +391,7 @@ public class CapitalServiceImpl implements CapitalService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByNumberOfShareGte_' + #numberOfShare")
 	public List<Capital> findByNumberOfShareGte(int numberOfShare) {
 		if (numberOfShare <= 0) {
 
@@ -404,6 +419,7 @@ public class CapitalServiceImpl implements CapitalService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByShareValueLte_' + #shareValue")
 	public List<Capital> findByShareValueLte(double shareValue) {
 		if (shareValue <= 0) {
 
@@ -431,6 +447,7 @@ public class CapitalServiceImpl implements CapitalService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByShareValueGte_' + #shareValue")
 	public List<Capital> findByShareValueGte(double shareValue) {
 		if (shareValue <= 0) {
 
@@ -458,6 +475,7 @@ public class CapitalServiceImpl implements CapitalService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public boolean deleteCapital(String id, String userId) {
 
 		if (id == null || userId == null) {

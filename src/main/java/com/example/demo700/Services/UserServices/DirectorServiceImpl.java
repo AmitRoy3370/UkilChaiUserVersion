@@ -256,7 +256,7 @@ public class DirectorServiceImpl implements DirectorService {
 		Update update = new Update();
 
 		update.set("id", id);
-		update.set("useriD", director.getUserId());
+		update.set("userID", director.getUserId());
 
 		if (director.getNid() != null) {
 

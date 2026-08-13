@@ -41,6 +41,7 @@ import com.example.demo700.Model.UserModels.CompanyContact;
 import com.example.demo700.Model.UserModels.CompanyInformation;
 import com.example.demo700.Model.UserModels.Director;
 import com.example.demo700.Model.UserModels.PostReaction;
+import com.example.demo700.Model.UserModels.RegistrationProcess;
 import com.example.demo700.Model.UserModels.Shareholder;
 import com.example.demo700.Model.UserModels.Subscription;
 import com.example.demo700.Model.UserModels.User;
@@ -81,6 +82,7 @@ import com.example.demo700.Repositories.UserRepositories.CompanyContactRepositor
 import com.example.demo700.Repositories.UserRepositories.CompanyInformationRepository;
 import com.example.demo700.Repositories.UserRepositories.DirectorRepository;
 import com.example.demo700.Repositories.UserRepositories.PostReactionRepository;
+import com.example.demo700.Repositories.UserRepositories.RegistrationProcessRepository;
 import com.example.demo700.Repositories.UserRepositories.ShareholderRepository;
 import com.example.demo700.Repositories.UserRepositories.SubscriptionRepository;
 import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
@@ -211,6 +213,9 @@ public class Cleaner {
 
 	@Autowired
 	private CapitalRepository capitalRepository;
+
+	@Autowired
+	private RegistrationProcessRepository processRepository;
 
 	public void removeUser(String userId) {
 
@@ -1901,6 +1906,20 @@ public class Cleaner {
 
 				try {
 
+					List<RegistrationProcess> process = processRepository.findByCompanyId(id);
+
+					for (RegistrationProcess i : process) {
+
+						removeRegistrationProcess(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
 					List<Capital> list = capitalRepository.findByCompanyId(id);
 
 					for (Capital i : list) {
@@ -2124,6 +2143,34 @@ public class Cleaner {
 			capitalRepository.deleteById(id);
 
 			if (count != capitalRepository.count()) {
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeRegistrationProcess(String id) {
+
+		try {
+
+			RegistrationProcess process = processRepository.findById(id).get();
+
+			if (process == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = processRepository.count();
+
+			processRepository.deleteById(id);
+
+			if (count != processRepository.count()) {
+
+				removeCompanyInformation(process.getCompanyId());
 
 			}
 

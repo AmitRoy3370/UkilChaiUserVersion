@@ -33,14 +33,14 @@ public class CompanyInformation implements Serializable {
 	@Indexed
 	private String authorized;
 	@Indexed
-	private String capital;
+	private List<String> capital;
 
 	@Indexed
 	private String creatorId;
 	
 	public CompanyInformation(String companyName, String type, String natureOfBuisness, String category,
 			String officeRegistryId, List<String> shareHolders, List<String> documents, List<String> directors,
-			String authorized, String capital, String creatorId) {
+			String authorized, List<String> capital, String creatorId) {
 		super();
 		this.companyName = companyName;
 		this.type = type;
@@ -139,11 +139,11 @@ public class CompanyInformation implements Serializable {
 		this.authorized = authorized;
 	}
 
-	public String getCapital() {
+	public List<String> getCapital() {
 		return capital;
 	}
 
-	public void setCapital(String capital) {
+	public void setCapital(List<String> capital) {
 		this.capital = capital;
 	}
 

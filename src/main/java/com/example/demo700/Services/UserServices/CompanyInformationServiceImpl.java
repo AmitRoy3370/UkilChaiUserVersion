@@ -20,11 +20,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
+import com.example.demo700.Model.UserModels.Capital;
 import com.example.demo700.Model.UserModels.CompanyInformation;
 import com.example.demo700.Model.UserModels.Director;
 import com.example.demo700.Model.UserModels.Shareholder;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
+import com.example.demo700.Repositories.UserRepositories.CapitalRepository;
 import com.example.demo700.Repositories.UserRepositories.CompanyInformationRepository;
 import com.example.demo700.Repositories.UserRepositories.DirectorRepository;
 import com.example.demo700.Repositories.UserRepositories.ShareholderRepository;
@@ -56,6 +58,9 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Autowired
 	private ImageService imageService;
+
+	@Autowired
+	private CapitalRepository capitalRepository;
 
 	private static final String cacheValue = "CompanyInformation";
 
@@ -172,17 +177,15 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 		try {
 
-			for (String i : companyInformation.getDirectorsId()) {
+			if (!companyInformation.getCapital().isEmpty()) {
 
-				if (imageService.attachmentExists(i)) {
-
-					imageService.delete(i);
-
-				}
+				throw new Exception();
 
 			}
 
 		} catch (Exception e) {
+
+			throw new ArithmeticException("No capital can have a company in time of creation...");
 
 		}
 
@@ -369,6 +372,70 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 		} catch (Exception e) {
 
 			throw new NoSuchElementException("Share holder's information are not valid...");
+
+		}
+
+		try {
+
+			if (!companyInformation.getCapital().isEmpty()) {
+
+				Set<String> set = new HashSet<>(companyInformation.getCapital());
+
+				if (set.size() != companyInformation.getCapital().size()) {
+
+					throw new Exception();
+
+				} else {
+
+					List<Capital> capitals = capitalRepository.findByCompanyId(id);
+
+					if (capitals == null || capitals.isEmpty()) {
+
+						throw new Exception();
+
+					} else {
+
+						List<Capital> inputedCapitals = capitalRepository.findAllById(set);
+
+						for (Capital i : inputedCapitals) {
+
+							if (i.getCompanyId().equals(id)) {
+
+							} else {
+
+								throw new Exception();
+
+							}
+
+						}
+
+						List<String> removedCapital = new ArrayList<>();
+
+						for (Capital i : capitals) {
+
+							if (!inputedCapitals.contains(i.getId())) {
+
+								removedCapital.add(i.getId());
+
+							}
+
+						}
+
+						if (!removedCapital.isEmpty()) {
+
+							capitalRepository.deleteAllById(removedCapital);
+
+						}
+
+					}
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+			throw new ArithmeticException("Invalid capital information...");
 
 		}
 
@@ -673,11 +740,11 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 				throw new Exception();
 
 			}
-			
-			if(!information.getCreatorId().equals(userId)) {
-				
+
+			if (!information.getCreatorId().equals(userId)) {
+
 				throw new Exception();
-				
+
 			}
 
 			holdersId = information.getShareHolders();
@@ -1109,7 +1176,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 		try {
 
-			List<CompanyInformation> list = companyInformationRepository.findByCapital(capital);
+			List<CompanyInformation> list = companyInformationRepository.findByCapitalContainingIgnoreCase(capital);
 
 			if (list.isEmpty()) {
 
