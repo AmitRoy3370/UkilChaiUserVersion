@@ -3,29 +3,30 @@ package com.example.demo700.Repositories.UserRepositories;
 import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.example.demo700.Model.UserModels.Capital;
+import com.example.demo700.Model.UserModels.Subscription;
 
 @Repository
-public interface CapitalRepository extends MongoRepository<Capital, String> {
+public interface SubscriptionRepository extends MongoRepository<Subscription, String> {
 
-	public List<Capital> findByCompanyId(String companyId);
+	@Query("{ 'companyId' : ?0 }")
+	public List<Subscription> findByCompanyId(String companyId);
 
-	public List<Capital> findByAuthorizedCapitalLte(double authorizedCapital);
+	@Query("{ 'companyId' : { $in: ?0 } }")
+	public List<Subscription> findByCompanyIdIn(List<String> companiesId);
 
-	public List<Capital> findByAuthorizedCapitalGte(double authorizedCapital);
+	@Query("{ 'subscriberName' : { $regex: ?0, $options: 'i' } }")
+	public List<Subscription> findBySubscriberNameContainingIgnoreCase(String subscriberName);
 
-	public List<Capital> findByTotalShareLte(int totalShare);
+	@Query("{ 'companyId' : ?0, 'numberOfShare' : { $lte: ?1 } }")
+	public List<Subscription> findByCompanyIdAndNumberOfShareLte(String companyId, double numberOfShare);
 
-	public List<Capital> findByTotalShareGte(int totalShare);
+	@Query("{ 'companyId' : ?0, 'numberOfShare' : { $gte: ?1 } }")
+	public List<Subscription> findByCompanyIdAndNumberOfShareGte(String companyId, double numberOfShare);
 
-	public List<Capital> findByNumberOfShareLte(int numberOfShare);
-
-	public List<Capital> findByNumberOfShareGte(int numberOfShare);
-
-	public List<Capital> findByShareValueLte(double shareValue);
-
-	public List<Capital> findByShareValueGte(double shareValue);
+	@Query("{ 'signatureId' : ?0 }")
+	public List<Subscription> findBySignatureId(String signatureId);
 
 }
