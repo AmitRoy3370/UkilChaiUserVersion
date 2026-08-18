@@ -1,12 +1,20 @@
 package com.example.demo700.Services.UserServices;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -14,6 +22,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.RegistrationProcessResponse;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.UserModels.CompanyInformation;
@@ -50,9 +59,13 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 	private Cleaner cleaner;
 
 	private static final String cacheValue = "RegistrationProcess";
-	
+
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true),
+			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true) })
 	public RegistrationProcess addRegistrationProcess(RegistrationProcess process, String userId) {
 
 		if (process == null || userId == null || process.getShareValuePerShare() <= 0
@@ -182,7 +195,11 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true),
+			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true) })
 	public RegistrationProcess updateRegistrationprocess(RegistrationProcess process, String userId, String id) {
 
 		if (process == null || userId == null || process.getShareValuePerShare() <= 0
@@ -444,7 +461,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findById_' + #id")
-	public RegistrationProcess findById(String id) {
+	public RegistrationProcessResponse findById(String id) {
 
 		if (id == null) {
 
@@ -462,7 +479,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 			}
 
-			return process;
+			return getRegistrationProcessResponse(process);
 
 		} catch (Exception e) {
 
@@ -474,7 +491,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findAll'")
-	public List<RegistrationProcess> findAll() {
+	public List<RegistrationProcessResponse> findAll() {
 
 		try {
 
@@ -486,7 +503,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 			}
 
-			return process;
+			return getRegistrationProcessResponse(process);
 
 		} catch (Exception e) {
 
@@ -498,7 +515,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCompanyId_' + #companyId")
-	public List<RegistrationProcess> findByCompanyId(String companyId) {
+	public List<RegistrationProcessResponse> findByCompanyId(String companyId) {
 
 		if (companyId == null) {
 
@@ -516,7 +533,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 			}
 
-			return process;
+			return getRegistrationProcessResponse(process);
 
 		} catch (Exception e) {
 
@@ -528,7 +545,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByAdvocateId_' + #advocateId")
-	public List<RegistrationProcess> findByAdvocateId(String advocateId) {
+	public List<RegistrationProcessResponse> findByAdvocateId(String advocateId) {
 
 		if (advocateId == null) {
 
@@ -546,7 +563,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 			}
 
-			return process;
+			return getRegistrationProcessResponse(process);
 
 		} catch (Exception e) {
 
@@ -558,7 +575,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
-	public List<RegistrationProcess> findByUserId(String userId) {
+	public List<RegistrationProcessResponse> findByUserId(String userId) {
 
 		if (userId == null) {
 
@@ -576,7 +593,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 			}
 
-			return process;
+			return getRegistrationProcessResponse(process);
 
 		} catch (Exception e) {
 
@@ -588,7 +605,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByStatus_' + #status")
-	public List<RegistrationProcess> findByStatus(boolean status) {
+	public List<RegistrationProcessResponse> findByStatus(boolean status) {
 
 		try {
 
@@ -600,7 +617,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 			}
 
-			return process;
+			return getRegistrationProcessResponse(process);
 
 		} catch (Exception e) {
 
@@ -612,7 +629,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByShareValuePerShareLte_' + #shareValuePerShare")
-	public List<RegistrationProcess> findByShareValuePerShareLte(double shareValuePerShare) {
+	public List<RegistrationProcessResponse> findByShareValuePerShareLte(double shareValuePerShare) {
 
 		try {
 
@@ -624,7 +641,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 			}
 
-			return process;
+			return getRegistrationProcessResponse(process);
 
 		} catch (Exception e) {
 
@@ -636,7 +653,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByShareValuePerShareGte_' + #shareValuePerShare")
-	public List<RegistrationProcess> findByShareValuePerShareGte(double shareValuePerShare) {
+	public List<RegistrationProcessResponse> findByShareValuePerShareGte(double shareValuePerShare) {
 
 		try {
 
@@ -648,7 +665,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 			}
 
-			return process;
+			return getRegistrationProcessResponse(process);
 
 		} catch (Exception e) {
 
@@ -659,7 +676,11 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true),
+			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true) })
 	public boolean deleteRegistrationProcess(String id, String userId) {
 
 		if (id == null || userId == null) {
@@ -711,6 +732,159 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 		cleaner.removeRegistrationProcess(id);
 
 		return count != processRepository.count();
+
+	}
+
+	private ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+
+	private RegistrationProcessResponse getRegistrationProcessResponse(RegistrationProcess process) {
+
+		List<RegistrationProcess> list = new ArrayList<>();
+
+		list.add(process);
+
+		return getRegistrationProcessResponse(list).get(0);
+
+	}
+
+	private List<RegistrationProcessResponse> getRegistrationProcessResponse(List<RegistrationProcess> processes) {
+
+		List<RegistrationProcessResponse> responses = new ArrayList<>();
+
+		CompletableFuture<List<String>> advocateIdFuture = CompletableFuture.supplyAsync(
+				() -> processes.stream().map(RegistrationProcess::getAdvocateId).collect(Collectors.toList()),
+				executor);
+
+		CompletableFuture<Map<String, Advocate>> advocateMapFuture = advocateIdFuture.thenApplyAsync(advocatesId -> {
+
+			if (advocatesId.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return advocateRepository.findAllById(advocatesId).stream()
+					.collect(Collectors.toMap(Advocate::getId, Function.identity()));
+
+		}, executor);
+
+		CompletableFuture<List<String>> companyIdFuture = CompletableFuture.supplyAsync(
+				() -> processes.stream().map(RegistrationProcess::getCompanyId).distinct().collect(Collectors.toList()),
+				executor);
+
+		CompletableFuture<Map<String, CompanyInformation>> companyMapFuture = companyIdFuture
+				.thenApplyAsync(companiesId -> {
+
+					if (companiesId.isEmpty()) {
+
+						return new HashMap<>();
+
+					}
+
+					return companyRepository.findAllById(companiesId).stream()
+							.collect(Collectors.toMap(CompanyInformation::getId, Function.identity()));
+
+				}, executor);
+
+		CompletableFuture<List<String>> advocateUserIdFuture = advocateMapFuture.thenApplyAsync(advocates -> {
+
+			if (advocates.isEmpty()) {
+
+				return new ArrayList<>();
+
+			}
+
+			return advocates.values().stream().map(Advocate::getUserId).collect(Collectors.toList());
+
+		}, executor);
+
+		CompletableFuture<List<String>> userIdFuture = CompletableFuture
+				.supplyAsync(() -> processes.stream().map(RegistrationProcess::getUserId).collect(Collectors.toList()),
+						executor)
+				.thenCombineAsync(advocateUserIdFuture, (userIds, advocateUsersId) -> {
+
+					List<String> list = new ArrayList<>(userIds);
+
+					list.addAll(advocateUsersId);
+
+					return list;
+
+				}, executor);
+
+		CompletableFuture<Map<String, User>> userMapFuture = userIdFuture.thenApplyAsync(usersId -> {
+
+			if (usersId.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return userRepository.findAllById(usersId).stream()
+					.collect(Collectors.toMap(User::getId, Function.identity()));
+
+		}, executor);
+
+		CompletableFuture.allOf(advocateIdFuture, advocateMapFuture, companyIdFuture, companyMapFuture,
+				advocateUserIdFuture, userIdFuture, userMapFuture).join();
+
+		Map<String, Advocate> advocateMap = advocateMapFuture.join();
+
+		Map<String, User> userMap = userMapFuture.join();
+
+		Map<String, CompanyInformation> companyMap = companyMapFuture.join();
+
+		for (RegistrationProcess process : processes) {
+
+			try {
+
+				RegistrationProcessResponse response = new RegistrationProcessResponse();
+
+				response.setId(process.getId());
+				response.setCompanyId(process.getId());
+				response.setAdvocateId(process.getAdvocateId());
+				response.setUserId(process.getUserId());
+				response.setStatus(process.isStatus());
+				response.setSteps(process.getSteps());
+				response.setShareValuePerShare(process.getShareValuePerShare());
+
+				try {
+
+					response.setUserName(userMap.get(process.getUserId()).getFullName() == null
+							? userMap.get(process.getUserId()).getName()
+							: userMap.get(process.getUserId()).getFullName());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setAdvocateName(
+							userMap.get(advocateMap.get(process.getAdvocateId()).getUserId()).getFullName() == null
+									? userMap.get(advocateMap.get(process.getAdvocateId()).getUserId()).getName()
+									: userMap.get(advocateMap.get(process.getAdvocateId()).getUserId()).getFullName());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setCompanyName(companyMap.get(process.getCompanyId()).getCompanyName());
+
+				} catch (Exception e) {
+
+				}
+
+				responses.add(response);
+
+			} catch (Exception e) {
+
+			}
+
+		}
+
+		return responses;
 
 	}
 

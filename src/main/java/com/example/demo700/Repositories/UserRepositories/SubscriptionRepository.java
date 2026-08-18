@@ -11,6 +11,7 @@ import com.example.demo700.Model.UserModels.Subscription;
 public interface SubscriptionRepository extends MongoRepository<Subscription, String> {
 
 	public List<Subscription> findByCompanyId(String companyId);
+	public List<Subscription> findByCompanyIdIn(List<String> companiesId);
 	public List<Subscription> findBySubscriberNameContainingIgnoreCase(String subscriberName);
 	public List<Subscription> findByCompanyIdAndNumberOfShareLte(String companyId, double numberOfShare);
 	public List<Subscription> findByCompanyIdAndNumberOfShareGte(String companyId, double numberOfShare);

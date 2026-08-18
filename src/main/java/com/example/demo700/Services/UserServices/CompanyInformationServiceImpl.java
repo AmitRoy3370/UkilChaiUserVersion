@@ -1,10 +1,18 @@
 package com.example.demo700.Services.UserServices;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,17 +27,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.CompanyResponse;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.UserModels.Capital;
 import com.example.demo700.Model.UserModels.CompanyInformation;
 import com.example.demo700.Model.UserModels.Director;
+import com.example.demo700.Model.UserModels.RegistrationProcess;
 import com.example.demo700.Model.UserModels.Shareholder;
+import com.example.demo700.Model.UserModels.Subscription;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.UserRepositories.CapitalRepository;
 import com.example.demo700.Repositories.UserRepositories.CompanyInformationRepository;
 import com.example.demo700.Repositories.UserRepositories.DirectorRepository;
+import com.example.demo700.Repositories.UserRepositories.RegistrationProcessRepository;
 import com.example.demo700.Repositories.UserRepositories.ShareholderRepository;
+import com.example.demo700.Repositories.UserRepositories.SubscriptionRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 
 @Service
@@ -57,15 +70,25 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 	private MongoTemplate mongoTemplate;
 
 	@Autowired
+	private SubscriptionRepository subscriptionRepository;
+
+	@Autowired
 	private ImageService imageService;
 
 	@Autowired
 	private CapitalRepository capitalRepository;
 
+	@Autowired
+	private RegistrationProcessRepository registrationProcessRepository;
+
 	private static final String cacheValue = "CompanyInformation";
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true) })
 	public CompanyInformation addCompanyInformation(CompanyInformation companyInformation, String userId,
 			MultipartFile files[]) {
 
@@ -177,6 +200,20 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 		try {
 
+			if (companyInformation.getOfficeRegistryId() != null) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new ArithmeticException("No such registration process can be open at the time of creation....");
+
+		}
+
+		try {
+
 			if (!companyInformation.getCapital().isEmpty()) {
 
 				throw new Exception();
@@ -221,7 +258,11 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true) })
 	public CompanyInformation updateCompanyInformation(CompanyInformation companyInformation, String id, String userId,
 			MultipartFile files[]) {
 
@@ -316,6 +357,22 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 			throw new ArithmeticException("This company name is already exist...");
 
 		} catch (Exception e) {
+
+		}
+
+		try {
+
+			RegistrationProcess process = registrationProcessRepository.findByCompanyId(id).get(0);
+
+			if (process == null) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("Registration process information is not valid...");
 
 		}
 
@@ -524,7 +581,11 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true) })
 	public CompanyInformation addDirector(String id, String directorId, String userId) {
 
 		if (id == null || directorId == null || userId == null) {
@@ -679,7 +740,11 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true) })
 	public CompanyInformation addShareHolder(String id, String holderId, String userId) {
 
 		if (id == null || holderId == null || userId == null) {
@@ -838,7 +903,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findAll'")
-	public List<CompanyInformation> findAll() {
+	public List<CompanyResponse> findAll() {
 
 		try {
 
@@ -850,7 +915,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 			}
 
-			return list;
+			return getCompanyResponse(list);
 
 		} catch (Exception e) {
 
@@ -862,7 +927,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findById_' + #id")
-	public CompanyInformation findById(String id) {
+	public CompanyResponse findById(String id) {
 
 		if (id == null) {
 
@@ -880,7 +945,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 			}
 
-			return information;
+			return getCompanyResponse(information);
 
 		} catch (Exception e) {
 
@@ -891,7 +956,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCompanyName_' + #companyName")
-	public List<CompanyInformation> findByCompanyNameContainingIgnoreCase(String companyName) {
+	public List<CompanyResponse> findByCompanyNameContainingIgnoreCase(String companyName) {
 
 		if (companyName == null) {
 
@@ -910,7 +975,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 			}
 
-			return list;
+			return getCompanyResponse(list);
 
 		} catch (Exception e) {
 
@@ -921,7 +986,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByType_' + #type")
-	public List<CompanyInformation> findByTypeContainingIgnoreCase(String type) {
+	public List<CompanyResponse> findByTypeContainingIgnoreCase(String type) {
 
 		if (type == null) {
 
@@ -939,7 +1004,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 			}
 
-			return list;
+			return getCompanyResponse(list);
 
 		} catch (Exception e) {
 
@@ -951,7 +1016,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByNatureOfBuisness_' + #natureOfBuisness")
-	public List<CompanyInformation> findByNatureOfBuisnessContainingIgnoreCase(String natureOfBuisness) {
+	public List<CompanyResponse> findByNatureOfBuisnessContainingIgnoreCase(String natureOfBuisness) {
 
 		if (natureOfBuisness == null) {
 
@@ -970,7 +1035,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 			}
 
-			return list;
+			return getCompanyResponse(list);
 
 		} catch (Exception e) {
 
@@ -982,7 +1047,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCategory_' + #category")
-	public List<CompanyInformation> findByCategoryContainingIgnoreCase(String category) {
+	public List<CompanyResponse> findByCategoryContainingIgnoreCase(String category) {
 
 		if (category == null) {
 
@@ -1000,7 +1065,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 			}
 
-			return list;
+			return getCompanyResponse(list);
 
 		} catch (Exception e) {
 
@@ -1012,7 +1077,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByOfficeRegistryId_' + #officeRegistryId")
-	public List<CompanyInformation> findByOfficeRegistryId(String officeRegistryId) {
+	public List<CompanyResponse> findByOfficeRegistryId(String officeRegistryId) {
 
 		if (officeRegistryId == null) {
 
@@ -1030,7 +1095,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 			}
 
-			return list;
+			return getCompanyResponse(list);
 
 		} catch (Exception e) {
 
@@ -1042,7 +1107,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByShareHolder_' + #shareHoldersId")
-	public List<CompanyInformation> findByShareHoldersContainingIgnoreCase(String shareHoldersId) {
+	public List<CompanyResponse> findByShareHoldersContainingIgnoreCase(String shareHoldersId) {
 
 		if (shareHoldersId == null) {
 
@@ -1061,7 +1126,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 			}
 
-			return list;
+			return getCompanyResponse(list);
 
 		} catch (Exception e) {
 
@@ -1073,7 +1138,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByDocuments_' + #documentsId")
-	public List<CompanyInformation> findByDocumentsContainingIgnoreCase(String documentsId) {
+	public List<CompanyResponse> findByDocumentsContainingIgnoreCase(String documentsId) {
 
 		if (documentsId == null) {
 
@@ -1092,7 +1157,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 			}
 
-			return list;
+			return getCompanyResponse(list);
 
 		} catch (Exception e) {
 
@@ -1104,7 +1169,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByDirectorsId_' + #directorsId")
-	public List<CompanyInformation> findByDirectorsIdContainingIgnoreCase(String directorsId) {
+	public List<CompanyResponse> findByDirectorsIdContainingIgnoreCase(String directorsId) {
 
 		if (directorsId == null) {
 
@@ -1123,7 +1188,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 			}
 
-			return list;
+			return getCompanyResponse(list);
 
 		} catch (Exception e) {
 
@@ -1135,7 +1200,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByAuthorized_' + #authorized")
-	public List<CompanyInformation> findByAuthorizedContainingIgnoreCase(String authorized) {
+	public List<CompanyResponse> findByAuthorizedContainingIgnoreCase(String authorized) {
 
 		if (authorized == null) {
 
@@ -1154,7 +1219,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 			}
 
-			return list;
+			return getCompanyResponse(list);
 
 		} catch (Exception e) {
 
@@ -1166,7 +1231,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCapital_' + #capital")
-	public List<CompanyInformation> findByCapital(String capital) {
+	public List<CompanyResponse> findByCapital(String capital) {
 
 		if (capital == null) {
 
@@ -1184,7 +1249,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 			}
 
-			return list;
+			return getCompanyResponse(list);
 
 		} catch (Exception e) {
 
@@ -1196,7 +1261,10 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "ShareHolder", allEntries = true) })
+			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true) })
 	public boolean deleteCompanyInformation(String id, String userId) {
 
 		if (id == null || userId == null) {
@@ -1287,6 +1355,307 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 		cleaner.removeCompanyInformation(id);
 
 		return count != companyInformationRepository.count();
+
+	}
+
+	private ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+
+	private CompanyResponse getCompanyResponse(CompanyInformation company) {
+
+		List<CompanyInformation> list = new ArrayList<>();
+
+		list.add(company);
+
+		return getCompanyResponse(list).get(0);
+
+	}
+
+	private List<CompanyResponse> getCompanyResponse(List<CompanyInformation> companies) {
+
+		List<CompanyResponse> responses = new ArrayList<>();
+
+		CompletableFuture<List<String>> companyIdFuture = CompletableFuture.supplyAsync(
+				() -> companies.stream().map(CompanyInformation::getId).collect(Collectors.toList()), executor);
+
+		CompletableFuture<Map<String, List<Subscription>>> subscriptionMapFuture = companyIdFuture
+				.thenApplyAsync(companyIds -> {
+
+					if (companyIds.isEmpty()) {
+
+						return new HashMap<>();
+
+					}
+
+					Map<String, Subscription> map = subscriptionRepository.findByCompanyIdIn(companyIds).stream()
+							.collect(Collectors.toMap(Subscription::getId, Function.identity()));
+
+					Map<String, List<Subscription>> responseMap = new HashMap<>();
+
+					for (Subscription sub : map.values()) {
+
+						String companyId = sub.getCompanyId();
+
+						if (responseMap.containsKey(companyId)) {
+
+							responseMap.get(companyId).add(sub);
+
+						} else {
+
+							responseMap.put(companyId, new ArrayList<>());
+							responseMap.get(companyId).add(sub);
+
+						}
+
+					}
+
+					return responseMap;
+
+				}, executor);
+
+		CompletableFuture<List<String>> shareholdersIdFuture = CompletableFuture
+				.supplyAsync(() -> companies.stream().map(CompanyInformation::getShareHolders).filter(Objects::nonNull)
+						.distinct().flatMap(Collection::stream).collect(Collectors.toList()), executor);
+
+		CompletableFuture<Map<String, Shareholder>> shareHolderMapFuture = shareholdersIdFuture
+				.thenApplyAsync(holdersId -> {
+
+					if (holdersId.isEmpty()) {
+
+						return new HashMap<>();
+
+					}
+
+					return holderRepository.findAllById(holdersId).stream()
+							.collect(Collectors.toMap(Shareholder::getId, Function.identity()));
+
+				}, executor);
+
+		CompletableFuture<List<String>> directorsIdFuture = CompletableFuture
+				.supplyAsync(() -> companies.stream().map(CompanyInformation::getDirectorsId).filter(Objects::nonNull)
+						.distinct().flatMap(Collection::stream).collect(Collectors.toList()), executor);
+
+		CompletableFuture<Map<String, Director>> directorMapFuture = directorsIdFuture.thenApplyAsync(directorsId -> {
+
+			if (directorsId.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return directorRepository.findAllById(directorsId).stream()
+					.collect(Collectors.toMap(Director::getId, Function.identity()));
+
+		}, executor);
+
+		CompletableFuture<List<String>> capitalsIdFuture = CompletableFuture
+				.supplyAsync(() -> companies.stream().map(CompanyInformation::getCapital).filter(Objects::nonNull)
+						.distinct().flatMap(Collection::stream).collect(Collectors.toList()), executor);
+
+		CompletableFuture<Map<String, Capital>> capitalMapFuture = capitalsIdFuture.thenApplyAsync(capitalsId -> {
+
+			if (capitalsId.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return capitalRepository.findAllById(capitalsId).stream()
+					.collect(Collectors.toMap(Capital::getId, Function.identity()));
+
+		}, executor);
+
+		CompletableFuture<List<String>> registrationIdsFuture = CompletableFuture
+				.supplyAsync(() -> companies.stream().map(CompanyInformation::getOfficeRegistryId)
+						.filter(Objects::nonNull).distinct().collect(Collectors.toList()), executor);
+
+		CompletableFuture<Map<String, RegistrationProcess>> registrationProcessMapFuture = registrationIdsFuture
+				.thenApplyAsync(registrationIds -> {
+
+					if (registrationIds.isEmpty()) {
+
+						return new HashMap<>();
+
+					}
+
+					return registrationProcessRepository.findAllById(registrationIds).stream()
+							.collect(Collectors.toMap(RegistrationProcess::getId, Function.identity()));
+
+				}, executor);
+
+		// First, extract the user IDs from the maps
+		CompletableFuture<List<String>> directorUserIds = directorMapFuture.thenApplyAsync(directorsMap -> {
+			if (directorsMap.isEmpty()) {
+				return new ArrayList<>();
+			}
+			return directorsMap.values().stream().map(Director::getUserId).collect(Collectors.toList());
+		}, executor);
+
+		CompletableFuture<List<String>> shareholderUserIds = shareHolderMapFuture.thenApplyAsync(holdersMap -> {
+			if (holdersMap.isEmpty()) {
+				return new ArrayList<>();
+			}
+			return holdersMap.values().stream().map(Shareholder::getUserId).collect(Collectors.toList());
+		}, executor);
+
+		// Then combine all three
+		CompletableFuture<List<String>> userIds = CompletableFuture.supplyAsync(
+				() -> companies.stream().map(CompanyInformation::getCreatorId).collect(Collectors.toList()), executor)
+				.thenCombineAsync(directorUserIds, (creatorIds, directorIds) -> {
+					List<String> combined = new ArrayList<>(creatorIds);
+					combined.addAll(directorIds);
+					return combined;
+				}, executor).thenCombineAsync(shareholderUserIds, (combinedIds, shareholderIds) -> {
+					combinedIds.addAll(shareholderIds);
+					return combinedIds;
+				}, executor);
+
+		CompletableFuture<Map<String, User>> userMapFuture = userIds.thenApplyAsync(userId -> {
+
+			if (userId.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return userRepository.findAllById(userId).stream()
+					.collect(Collectors.toMap(User::getId, Function.identity()));
+
+		}, executor);
+
+		CompletableFuture.allOf(shareholdersIdFuture, directorsIdFuture, capitalsIdFuture, registrationIdsFuture,
+				shareHolderMapFuture, registrationProcessMapFuture, companyIdFuture, subscriptionMapFuture,
+				capitalMapFuture, directorMapFuture, userIds, userMapFuture, directorUserIds, shareholderUserIds)
+				.join();
+
+		Map<String, User> userMap = userMapFuture.join();
+
+		Map<String, Shareholder> holderMap = shareHolderMapFuture.join();
+
+		Map<String, RegistrationProcess> registrationProcessMap = registrationProcessMapFuture.join();
+
+		Map<String, List<Subscription>> subscriptionMap = subscriptionMapFuture.join();
+
+		Map<String, Capital> capitalMap = capitalMapFuture.join();
+
+		Map<String, Director> directorMap = directorMapFuture.join();
+
+		for (CompanyInformation company : companies) {
+
+			try {
+
+				CompanyResponse response = new CompanyResponse();
+
+				response.setId(company.getId());
+				response.setCompanyName(company.getCompanyName());
+				response.setType(company.getType());
+				response.setNatureOfBuisness(company.getNatureOfBuisness());
+				response.setCategory(company.getCategory());
+				response.setOfficeRegistryId(company.getOfficeRegistryId());
+				response.setDocuments(company.getDocuments());
+				response.setShareHolders(company.getShareHolders());
+				response.setDirectorsId(company.getDirectorsId());
+				response.setCreatorId(company.getCreatorId());
+				response.setCreatorName(userMap.get(company.getCreatorId()).getFullName() == null
+						? userMap.get(company.getCreatorId()).getName()
+						: userMap.get(company.getCreatorId()).getFullName());
+				response.setCapital(company.getCapital());
+				response.setAuthorized(company.getAuthorized());
+
+				try {
+
+					response.setRegistrationProcess(registrationProcessMap.get(company.getOfficeRegistryId()));
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					response.setSubscriptions(subscriptionMap.get(company.getId()));
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<String> directorsName = new ArrayList<>();
+
+					for (String i : company.getDirectorsId()) {
+
+						try {
+
+							directorsName.add(userMap.get(directorMap.get(i).getUserId()).getFullName() == null
+									? userMap.get(directorMap.get(i).getUserId()).getName()
+									: userMap.get(directorMap.get(i).getUserId()).getFullName());
+
+						} catch (Exception e) {
+
+						}
+
+					}
+
+					response.setDirectorsName(directorsName);
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<String> shareHoldersName = new ArrayList<>();
+
+					for (String i : company.getShareHolders()) {
+
+						try {
+
+							shareHoldersName.add(userMap.get(directorMap.get(i).getUserId()).getFullName() == null
+									? userMap.get(directorMap.get(i).getUserId()).getName()
+									: userMap.get(directorMap.get(i).getUserId()).getFullName());
+
+						} catch (Exception e) {
+
+						}
+
+					}
+
+					response.setShareHoldersName(shareHoldersName);
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<Capital> capitals = new ArrayList<>();
+
+					for (String i : company.getCapital()) {
+
+						try {
+
+							capitals.add(capitalMap.get(i));
+
+						} catch (Exception e) {
+
+						}
+
+					}
+
+					response.setCapitals(capitals);
+
+				} catch (Exception e) {
+
+				}
+
+				responses.add(response);
+
+			} catch (Exception e) {
+
+			}
+
+		}
+
+		return responses;
 
 	}
 

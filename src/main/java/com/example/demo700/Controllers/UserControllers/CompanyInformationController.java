@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo700.DTOFiles.CompanyResponse;
 import com.example.demo700.Model.UserModels.CompanyInformation;
 import com.example.demo700.Services.UserServices.CompanyInformationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -111,7 +112,7 @@ public class CompanyInformationController {
 	@GetMapping("/all")
 	public ResponseEntity<?> getAllCompanies() {
 		try {
-			List<CompanyInformation> list = companyInformationService.findAll();
+			List<CompanyResponse> list = companyInformationService.findAll();
 			return new ResponseEntity<>(list, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -124,7 +125,7 @@ public class CompanyInformationController {
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getCompanyById(@PathVariable String id) {
 		try {
-			CompanyInformation info = companyInformationService.findById(id);
+			CompanyResponse info = companyInformationService.findById(id);
 			return new ResponseEntity<>(info, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -155,7 +156,7 @@ public class CompanyInformationController {
 	@GetMapping("/search/by-company-name")
 	public ResponseEntity<?> getByCompanyName(@RequestParam("companyName") String companyName) {
 		try {
-			List<CompanyInformation> result = companyInformationService
+			List<CompanyResponse> result = companyInformationService
 					.findByCompanyNameContainingIgnoreCase(companyName);
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		} catch (Exception e) {
@@ -166,7 +167,7 @@ public class CompanyInformationController {
 	@GetMapping("/search/by-type")
 	public ResponseEntity<?> getByType(@RequestParam("type") String type) {
 		try {
-			List<CompanyInformation> result = companyInformationService.findByTypeContainingIgnoreCase(type);
+			List<CompanyResponse> result = companyInformationService.findByTypeContainingIgnoreCase(type);
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -176,7 +177,7 @@ public class CompanyInformationController {
 	@GetMapping("/search/by-nature-of-business")
 	public ResponseEntity<?> getByNatureOfBusiness(@RequestParam("natureOfBuisness") String natureOfBuisness) {
 		try {
-			List<CompanyInformation> result = companyInformationService
+			List<CompanyResponse> result = companyInformationService
 					.findByNatureOfBuisnessContainingIgnoreCase(natureOfBuisness);
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		} catch (Exception e) {
@@ -187,7 +188,7 @@ public class CompanyInformationController {
 	@GetMapping("/search/by-category")
 	public ResponseEntity<?> getByCategory(@RequestParam("category") String category) {
 		try {
-			List<CompanyInformation> result = companyInformationService.findByCategoryContainingIgnoreCase(category);
+			List<CompanyResponse> result = companyInformationService.findByCategoryContainingIgnoreCase(category);
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -197,7 +198,7 @@ public class CompanyInformationController {
 	@GetMapping("/search/by-office-registry")
 	public ResponseEntity<?> getByOfficeRegistryId(@RequestParam("officeRegistryId") String officeRegistryId) {
 		try {
-			List<CompanyInformation> result = companyInformationService.findByOfficeRegistryId(officeRegistryId);
+			List<CompanyResponse> result = companyInformationService.findByOfficeRegistryId(officeRegistryId);
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -207,7 +208,7 @@ public class CompanyInformationController {
 	@GetMapping("/search/by-shareholder-id")
 	public ResponseEntity<?> getByShareHolderId(@RequestParam("shareHoldersId") String shareHoldersId) {
 		try {
-			List<CompanyInformation> result = companyInformationService
+			List<CompanyResponse> result = companyInformationService
 					.findByShareHoldersContainingIgnoreCase(shareHoldersId);
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		} catch (Exception e) {
@@ -218,7 +219,7 @@ public class CompanyInformationController {
 	@GetMapping("/search/by-document-id")
 	public ResponseEntity<?> getByDocumentId(@RequestParam("documentsId") String documentsId) {
 		try {
-			List<CompanyInformation> result = companyInformationService
+			List<CompanyResponse> result = companyInformationService
 					.findByDocumentsContainingIgnoreCase(documentsId);
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		} catch (Exception e) {
@@ -229,7 +230,7 @@ public class CompanyInformationController {
 	@GetMapping("/search/by-director-id")
 	public ResponseEntity<?> getByDirectorId(@RequestParam("directorsId") String directorsId) {
 		try {
-			List<CompanyInformation> result = companyInformationService
+			List<CompanyResponse> result = companyInformationService
 					.findByDirectorsIdContainingIgnoreCase(directorsId);
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		} catch (Exception e) {
@@ -240,7 +241,7 @@ public class CompanyInformationController {
 	@GetMapping("/search/by-authorized")
 	public ResponseEntity<?> getByAuthorized(@RequestParam("authorized") String authorized) {
 		try {
-			List<CompanyInformation> result = companyInformationService
+			List<CompanyResponse> result = companyInformationService
 					.findByAuthorizedContainingIgnoreCase(authorized);
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		} catch (Exception e) {
@@ -251,7 +252,7 @@ public class CompanyInformationController {
 	@GetMapping("/search/by-capital")
 	public ResponseEntity<?> getByCapital(@RequestParam("capital") String capital) {
 		try {
-			List<CompanyInformation> result = companyInformationService.findByCapital(capital);
+			List<CompanyResponse> result = companyInformationService.findByCapital(capital);
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

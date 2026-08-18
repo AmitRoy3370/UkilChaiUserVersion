@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo700.DTOFiles.RegistrationProcessResponse;
 import com.example.demo700.Model.UserModels.RegistrationProcess;
 import com.example.demo700.Services.UserServices.RegistrationProcessService;
 
@@ -84,7 +85,7 @@ public class RegistrationProcessController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getProcessById(@PathVariable String id) {
         try {
-            RegistrationProcess process = registrationProcessService.findById(id);
+        	RegistrationProcessResponse process = registrationProcessService.findById(id);
             return new ResponseEntity<>(process, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -97,7 +98,7 @@ public class RegistrationProcessController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllProcesses() {
         try {
-            List<RegistrationProcess> processes = registrationProcessService.findAll();
+            List<RegistrationProcessResponse> processes = registrationProcessService.findAll();
             return new ResponseEntity<>(processes, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -110,7 +111,7 @@ public class RegistrationProcessController {
     @GetMapping("/company/{companyId}")
     public ResponseEntity<?> getProcessesByCompanyId(@PathVariable String companyId) {
         try {
-            List<RegistrationProcess> processes = registrationProcessService.findByCompanyId(companyId);
+            List<RegistrationProcessResponse> processes = registrationProcessService.findByCompanyId(companyId);
             return new ResponseEntity<>(processes, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -123,7 +124,7 @@ public class RegistrationProcessController {
     @GetMapping("/advocate/{advocateId}")
     public ResponseEntity<?> getProcessesByAdvocateId(@PathVariable String advocateId) {
         try {
-            List<RegistrationProcess> processes = registrationProcessService.findByAdvocateId(advocateId);
+            List<RegistrationProcessResponse> processes = registrationProcessService.findByAdvocateId(advocateId);
             return new ResponseEntity<>(processes, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -136,7 +137,7 @@ public class RegistrationProcessController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getProcessesByUserId(@PathVariable String userId) {
         try {
-            List<RegistrationProcess> processes = registrationProcessService.findByUserId(userId);
+            List<RegistrationProcessResponse> processes = registrationProcessService.findByUserId(userId);
             return new ResponseEntity<>(processes, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -149,7 +150,7 @@ public class RegistrationProcessController {
     @GetMapping("/status")
     public ResponseEntity<?> getProcessesByStatus(@RequestParam("status") boolean status) {
         try {
-            List<RegistrationProcess> processes = registrationProcessService.findByStatus(status);
+            List<RegistrationProcessResponse> processes = registrationProcessService.findByStatus(status);
             return new ResponseEntity<>(processes, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -162,7 +163,7 @@ public class RegistrationProcessController {
     @GetMapping("/share-value/lte")
     public ResponseEntity<?> getProcessesByShareValueLte(@RequestParam("value") double shareValue) {
         try {
-            List<RegistrationProcess> processes = registrationProcessService.findByShareValuePerShareLte(shareValue);
+            List<RegistrationProcessResponse> processes = registrationProcessService.findByShareValuePerShareLte(shareValue);
             return new ResponseEntity<>(processes, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -174,7 +175,7 @@ public class RegistrationProcessController {
     @GetMapping("/share-value/gte")
     public ResponseEntity<?> getProcessesByShareValueGte(@RequestParam("value") double shareValue) {
         try {
-            List<RegistrationProcess> processes = registrationProcessService.findByShareValuePerShareGte(shareValue);
+            List<RegistrationProcessResponse> processes = registrationProcessService.findByShareValuePerShareGte(shareValue);
             return new ResponseEntity<>(processes, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -39,7 +40,11 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 	private static final String cacheValue = "CompanyContact";
 	
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true) })
 	public CompanyContact addCompanyContact(CompanyContact companyContact, String userId) {
 
 		if (companyContact == null || userId == null || companyContact.getCompanyId() == null
@@ -97,7 +102,11 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true) })
 	public CompanyContact updateCompanyContact(CompanyContact companyContact, String userId, String id) {
 
 		if (companyContact == null || userId == null || id == null || companyContact.getCompanyId() == null
@@ -401,7 +410,11 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true) })
 	public boolean deleteCompanyContact(String id, String userId) {
 
 		if (id == null || userId == null) {

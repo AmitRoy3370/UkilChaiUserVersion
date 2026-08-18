@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,7 +43,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	private static final String[] ALLOWED_MIME_TYPES = { "image/jpeg", "image/png", "image/gif", "image/webp",
 			"image/bmp", "image/svg+xml" };
 
+	private static final String cacheValue = "Subscription";
+
 	@Override
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true),
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true) })
 	public Subscription addSubscription(Subscription subscription, String userId, MultipartFile signature) {
 
 		if (subscription == null || userId == null || subscription.getNumberOfShare() <= 0) {
@@ -133,6 +142,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}
 
 	@Override
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true),
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true) })
 	public Subscription updateSubscription(Subscription subscription, String userId, String id,
 			MultipartFile signature) {
 
@@ -254,39 +268,68 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
 	@Override
 	public Subscription findById(String id) {
-		
-		if(id == null) {
-			
+
+		if (id == null) {
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			Subscription sub = subscriptionRepository.findById(id).get();
-			
-			if(sub == null) {
-				
+
+			if (sub == null) {
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return sub;
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException("No such subscription exist at here...");
-			
+
 		}
-		
+
 	}
 
 	@Override
 	public List<Subscription> findAll() {
+
+		try {
+
+			List<Subscription> list = subscriptionRepository.findAll();
+
+			if (list.isEmpty()) {
+
+				throw new Exception();
+
+			}
+
+			return list;
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such subscription exist at here...");
+
+		}
+
+	}
+
+	@Override
+	public List<Subscription> findByCompanyId(String companyId) {
+		
+		if(companyId == null) {
+			
+			throw new NullPointerException("False request....");
+			
+		}
 		
 		try {
 			
-			List<Subscription> list = subscriptionRepository.findAll();
+			List<Subscription> list = subscriptionRepository.findByCompanyId(companyId);
 			
 			if(list.isEmpty()) {
 				
@@ -298,135 +341,136 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 			
 		} catch(Exception e) {
 			
-			throw new NoSuchElementException("No such subscription exist at here...");
+			throw new NoSuchElementException("No such subscription find at here...");
 			
 		}
 		
-	}
-
-	@Override
-	public List<Subscription> findByCompanyId(String companyId) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
 	public List<Subscription> findBySubscriberNameContainingIgnoreCase(String subscriberName) {
 
-		if(subscriberName == null) {
-			
+		if (subscriberName == null) {
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			List<Subscription> sub = subscriptionRepository.findBySubscriberNameContainingIgnoreCase(subscriberName);
-			
-			if(sub == null || sub.isEmpty()) {
-				
+
+			if (sub == null || sub.isEmpty()) {
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return sub;
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException("No such subscription exist at here...");
-			
+
 		}
-		
+
 	}
 
 	@Override
 	public List<Subscription> findByCompanyIdAndNumberOfShareLte(String companyId, double numberOfShare) {
 
-		if(companyId == null || numberOfShare <= 0) {
-			
+		if (companyId == null || numberOfShare <= 0) {
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
-			List<Subscription> sub = subscriptionRepository.findByCompanyIdAndNumberOfShareLte(companyId, numberOfShare);
-			
-			if(sub == null || sub.isEmpty()) {
-				
+
+			List<Subscription> sub = subscriptionRepository.findByCompanyIdAndNumberOfShareLte(companyId,
+					numberOfShare);
+
+			if (sub == null || sub.isEmpty()) {
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return sub;
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException("No such subscription exist at here...");
-			
+
 		}
-		
+
 	}
 
 	@Override
 	public List<Subscription> findByCompanyIdAndNumberOfShareGte(String companyId, double numberOfShare) {
 
-		if(companyId == null || numberOfShare <= 0) {
-			
+		if (companyId == null || numberOfShare <= 0) {
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
-			List<Subscription> sub = subscriptionRepository.findByCompanyIdAndNumberOfShareGte(companyId, numberOfShare);
-			
-			if(sub == null || sub.isEmpty()) {
-				
+
+			List<Subscription> sub = subscriptionRepository.findByCompanyIdAndNumberOfShareGte(companyId,
+					numberOfShare);
+
+			if (sub == null || sub.isEmpty()) {
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return sub;
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException("No such subscription exist at here...");
-			
+
 		}
-		
+
 	}
 
 	@Override
 	public List<Subscription> findBySignatureId(String signatureId) {
 
-		if(signatureId == null) {
-			
+		if (signatureId == null) {
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			List<Subscription> sub = subscriptionRepository.findBySignatureId(signatureId);
-			
-			if(sub == null || sub.isEmpty()) {
-				
+
+			if (sub == null || sub.isEmpty()) {
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return sub;
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException("No such subscription exist at here...");
-			
+
 		}
-		
+
 	}
 
 	@Override
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true),
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true) })
 	public boolean removeSubscription(String id, String userId) {
 
 		if (id == null || userId == null) {

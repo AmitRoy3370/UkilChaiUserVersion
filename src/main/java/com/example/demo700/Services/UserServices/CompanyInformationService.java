@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo700.DTOFiles.CompanyResponse;
 import com.example.demo700.Model.UserModels.CompanyInformation;
 
 public interface CompanyInformationService {
@@ -13,18 +14,18 @@ public interface CompanyInformationService {
 	public CompanyInformation addDirector(String id, String directorId, String userId);
 	public CompanyInformation addShareHolder(String id, String holderId, String userId);
 	
-	public List<CompanyInformation> findAll();
-	public CompanyInformation findById(String id);
-	public List<CompanyInformation> findByCompanyNameContainingIgnoreCase(String companyName);
-	public List<CompanyInformation> findByTypeContainingIgnoreCase(String type);
-	public List<CompanyInformation> findByNatureOfBuisnessContainingIgnoreCase(String natureOfBuisness);
-	public List<CompanyInformation> findByCategoryContainingIgnoreCase(String category);
-	public List<CompanyInformation> findByOfficeRegistryId(String officeRegistryId);
-	public List<CompanyInformation> findByShareHoldersContainingIgnoreCase(String shareHoldersId);
-	public List<CompanyInformation> findByDocumentsContainingIgnoreCase(String documentsId);
-	public List<CompanyInformation> findByDirectorsIdContainingIgnoreCase(String directorsId);
-	public List<CompanyInformation> findByAuthorizedContainingIgnoreCase(String authorized);
-	public List<CompanyInformation> findByCapital(String capital);
+	public List<CompanyResponse> findAll();
+	public CompanyResponse findById(String id);
+	public List<CompanyResponse> findByCompanyNameContainingIgnoreCase(String companyName);
+	public List<CompanyResponse> findByTypeContainingIgnoreCase(String type);
+	public List<CompanyResponse> findByNatureOfBuisnessContainingIgnoreCase(String natureOfBuisness);
+	public List<CompanyResponse> findByCategoryContainingIgnoreCase(String category);
+	public List<CompanyResponse> findByOfficeRegistryId(String officeRegistryId);
+	public List<CompanyResponse> findByShareHoldersContainingIgnoreCase(String shareHoldersId);
+	public List<CompanyResponse> findByDocumentsContainingIgnoreCase(String documentsId);
+	public List<CompanyResponse> findByDirectorsIdContainingIgnoreCase(String directorsId);
+	public List<CompanyResponse> findByAuthorizedContainingIgnoreCase(String authorized);
+	public List<CompanyResponse> findByCapital(String capital);
 	
 	public boolean deleteCompanyInformation(String id, String userId);
 	
