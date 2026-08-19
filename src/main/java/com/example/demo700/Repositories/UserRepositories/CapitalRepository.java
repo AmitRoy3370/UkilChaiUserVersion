@@ -6,27 +6,36 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.example.demo700.Model.UserModels.Subscription;
+import com.example.demo700.Model.UserModels.Capital;
 
 @Repository
-public interface SubscriptionRepository extends MongoRepository<Subscription, String> {
+public interface CapitalRepository extends MongoRepository<Capital, String> {
 
 	@Query("{ 'companyId' : ?0 }")
-	public List<Subscription> findByCompanyId(String companyId);
+	public List<Capital> findByCompanyId(String companyId);
 
-	@Query("{ 'companyId' : { $in: ?0 } }")
-	public List<Subscription> findByCompanyIdIn(List<String> companiesId);
+	@Query("{ 'authorizedCapital' : { $lte: ?0 } }")
+	public List<Capital> findByAuthorizedCapitalLte(double authorizedCapital);
 
-	@Query("{ 'subscriberName' : { $regex: ?0, $options: 'i' } }")
-	public List<Subscription> findBySubscriberNameContainingIgnoreCase(String subscriberName);
+	@Query("{ 'authorizedCapital' : { $gte: ?0 } }")
+	public List<Capital> findByAuthorizedCapitalGte(double authorizedCapital);
 
-	@Query("{ 'companyId' : ?0, 'numberOfShare' : { $lte: ?1 } }")
-	public List<Subscription> findByCompanyIdAndNumberOfShareLte(String companyId, double numberOfShare);
+	@Query("{ 'totalShare' : { $lte: ?0 } }")
+	public List<Capital> findByTotalShareLte(int totalShare);
 
-	@Query("{ 'companyId' : ?0, 'numberOfShare' : { $gte: ?1 } }")
-	public List<Subscription> findByCompanyIdAndNumberOfShareGte(String companyId, double numberOfShare);
+	@Query("{ 'totalShare' : { $gte: ?0 } }")
+	public List<Capital> findByTotalShareGte(int totalShare);
 
-	@Query("{ 'signatureId' : ?0 }")
-	public List<Subscription> findBySignatureId(String signatureId);
+	@Query("{ 'numberOfShare' : { $lte: ?0 } }")
+	public List<Capital> findByNumberOfShareLte(int numberOfShare);
+
+	@Query("{ 'numberOfShare' : { $gte: ?0 } }")
+	public List<Capital> findByNumberOfShareGte(int numberOfShare);
+
+	@Query("{ 'shareValue' : { $lte: ?0 } }")
+	public List<Capital> findByShareValueLte(double shareValue);
+
+	@Query("{ 'shareValue' : { $gte: ?0 } }")
+	public List<Capital> findByShareValueGte(double shareValue);
 
 }
