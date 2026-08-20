@@ -44,7 +44,7 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 			@CacheEvict(value = "ShareHolder", allEntries = true),
 			@CacheEvict(value = "RegistrationProcess", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyInformation", allEntries = true) })
+			@CacheEvict(value = "CompanyInformation", allEntries = true), @CacheEvict(value = "CompanyPayment", allEntries = true), @CacheEvict(value = "Director", allEntries = true) })
 	public CompanyContact addCompanyContact(CompanyContact companyContact, String userId) {
 
 		if (companyContact == null || userId == null || companyContact.getCompanyId() == null
@@ -106,7 +106,7 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 			@CacheEvict(value = "ShareHolder", allEntries = true),
 			@CacheEvict(value = "RegistrationProcess", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyInformation", allEntries = true) })
+			@CacheEvict(value = "CompanyInformation", allEntries = true), @CacheEvict(value = "CompanyPayment", allEntries = true), @CacheEvict(value = "Director", allEntries = true) })
 	public CompanyContact updateCompanyContact(CompanyContact companyContact, String userId, String id) {
 
 		if (companyContact == null || userId == null || id == null || companyContact.getCompanyId() == null
@@ -414,7 +414,7 @@ public class CompanyContactServiceImpl implements CompanyContactService {
 			@CacheEvict(value = "ShareHolder", allEntries = true),
 			@CacheEvict(value = "RegistrationProcess", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyInformation", allEntries = true) })
+			@CacheEvict(value = "CompanyInformation", allEntries = true), @CacheEvict(value = "CompanyPayment", allEntries = true), @CacheEvict(value = "Director", allEntries = true) })
 	public boolean deleteCompanyContact(String id, String userId) {
 
 		if (id == null || userId == null) {

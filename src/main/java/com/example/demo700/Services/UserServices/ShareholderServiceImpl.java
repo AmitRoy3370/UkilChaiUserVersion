@@ -55,7 +55,13 @@ public class ShareholderServiceImpl implements ShareholderService {
 	private static final String cacheValue = "ShareHolder";
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true),
+			@CacheEvict(value = "Director", allEntries = true), @CacheEvict(value = "Capital", allEntries = true),
+			@CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public Shareholder addShareholder(Shareholder holder, String userId, MultipartFile nid, MultipartFile tin) {
 
 		if (holder == null || userId == null || !holder.getUserId().equals(userId)) {
@@ -175,7 +181,13 @@ public class ShareholderServiceImpl implements ShareholderService {
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true),
+			@CacheEvict(value = "Director", allEntries = true), @CacheEvict(value = "Capital", allEntries = true),
+			@CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public Shareholder updateShareholder(Shareholder holder, String userId, String id, MultipartFile nid,
 			MultipartFile tin) {
 
@@ -313,14 +325,14 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 				holder.setNid(nidId);
 
-			} else if(holder.getNid() != null) {
-				
-				if(!imageService.attachmentExists(holder.getNid())) {
-					
+			} else if (holder.getNid() != null) {
+
+				if (!imageService.attachmentExists(holder.getNid())) {
+
 					throw new Exception();
-					
+
 				}
-				
+
 			}
 
 		} catch (Exception e) {
@@ -351,14 +363,14 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 				holder.setTin(nidId);
 
-			} else if(holder.getTin() != null) {
-				
-				if(!imageService.attachmentExists(holder.getTin())) {
-					
+			} else if (holder.getTin() != null) {
+
+				if (!imageService.attachmentExists(holder.getTin())) {
+
 					throw new Exception();
-					
+
 				}
-				
+
 			}
 
 		} catch (Exception e) {
@@ -386,7 +398,12 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "CompanyInformation", allEntries = true) })
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true),
+			@CacheEvict(value = "Director", allEntries = true), @CacheEvict(value = "Capital", allEntries = true),
+			@CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public Shareholder shareProfit(String companyId, double percentage, String holderId, String userId) {
 
 		if (companyId == null || percentage <= 0.0 || holderId == null || userId == null) {
@@ -516,6 +533,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public Shareholder findById(String id) {
 
 		if (id == null) {
@@ -544,6 +562,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<Shareholder> findAll() {
 
 		try {
@@ -567,6 +586,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public Shareholder findByUserId(String userId) {
 
 		if (userId == null) {
@@ -595,6 +615,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByNid_' + #nid")
 	public List<Shareholder> findByNid(String nid) {
 
 		if (nid == null) {
@@ -623,6 +644,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByTin_' + #tin")
 	public List<Shareholder> findByTin(String tin) {
 
 		if (tin == null) {
@@ -799,7 +821,12 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "CompanyInformation", allEntries = true) })
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true),
+			@CacheEvict(value = "Director", allEntries = true), @CacheEvict(value = "Capital", allEntries = true),
+			@CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public boolean removeShareholder(String id, String userId) {
 
 		if (id == null || userId == null) {

@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -35,11 +36,12 @@ public class CapitalServiceImpl implements CapitalService {
 
 	@Autowired
 	private Cleaner cleaner;
-	
+
 	private static final String cacheValue = "Capital";
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true) })
 	public Capital addCapital(Capital capital, String userId) {
 
 		if (capital == null || userId == null || capital.getAuthorizedCapital() <= 0 || capital.getNumberOfShare() <= 0
@@ -96,7 +98,8 @@ public class CapitalServiceImpl implements CapitalService {
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true) })
 	public Capital updateCapital(Capital capital, String id, String userId) {
 
 		if (capital == null || userId == null || capital.getAuthorizedCapital() <= 0 || capital.getNumberOfShare() <= 0
@@ -475,7 +478,8 @@ public class CapitalServiceImpl implements CapitalService {
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true) })
 	public boolean deleteCapital(String id, String userId) {
 
 		if (id == null || userId == null) {

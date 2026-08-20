@@ -39,6 +39,7 @@ import com.example.demo700.Model.UserModels.Capital;
 import com.example.demo700.Model.UserModels.ClientFeedback;
 import com.example.demo700.Model.UserModels.CompanyContact;
 import com.example.demo700.Model.UserModels.CompanyInformation;
+import com.example.demo700.Model.UserModels.CompanyRequestPayment;
 import com.example.demo700.Model.UserModels.Director;
 import com.example.demo700.Model.UserModels.PostReaction;
 import com.example.demo700.Model.UserModels.RegistrationProcess;
@@ -80,6 +81,7 @@ import com.example.demo700.Repositories.UserRepositories.CapitalRepository;
 import com.example.demo700.Repositories.UserRepositories.ClientFeedbackRepository;
 import com.example.demo700.Repositories.UserRepositories.CompanyContactRepository;
 import com.example.demo700.Repositories.UserRepositories.CompanyInformationRepository;
+import com.example.demo700.Repositories.UserRepositories.CompanyPaymentRepository;
 import com.example.demo700.Repositories.UserRepositories.DirectorRepository;
 import com.example.demo700.Repositories.UserRepositories.PostReactionRepository;
 import com.example.demo700.Repositories.UserRepositories.RegistrationProcessRepository;
@@ -217,6 +219,9 @@ public class Cleaner {
 	@Autowired
 	private RegistrationProcessRepository processRepository;
 
+	@Autowired
+	private CompanyPaymentRepository paymentRepository;
+
 	public void removeUser(String userId) {
 
 		try {
@@ -234,6 +239,20 @@ public class Cleaner {
 			userRepository.deleteById(user.getId());
 
 			if (count != userRepository.count()) {
+
+				try {
+
+					List<CompanyRequestPayment> list = paymentRepository.findBySenderUserId(userId);
+
+					for (CompanyRequestPayment i : list) {
+
+						removeCompanyPayment(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
 
 				try {
 
@@ -1906,6 +1925,20 @@ public class Cleaner {
 
 				try {
 
+					List<CompanyRequestPayment> list = paymentRepository.findByCompanyId(id);
+
+					for (CompanyRequestPayment i : list) {
+
+						removeCompanyPayment(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
 					List<RegistrationProcess> process = processRepository.findByCompanyId(id);
 
 					for (RegistrationProcess i : process) {
@@ -2171,6 +2204,32 @@ public class Cleaner {
 			if (count != processRepository.count()) {
 
 				removeCompanyInformation(process.getCompanyId());
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeCompanyPayment(String id) {
+
+		try {
+
+			CompanyRequestPayment payment = paymentRepository.findById(id).get();
+
+			if (payment == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = paymentRepository.count();
+
+			paymentRepository.deleteById(id);
+
+			if (count != paymentRepository.count()) {
 
 			}
 

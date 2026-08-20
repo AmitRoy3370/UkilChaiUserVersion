@@ -62,10 +62,10 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true), @CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "CompanyInformation", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyContact", allEntries = true) })
+			@CacheEvict(value = "CompanyContact", allEntries = true), @CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public RegistrationProcess addRegistrationProcess(RegistrationProcess process, String userId) {
 
 		if (process == null || userId == null || process.getShareValuePerShare() <= 0
@@ -196,10 +196,10 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true), @CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "CompanyInformation", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyContact", allEntries = true) })
+			@CacheEvict(value = "CompanyContact", allEntries = true), @CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public RegistrationProcess updateRegistrationprocess(RegistrationProcess process, String userId, String id) {
 
 		if (process == null || userId == null || process.getShareValuePerShare() <= 0
@@ -354,7 +354,11 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true), @CacheEvict(value = "Director", allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true),
+			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true), @CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public RegistrationProcess addSteps(String id, String step, String userId) {
 
 		if (id == null || step == null | userId == null) {
@@ -677,10 +681,10 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true), @CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "CompanyInformation", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyContact", allEntries = true) })
+			@CacheEvict(value = "CompanyContact", allEntries = true), @CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public boolean deleteRegistrationProcess(String id, String userId) {
 
 		if (id == null || userId == null) {

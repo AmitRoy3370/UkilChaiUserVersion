@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,9 +49,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
 			@CacheEvict(value = "CompanyInformation", allEntries = true),
+			@CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "RegistrationProcess", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyContact", allEntries = true) })
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public Subscription addSubscription(Subscription subscription, String userId, MultipartFile signature) {
 
 		if (subscription == null || userId == null || subscription.getNumberOfShare() <= 0) {
@@ -144,9 +147,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
 			@CacheEvict(value = "CompanyInformation", allEntries = true),
+			@CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "RegistrationProcess", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyContact", allEntries = true) })
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public Subscription updateSubscription(Subscription subscription, String userId, String id,
 			MultipartFile signature) {
 
@@ -267,6 +272,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + $id")
 	public Subscription findById(String id) {
 
 		if (id == null) {
@@ -296,6 +302,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<Subscription> findAll() {
 
 		try {
@@ -319,35 +326,37 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCompanyId_' + #companyId")
 	public List<Subscription> findByCompanyId(String companyId) {
-		
-		if(companyId == null) {
-			
+
+		if (companyId == null) {
+
 			throw new NullPointerException("False request....");
-			
+
 		}
-		
+
 		try {
-			
+
 			List<Subscription> list = subscriptionRepository.findByCompanyId(companyId);
-			
-			if(list.isEmpty()) {
-				
+
+			if (list.isEmpty()) {
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return list;
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException("No such subscription find at here...");
-			
+
 		}
-		
+
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByNamePrefix_' + $subscriberName")
 	public List<Subscription> findBySubscriberNameContainingIgnoreCase(String subscriberName) {
 
 		if (subscriberName == null) {
@@ -377,6 +386,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCompanyIdAndNumberOfShareLte_' + $companyId + '_' + #numberOfShare")
 	public List<Subscription> findByCompanyIdAndNumberOfShareLte(String companyId, double numberOfShare) {
 
 		if (companyId == null || numberOfShare <= 0) {
@@ -407,6 +417,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCompanyIdAndNumberOfShareGte_' + $companyId + '_' + #numberOfShare")
 	public List<Subscription> findByCompanyIdAndNumberOfShareGte(String companyId, double numberOfShare) {
 
 		if (companyId == null || numberOfShare <= 0) {
@@ -437,6 +448,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findBySignatureId_' + $signatureId")
 	public List<Subscription> findBySignatureId(String signatureId) {
 
 		if (signatureId == null) {
@@ -468,9 +480,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
 			@CacheEvict(value = "CompanyInformation", allEntries = true),
+			@CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "RegistrationProcess", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyContact", allEntries = true) })
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public boolean removeSubscription(String id, String userId) {
 
 		if (id == null || userId == null) {

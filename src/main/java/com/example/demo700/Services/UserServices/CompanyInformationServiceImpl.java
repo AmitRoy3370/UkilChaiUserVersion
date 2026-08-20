@@ -85,10 +85,11 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true), @CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "RegistrationProcess", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyContact", allEntries = true) })
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public CompanyInformation addCompanyInformation(CompanyInformation companyInformation, String userId,
 			MultipartFile files[]) {
 
@@ -259,10 +260,11 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true), @CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "RegistrationProcess", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyContact", allEntries = true) })
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public CompanyInformation updateCompanyInformation(CompanyInformation companyInformation, String id, String userId,
 			MultipartFile files[]) {
 
@@ -582,10 +584,11 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true), @CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "RegistrationProcess", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyContact", allEntries = true) })
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public CompanyInformation addDirector(String id, String directorId, String userId) {
 
 		if (id == null || directorId == null || userId == null) {
@@ -741,10 +744,11 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true), @CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "RegistrationProcess", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyContact", allEntries = true) })
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public CompanyInformation addShareHolder(String id, String holderId, String userId) {
 
 		if (id == null || holderId == null || userId == null) {
@@ -1261,10 +1265,11 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "ShareHolder", allEntries = true), @CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "RegistrationProcess", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyContact", allEntries = true) })
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public boolean deleteCompanyInformation(String id, String userId) {
 
 		if (id == null || userId == null) {
