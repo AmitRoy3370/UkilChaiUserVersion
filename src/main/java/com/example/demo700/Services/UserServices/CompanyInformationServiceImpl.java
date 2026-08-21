@@ -364,6 +364,8 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 		try {
 
+		  if(companyInformation.getOfficeRegistryId() != null) {
+
 			RegistrationProcess process = registrationProcessRepository.findByCompanyId(id).get(0);
 
 			if (process == null) {
@@ -371,6 +373,14 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 				throw new Exception();
 
 			}
+
+			if(!process.getId().equals(companyInformation.getOfficeRegistryId())) {
+
+                throw new Exception();
+
+			}
+
+		  }
 
 		} catch (Exception e) {
 
