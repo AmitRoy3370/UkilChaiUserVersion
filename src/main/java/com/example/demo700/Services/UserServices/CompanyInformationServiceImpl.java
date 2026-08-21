@@ -1624,9 +1624,9 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 						try {
 
-							shareHoldersName.add(userMap.get(directorMap.get(i).getUserId()).getFullName() == null
-									? userMap.get(directorMap.get(i).getUserId()).getName()
-									: userMap.get(directorMap.get(i).getUserId()).getFullName());
+							shareHoldersName.add(userMap.get(holderMap.get(i).getUserId()).getFullName() == null
+									? userMap.get(holderMap.get(i).getUserId()).getName()
+									: userMap.get(holderMap.get(i).getUserId()).getFullName());
 
 						} catch (Exception e) {
 
