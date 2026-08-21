@@ -42,7 +42,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 	@Autowired
 	private Cleaner cleaner;
-	
+
 	private static final String cacheValue = "Director";
 
 	@Override
@@ -111,7 +111,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 				} else {
 
-					director.setId(nidId);
+					director.setNid(nidId);
 
 				}
 
@@ -237,7 +237,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 				} else {
 
-					director.setId(nidId);
+					director.setNid(nidId);
 
 				}
 
