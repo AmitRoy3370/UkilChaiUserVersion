@@ -916,28 +916,42 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'findAll'")
-	public List<CompanyResponse> findAll() {
+@Cacheable(value = cacheValue, key = "'findAll'")
+public List<CompanyResponse> findAll() {
+    try {
+        System.out.println("========== DEBUG START ==========");
+        System.out.println("1. Calling companyInformationRepository.findAll()");
 
-		try {
+        List<CompanyInformation> list = companyInformationRepository.findAll();
 
-			List<CompanyInformation> list = companyInformationRepository.findAll();
+        System.out.println("2. Found " + list.size() + " companies in database");
 
-			if (list.isEmpty()) {
+        if (list.isEmpty()) {
+            System.out.println("3. List is EMPTY - throwing exception");
+            throw new Exception();
+        }
 
-				throw new Exception();
+        System.out.println("3. List has data, proceeding to getCompanyResponse()");
+        System.out.println("4. First company ID: " + list.get(0).getId());
+        System.out.println("4. First company Name: " + list.get(0).getCompanyName());
 
-			}
+        List<CompanyResponse> response = getCompanyResponse(list);
 
-			return getCompanyResponse(list);
+        System.out.println("5. getCompanyResponse() completed successfully!");
+        System.out.println("5. Response size: " + response.size());
+        System.out.println("========== DEBUG END ==========");
 
-		} catch (Exception e) {
+        return response;
 
-			throw new NoSuchElementException("No such company information exist at here...");
-
-		}
-
-	}
+    } catch (Exception e) {
+        System.err.println("========== ERROR OCCURRED ==========");
+        System.err.println("Exception type: " + e.getClass().getName());
+        System.err.println("Exception message: " + e.getMessage());
+        e.printStackTrace();
+        System.err.println("====================================");
+        throw new NoSuchElementException("No such company information exist at here...");
+    }
+}
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findById_' + #id")
