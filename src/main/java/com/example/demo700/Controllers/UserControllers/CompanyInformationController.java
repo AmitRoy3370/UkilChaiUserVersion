@@ -80,7 +80,7 @@ public class CompanyInformationController {
 
 		try {
 
-			return ResponseEntity.status(200).body(addDirector(id, directorId, userId));
+			return ResponseEntity.status(200).body(companyInformationService.addDirector(id, directorId, userId));
 
 		} catch (Exception e) {
 
@@ -96,7 +96,7 @@ public class CompanyInformationController {
 
 		try {
 
-			return ResponseEntity.status(200).body(addShareholder(id, holderId, userId));
+			return ResponseEntity.status(200).body(companyInformationService.addShareholder(id, holderId, userId));
 
 		} catch (Exception e) {
 
