@@ -96,7 +96,7 @@ public class CompanyInformationController {
 
 		try {
 
-			return ResponseEntity.status(200).body(companyInformationService.addShareholder(id, holderId, userId));
+			return ResponseEntity.status(200).body(companyInformationService.addShareHolder(id, holderId, userId));
 
 		} catch (Exception e) {
 
