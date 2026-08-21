@@ -164,6 +164,28 @@ public class CompanyInformationController {
 		}
 	}
 
+	// ==========================================
+	// 7. DELETE COMPANY
+	// ==========================================
+	@DeleteMapping("/delete/{id}")
+	public ResponseEntity<?> deleteCompany(@PathVariable String id, @RequestParam("userId") String userId) {
+		try {
+			boolean deleted = companyInformationService.deleteCompanyInformation(id, userId);
+			if (deleted) {
+				return new ResponseEntity<>("Company deleted successfully", HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>("Company could not be deleted", HttpStatus.BAD_REQUEST);
+			}
+		} catch (NullPointerException | NoSuchElementException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (ArithmeticException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+		} catch (Exception e) {
+			return new ResponseEntity<>("Error deleting company: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
 	@GetMapping("/search/by-type")
 	public ResponseEntity<?> getByType(@RequestParam("type") String type) {
 		try {
