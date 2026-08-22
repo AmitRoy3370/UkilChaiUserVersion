@@ -638,7 +638,7 @@ public class CompanyPaymentServiceImpl implements CompanyPaymentService {
 						? userNameMap.get(payment.getSenderUserId()).getName()
 						: userNameMap.get(payment.getSenderUserId()).getFullName());
 				response.setCompanyName(companyMap.get(payment.getCompanyId()).getCompanyName());
-
+                response.setUserId(payment.getUserId());
 				responses.add(response);
 
 			} catch (Exception e) {
