@@ -538,7 +538,7 @@ public class CompanyPaymentServiceImpl implements CompanyPaymentService {
 
 		try {
 
-			CompanyInformation company = companyRepository.findById(companyPayment.getCmpanyId()).get();
+			CompanyInformation company = companyRepository.findById(companyPayment.getCompanyId()).get();
 
 			if (company == null) {
 
