@@ -272,7 +272,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'findById_' + $id")
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public Subscription findById(String id) {
 
 		if (id == null) {
@@ -356,7 +356,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'findByNamePrefix_' + $subscriberName")
+	@Cacheable(value = cacheValue, key = "'findByNamePrefix_' + #subscriberName")
 	public List<Subscription> findBySubscriberNameContainingIgnoreCase(String subscriberName) {
 
 		if (subscriberName == null) {
@@ -386,7 +386,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'findByCompanyIdAndNumberOfShareLte_' + $companyId + '_' + #numberOfShare")
+	@Cacheable(value = cacheValue, key = "'findByCompanyIdAndNumberOfShareLte_' + #companyId + '_' + #numberOfShare")
 	public List<Subscription> findByCompanyIdAndNumberOfShareLte(String companyId, int numberOfShare) {
 
 		if (companyId == null || numberOfShare <= 0) {
@@ -417,7 +417,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'findByCompanyIdAndNumberOfShareGte_' + $companyId + '_' + #numberOfShare")
+	@Cacheable(value = cacheValue, key = "'findByCompanyIdAndNumberOfShareGte_' + #companyId + '_' + #numberOfShare")
 	public List<Subscription> findByCompanyIdAndNumberOfShareGte(String companyId, int numberOfShare) {
 
 		if (companyId == null || numberOfShare <= 0) {
@@ -448,7 +448,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}
 
 	@Override
-	@Cacheable(value = cacheValue, key = "'findBySignatureId_' + $signatureId")
+	@Cacheable(value = cacheValue, key = "'findBySignatureId_' + #signatureId")
 	public List<Subscription> findBySignatureId(String signatureId) {
 
 		if (signatureId == null) {
