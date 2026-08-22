@@ -21,10 +21,10 @@ public interface SubscriptionRepository extends MongoRepository<Subscription, St
     public List<Subscription> findBySubscriberNameContainingIgnoreCase(String subscriberName);
 
     @Query("{ 'companyId' : ?0, 'numberOfShare' : { $lte: ?1 } }")
-    public List<Subscription> findByCompanyIdAndNumberOfShareLte(String companyId, double numberOfShare);
+    public List<Subscription> findByCompanyIdAndNumberOfShareLte(String companyId, int numberOfShare);
 
     @Query("{ 'companyId' : ?0, 'numberOfShare' : { $gte: ?1 } }")
-    public List<Subscription> findByCompanyIdAndNumberOfShareGte(String companyId, double numberOfShare);
+    public List<Subscription> findByCompanyIdAndNumberOfShareGte(String companyId, int numberOfShare);
 
     @Query("{ 'signatureId' : ?0 }")
     public List<Subscription> findBySignatureId(String signatureId);
