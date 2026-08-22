@@ -35,7 +35,7 @@ public class CompanyPaymentController {
             CompanyRequestPayment savedPayment = companyPaymentService.addCompanyPayment(companyPayment);
             return new ResponseEntity<>(savedPayment, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -49,7 +49,7 @@ public class CompanyPaymentController {
             CompanyRequestPayment updatedPayment = companyPaymentService.updateCompanyPayment(id, companyPayment, userId);
             return new ResponseEntity<>(updatedPayment, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -60,7 +60,7 @@ public class CompanyPaymentController {
             CompanyPaymentResponse payment = companyPaymentService.findById(id);
             return new ResponseEntity<>(payment, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -74,7 +74,7 @@ public class CompanyPaymentController {
             }
             return new ResponseEntity<>(payments, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -88,7 +88,7 @@ public class CompanyPaymentController {
             }
             return new ResponseEntity<>(payments, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -102,7 +102,7 @@ public class CompanyPaymentController {
             }
             return new ResponseEntity<>(payments, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -116,7 +116,7 @@ public class CompanyPaymentController {
             }
             return new ResponseEntity<>(payments, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -130,7 +130,7 @@ public class CompanyPaymentController {
             }
             return new ResponseEntity<>(payments, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -144,7 +144,7 @@ public class CompanyPaymentController {
             }
             return new ResponseEntity<>(payments, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -158,7 +158,7 @@ public class CompanyPaymentController {
             }
             return new ResponseEntity<>(payments, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -172,7 +172,7 @@ public class CompanyPaymentController {
             }
             return new ResponseEntity<>(payments, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -186,7 +186,7 @@ public class CompanyPaymentController {
             }
             return new ResponseEntity<>(payments, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -200,7 +200,7 @@ public class CompanyPaymentController {
             }
             return new ResponseEntity<>(payments, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -231,7 +231,7 @@ public class CompanyPaymentController {
             // This is a combination of two queries
             return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
