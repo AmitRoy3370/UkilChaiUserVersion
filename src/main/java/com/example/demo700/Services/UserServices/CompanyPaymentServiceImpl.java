@@ -94,7 +94,7 @@ public class CompanyPaymentServiceImpl implements CompanyPaymentService {
 
 		try {
 
-			CompanyInformation company = companyRepository.findById(companyPayment.getCmpanyId()).get();
+			CompanyInformation company = companyRepository.findById(companyPayment.getCompanyId()).get();
 
 			if (company == null) {
 
@@ -206,7 +206,7 @@ public class CompanyPaymentServiceImpl implements CompanyPaymentService {
 
 		try {
 
-			CompanyInformation company = companyRepository.findById(companyPayment.getCmpanyId()).get();
+			CompanyInformation company = companyRepository.findById(companyPayment.getCompanyId()).get();
 
 			if (company == null) {
 
@@ -247,7 +247,7 @@ public class CompanyPaymentServiceImpl implements CompanyPaymentService {
 		Update update = new Update();
 
 		update.set("id", id);
-		update.set("companyId", companyPayment.getCmpanyId());
+		update.set("companyId", companyPayment.getCompanyId());
 		update.set("senderUserId", companyPayment.getSenderUserId());
 		update.set("senderPhoneNumber", companyPayment.getSenderPhoneNumber());
 		update.set("receiverPhoneNumber", companyPayment.getReceiverPhoneNumber());
@@ -586,7 +586,7 @@ public class CompanyPaymentServiceImpl implements CompanyPaymentService {
 						.filter(userId -> !userId.isEmpty()).collect(Collectors.toList()), executor);
 
 		CompletableFuture<List<String>> companyIdsFuture = CompletableFuture
-				.supplyAsync(() -> list.stream().map(CompanyRequestPayment::getCmpanyId).distinct()
+				.supplyAsync(() -> list.stream().map(CompanyRequestPayment::getCompanyId).distinct()
 						.filter(companyId -> !companyId.isEmpty()).collect(Collectors.toList()), executor);
 
 		CompletableFuture<Map<String, User>> userNameMapFuture = sendersUserIdFuture.thenApplyAsync(userIds -> {
@@ -631,7 +631,7 @@ public class CompanyPaymentServiceImpl implements CompanyPaymentService {
 				response.setId(payment.getId());
 				response.setAmount(payment.getAmount());
 				response.setSenderPhoneNumber(payment.getSenderPhoneNumber());
-				response.setCmpanyId(payment.getCmpanyId());
+				response.setCmpanyId(payment.getCompanyId());
 				response.setSendingTime(payment.getSendingTime());
 				response.setTransactionId(payment.getTransactionId());
 				response.setSenderUserName(userNameMap.get(payment.getSenderUserId()).getFullName() == null

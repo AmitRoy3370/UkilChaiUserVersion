@@ -13,7 +13,7 @@ import com.mongodb.lang.NonNull;
 public class CompanyRequestPayment implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 712L;
 
@@ -66,7 +66,7 @@ public class CompanyRequestPayment implements Serializable {
 		this.id = id;
 	}
 
-	public String getCmpanyId() {
+	public String getCompanyId() {
 		return companyId;
 	}
 
