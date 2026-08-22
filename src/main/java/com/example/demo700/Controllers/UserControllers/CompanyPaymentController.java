@@ -30,7 +30,7 @@ public class CompanyPaymentController {
 
     // Create a new company payment
     @PostMapping("/add")
-    public ResponseEntity<CompanyRequestPayment> addCompanyPayment(@RequestBody CompanyRequestPayment companyPayment) {
+    public ResponseEntity<?> addCompanyPayment(@RequestBody CompanyRequestPayment companyPayment) {
         try {
             CompanyRequestPayment savedPayment = companyPaymentService.addCompanyPayment(companyPayment);
             return new ResponseEntity<>(savedPayment, HttpStatus.CREATED);
@@ -41,7 +41,7 @@ public class CompanyPaymentController {
 
     // Update an existing company payment
     @PutMapping("/update/{id}")
-    public ResponseEntity<CompanyRequestPayment> updateCompanyPayment(
+    public ResponseEntity<?> updateCompanyPayment(
             @PathVariable String id,
             @RequestBody CompanyRequestPayment companyPayment,
             @RequestHeader("userId") String userId) {
@@ -55,7 +55,7 @@ public class CompanyPaymentController {
 
     // Get payment by ID
     @GetMapping("/{id}")
-    public ResponseEntity<CompanyPaymentResponse> getPaymentById(@PathVariable String id) {
+    public ResponseEntity<?> getPaymentById(@PathVariable String id) {
         try {
             CompanyPaymentResponse payment = companyPaymentService.findById(id);
             return new ResponseEntity<>(payment, HttpStatus.OK);
@@ -66,7 +66,7 @@ public class CompanyPaymentController {
 
     // Get all payments
     @GetMapping("/all")
-    public ResponseEntity<List<CompanyPaymentResponse>> getAllPayments() {
+    public ResponseEntity<?> getAllPayments() {
         try {
             List<CompanyPaymentResponse> payments = companyPaymentService.findAll();
             if (payments.isEmpty()) {
@@ -80,7 +80,7 @@ public class CompanyPaymentController {
 
     // Get payments by company ID
     @GetMapping("/company/{companyId}")
-    public ResponseEntity<List<CompanyPaymentResponse>> getPaymentsByCompanyId(@PathVariable String companyId) {
+    public ResponseEntity<?> getPaymentsByCompanyId(@PathVariable String companyId) {
         try {
             List<CompanyPaymentResponse> payments = companyPaymentService.findByCompanyId(companyId);
             if (payments.isEmpty()) {
@@ -94,7 +94,7 @@ public class CompanyPaymentController {
 
     // Get payments by sender user ID
     @GetMapping("/sender/user/{senderUserId}")
-    public ResponseEntity<List<CompanyPaymentResponse>> getPaymentsBySenderUserId(@PathVariable String senderUserId) {
+    public ResponseEntity<?> getPaymentsBySenderUserId(@PathVariable String senderUserId) {
         try {
             List<CompanyPaymentResponse> payments = companyPaymentService.findBySenderUserId(senderUserId);
             if (payments.isEmpty()) {
@@ -108,7 +108,7 @@ public class CompanyPaymentController {
 
     // Get payments by sender phone number
     @GetMapping("/sender/phone/{senderPhoneNumber}")
-    public ResponseEntity<List<CompanyPaymentResponse>> getPaymentsBySenderPhoneNumber(@PathVariable String senderPhoneNumber) {
+    public ResponseEntity<?> getPaymentsBySenderPhoneNumber(@PathVariable String senderPhoneNumber) {
         try {
             List<CompanyPaymentResponse> payments = companyPaymentService.findBySenderPhoneNumber(senderPhoneNumber);
             if (payments.isEmpty()) {
@@ -122,7 +122,7 @@ public class CompanyPaymentController {
 
     // Get payments by receiver phone number
     @GetMapping("/receiver/phone/{receiverPhoneNumber}")
-    public ResponseEntity<List<CompanyPaymentResponse>> getPaymentsByReceiverPhoneNumber(@PathVariable String receiverPhoneNumber) {
+    public ResponseEntity<?> getPaymentsByReceiverPhoneNumber(@PathVariable String receiverPhoneNumber) {
         try {
             List<CompanyPaymentResponse> payments = companyPaymentService.findByReceiverPhoneNumber(receiverPhoneNumber);
             if (payments.isEmpty()) {
@@ -136,7 +136,7 @@ public class CompanyPaymentController {
 
     // Get payments by transaction ID
     @GetMapping("/transaction/{transactionId}")
-    public ResponseEntity<List<CompanyPaymentResponse>> getPaymentsByTransactionId(@PathVariable String transactionId) {
+    public ResponseEntity<?> getPaymentsByTransactionId(@PathVariable String transactionId) {
         try {
             List<CompanyPaymentResponse> payments = companyPaymentService.findByTransactionId(transactionId);
             if (payments.isEmpty()) {
@@ -150,7 +150,7 @@ public class CompanyPaymentController {
 
     // Get payments by amount greater than or equal
     @GetMapping("/amount/gte")
-    public ResponseEntity<List<CompanyPaymentResponse>> getPaymentsByAmountGreaterThanEqual(@RequestParam double amount) {
+    public ResponseEntity<?> getPaymentsByAmountGreaterThanEqual(@RequestParam double amount) {
         try {
             List<CompanyPaymentResponse> payments = companyPaymentService.findByAmountGreaterThanEqual(amount);
             if (payments.isEmpty()) {
@@ -164,7 +164,7 @@ public class CompanyPaymentController {
 
     // Get payments by amount less than or equal
     @GetMapping("/amount/lte")
-    public ResponseEntity<List<CompanyPaymentResponse>> getPaymentsByAmountLessThanEqual(@RequestParam double amount) {
+    public ResponseEntity<?> getPaymentsByAmountLessThanEqual(@RequestParam double amount) {
         try {
             List<CompanyPaymentResponse> payments = companyPaymentService.findByAmountLessThanEqual(amount);
             if (payments.isEmpty()) {
@@ -178,7 +178,7 @@ public class CompanyPaymentController {
 
     // Get payments by sending time after
     @GetMapping("/time/after")
-    public ResponseEntity<List<CompanyPaymentResponse>> getPaymentsBySendingTimeAfter(@RequestParam Instant sendingTime) {
+    public ResponseEntity<?> getPaymentsBySendingTimeAfter(@RequestParam Instant sendingTime) {
         try {
             List<CompanyPaymentResponse> payments = companyPaymentService.findBySendingTimeAfter(sendingTime);
             if (payments.isEmpty()) {
@@ -192,7 +192,7 @@ public class CompanyPaymentController {
 
     // Get payments by sending time before
     @GetMapping("/time/before")
-    public ResponseEntity<List<CompanyPaymentResponse>> getPaymentsBySendingTimeBefore(@RequestParam Instant sendingTime) {
+    public ResponseEntity<?> getPaymentsBySendingTimeBefore(@RequestParam Instant sendingTime) {
         try {
             List<CompanyPaymentResponse> payments = companyPaymentService.findBySendingTimeBefore(sendingTime);
             if (payments.isEmpty()) {
@@ -223,7 +223,7 @@ public class CompanyPaymentController {
 
     // Get payments by amount range (between min and max)
     @GetMapping("/amount/range")
-    public ResponseEntity<List<CompanyPaymentResponse>> getPaymentsByAmountRange(
+    public ResponseEntity<?> getPaymentsByAmountRange(
             @RequestParam double minAmount,
             @RequestParam double maxAmount) {
         try {
