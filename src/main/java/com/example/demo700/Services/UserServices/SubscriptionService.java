@@ -20,12 +20,12 @@ public interface SubscriptionService {
 
 	public List<Subscription> findBySubscriberNameContainingIgnoreCase(String subscriberName);
 
-	public List<Subscription> findByCompanyIdAndNumberOfShareLte(String companyId, double numberOfShare);
+	public List<Subscription> findByCompanyIdAndNumberOfShareLte(String companyId, int numberOfShare);
 
-	public List<Subscription> findByCompanyIdAndNumberOfShareGte(String companyId, double numberOfShare);
+	public List<Subscription> findByCompanyIdAndNumberOfShareGte(String companyId, int numberOfShare);
 
 	public List<Subscription> findBySignatureId(String signatureId);
 
 	public boolean removeSubscription(String id, String userId);
-	
+
 }

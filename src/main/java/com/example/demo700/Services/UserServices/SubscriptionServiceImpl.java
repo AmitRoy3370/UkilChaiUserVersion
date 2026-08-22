@@ -387,7 +387,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCompanyIdAndNumberOfShareLte_' + $companyId + '_' + #numberOfShare")
-	public List<Subscription> findByCompanyIdAndNumberOfShareLte(String companyId, double numberOfShare) {
+	public List<Subscription> findByCompanyIdAndNumberOfShareLte(String companyId, int numberOfShare) {
 
 		if (companyId == null || numberOfShare <= 0) {
 
@@ -418,7 +418,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCompanyIdAndNumberOfShareGte_' + $companyId + '_' + #numberOfShare")
-	public List<Subscription> findByCompanyIdAndNumberOfShareGte(String companyId, double numberOfShare) {
+	public List<Subscription> findByCompanyIdAndNumberOfShareGte(String companyId, int numberOfShare) {
 
 		if (companyId == null || numberOfShare <= 0) {
 
