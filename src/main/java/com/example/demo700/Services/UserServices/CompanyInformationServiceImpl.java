@@ -464,7 +464,9 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 					} else {
 
-						List<Capital> inputedCapitals = capitalRepository.findAllById(set);
+					    List<String> ids = new ArrayList<>(set);
+
+						List<Capital> inputedCapitals = capitalRepository.findAllById(ids);
 
 						for (Capital i : inputedCapitals) {
 
@@ -500,6 +502,8 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 				}
 
+			} else {
+
 			}
 
 		} catch (Exception e) {
@@ -527,6 +531,18 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 					}
 
 				} else {
+
+				    List<Capital> _capitals = capitalRepository.findByCompanyId(id);
+
+                    List<String> removalId = new ArrayList<>();
+
+                    for(Capital i : _capitals) {
+
+                        removalId.add(i.getId());
+
+                    }
+
+                    capitalRepository.deleteAllById(removalId);
 
 				}
 
