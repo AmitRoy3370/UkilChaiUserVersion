@@ -139,8 +139,8 @@ public class SubscriptionController {
 	// ====================
 	@GetMapping("/company/{companyId}/shares")
 	public ResponseEntity<?> getSubscriptionsByShareRange(@PathVariable String companyId,
-			@RequestParam(value = "lte", required = false) Double lteShares,
-			@RequestParam(value = "gte", required = false) Double gteShares) {
+			@RequestParam(value = "lte", required = false) Integer lteShares,
+			@RequestParam(value = "gte", required = false) Integer gteShares) {
 
 		try {
 			if (lteShares != null) {
