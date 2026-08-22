@@ -464,7 +464,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 					} else {
 
-					    List<String> ids = new ArrayList<>(set);
+					    List<String> ids = companyInformation.getCapital();
 
 						List<Capital> inputedCapitals = capitalRepository.findAllById(ids);
 
