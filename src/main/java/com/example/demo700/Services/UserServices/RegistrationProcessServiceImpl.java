@@ -844,7 +844,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 				RegistrationProcessResponse response = new RegistrationProcessResponse();
 
 				response.setId(process.getId());
-				response.setCompanyId(process.getId());
+				response.setCompanyId(process.getCompanyId());
 				response.setAdvocateId(process.getAdvocateId());
 				response.setUserId(process.getUserId());
 				response.setStatus(process.isStatus());
