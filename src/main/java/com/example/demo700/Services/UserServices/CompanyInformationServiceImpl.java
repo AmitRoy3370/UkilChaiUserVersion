@@ -484,7 +484,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 						for (Capital i : capitals) {
 
-							if (!inputedCapitals.contains(i.getId())) {
+							if (!ids.contains(i.getId())) {
 
 								removedCapital.add(i.getId());
 
