@@ -536,9 +536,9 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
                     List<String> removalId = new ArrayList<>();
 
-                    for(Capital i : _capitals) {
+                    for(Capital i1 : _capitals) {
 
-                        removalId.add(i.getId());
+                        removalId.add(i1.getId());
 
                     }
 
