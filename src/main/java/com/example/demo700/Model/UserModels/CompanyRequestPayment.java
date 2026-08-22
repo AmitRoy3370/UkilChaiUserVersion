@@ -44,10 +44,10 @@ public class CompanyRequestPayment implements Serializable {
 	@NonNull
 	private Instant sendingTime = Instant.now();
 
-	public CompanyRequestPayment(String cmpanyId, String senderUserId, String senderPhoneNumber, String transactionId,
+	public CompanyRequestPayment(String companyId, String senderUserId, String senderPhoneNumber, String transactionId,
 			double amount) {
 		super();
-		this.companyId = cmpanyId;
+		this.companyId = companyId;
 		this.senderUserId = senderUserId;
 		this.senderPhoneNumber = senderPhoneNumber;
 		this.transactionId = transactionId;
