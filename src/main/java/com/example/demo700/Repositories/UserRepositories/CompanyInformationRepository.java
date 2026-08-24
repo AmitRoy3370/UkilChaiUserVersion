@@ -2,6 +2,7 @@ package com.example.demo700.Repositories.UserRepositories;
 
 import java.util.List;
 
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,10 +18,14 @@ public interface CompanyInformationRepository extends MongoRepository<CompanyInf
 	public List<CompanyInformation> findByCategoryContainingIgnoreCase(String category);
 	public List<CompanyInformation> findByOfficeRegistryId(String officeRegistryId);
 	public List<CompanyInformation> findByShareHoldersContainingIgnoreCase(String shareHoldersId);
+	@Query("{ 'shareHolders' : { $in: ?0 } }")
+	public List<CompanyInformation> findByShareHoldersIn(List<String> shareHoldersId);
 	public List<CompanyInformation> findByDocumentsContainingIgnoreCase(String documentsId);
 	public List<CompanyInformation> findByDirectorsIdContainingIgnoreCase(String directorsId);
+	@Query("{ 'directorsId' : { $in: ?0 } }")
+	public List<CompanyInformation> findByDirectorsIdIn(List<String> directorsId);
 	public List<CompanyInformation> findByAuthorizedContainingIgnoreCase(String authorized);
 	public List<CompanyInformation> findByCapitalContainingIgnoreCase(String capital);
-	List<CompanyInformation> findByCreatorId(String creatorId);
+	public List<CompanyInformation> findByCreatorId(String creatorId);
 	
 }

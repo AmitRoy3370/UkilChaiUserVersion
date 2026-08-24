@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo700.DTOFiles.DirectorResponse;
 import com.example.demo700.Model.UserModels.Director;
 import com.example.demo700.Services.UserServices.DirectorService;
 
@@ -67,7 +68,7 @@ public class DirectorController {
 	@GetMapping
 	public ResponseEntity<?> getAllDirectors() {
 		try {
-			List<Director> directors = directorService.findAll();
+			List<DirectorResponse> directors = directorService.findAll();
 			return new ResponseEntity<>(directors, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -80,7 +81,7 @@ public class DirectorController {
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getDirectorById(@PathVariable String id) {
 		try {
-			Director director = directorService.findById(id);
+			DirectorResponse director = directorService.findById(id);
 			return new ResponseEntity<>(director, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -93,7 +94,7 @@ public class DirectorController {
 	@GetMapping("/user/{userId}")
 	public ResponseEntity<?> getDirectorByUserId(@PathVariable String userId) {
 		try {
-			Director director = directorService.findByUserId(userId);
+			DirectorResponse director = directorService.findByUserId(userId);
 			return new ResponseEntity<>(director, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -106,7 +107,7 @@ public class DirectorController {
 	@GetMapping("/nid/{nid}")
 	public ResponseEntity<?> getDirectorsByNid(@PathVariable String nid) {
 		try {
-			List<Director> directors = directorService.findByNid(nid);
+			List<DirectorResponse> directors = directorService.findByNid(nid);
 			return new ResponseEntity<>(directors, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -119,7 +120,7 @@ public class DirectorController {
 	@GetMapping("/position/{position}")
 	public ResponseEntity<?> getDirectorsByPosition(@PathVariable String position) {
 		try {
-			List<Director> directors = directorService.findByPosition(position);
+			List<DirectorResponse> directors = directorService.findByPosition(position);
 			return new ResponseEntity<>(directors, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

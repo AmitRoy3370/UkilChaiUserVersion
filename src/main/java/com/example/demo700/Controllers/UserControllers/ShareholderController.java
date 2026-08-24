@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo700.DTOFiles.ShareholderResponse;
 import com.example.demo700.Model.UserModels.Shareholder;
 import com.example.demo700.Services.UserServices.ShareholderService;
 
@@ -90,7 +91,7 @@ public class ShareholderController {
 	@GetMapping
 	public ResponseEntity<?> getAllShareholders() {
 		try {
-			List<Shareholder> list = shareholderService.findAll();
+			List<ShareholderResponse> list = shareholderService.findAll();
 			return new ResponseEntity<>(list, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -103,7 +104,7 @@ public class ShareholderController {
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getShareholderById(@PathVariable String id) {
 		try {
-			Shareholder holder = shareholderService.findById(id);
+			ShareholderResponse holder = shareholderService.findById(id);
 			return new ResponseEntity<>(holder, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -116,7 +117,7 @@ public class ShareholderController {
 	@GetMapping("/user/{userId}")
 	public ResponseEntity<?> getShareholderByUserId(@PathVariable String userId) {
 		try {
-			Shareholder holder = shareholderService.findByUserId(userId);
+			ShareholderResponse holder = shareholderService.findByUserId(userId);
 			return new ResponseEntity<>(holder, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -129,7 +130,7 @@ public class ShareholderController {
 	@GetMapping("/nid/{nid}")
 	public ResponseEntity<?> getShareholdersByNid(@PathVariable String nid) {
 		try {
-			List<Shareholder> list = shareholderService.findByNid(nid);
+			List<ShareholderResponse> list = shareholderService.findByNid(nid);
 			return new ResponseEntity<>(list, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -142,7 +143,7 @@ public class ShareholderController {
 	@GetMapping("/tin/{tin}")
 	public ResponseEntity<?> getShareholdersByTin(@PathVariable String tin) {
 		try {
-			List<Shareholder> list = shareholderService.findByTin(tin);
+			List<ShareholderResponse> list = shareholderService.findByTin(tin);
 			return new ResponseEntity<>(list, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -155,7 +156,7 @@ public class ShareholderController {
 	@GetMapping("/search/company/{companyId}")
 	public ResponseEntity<?> getShareholdersByCompanyId(@PathVariable String companyId) {
 		try {
-			List<Shareholder> list = shareholderService.findByShareCompanyId(companyId);
+			List<ShareholderResponse> list = shareholderService.findByShareCompanyId(companyId);
 			return new ResponseEntity<>(list, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -169,7 +170,7 @@ public class ShareholderController {
 	public ResponseEntity<?> getShareholdersByCompanyAndPercentage(@PathVariable String companyId,
 			@PathVariable Double percentage) {
 		try {
-			List<Shareholder> list = shareholderService.findByShareCompanyIdAndPercentage(companyId, percentage);
+			List<ShareholderResponse> list = shareholderService.findByShareCompanyIdAndPercentage(companyId, percentage);
 			return new ResponseEntity<>(list, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -185,7 +186,7 @@ public class ShareholderController {
 	public ResponseEntity<?> getShareholdersByCompanyAndPercentageGte(@PathVariable String companyId,
 			@PathVariable Double percentage) {
 		try {
-			List<Shareholder> list = shareholderService.findByShareCompanyIdAndPercentageGte(companyId, percentage);
+			List<ShareholderResponse> list = shareholderService.findByShareCompanyIdAndPercentageGte(companyId, percentage);
 			return new ResponseEntity<>(list, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -201,7 +202,7 @@ public class ShareholderController {
 	public ResponseEntity<?> getShareholdersByCompanyAndPercentageLte(@PathVariable String companyId,
 			@PathVariable Double percentage) {
 		try {
-			List<Shareholder> list = shareholderService.findByShareCompanyIdAndPercentageLte(companyId, percentage);
+			List<ShareholderResponse> list = shareholderService.findByShareCompanyIdAndPercentageLte(companyId, percentage);
 			return new ResponseEntity<>(list, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -216,7 +217,7 @@ public class ShareholderController {
 	public ResponseEntity<?> getShareholdersByCompanyAndPercentageBetween(@PathVariable String companyId,
 			@RequestParam Double minPercentage, @RequestParam Double maxPercentage) {
 		try {
-			List<Shareholder> list = shareholderService.findByShareCompanyIdAndPercentageBetween(companyId,
+			List<ShareholderResponse> list = shareholderService.findByShareCompanyIdAndPercentageBetween(companyId,
 					minPercentage, maxPercentage);
 			return new ResponseEntity<>(list, HttpStatus.OK);
 		} catch (NoSuchElementException e) {

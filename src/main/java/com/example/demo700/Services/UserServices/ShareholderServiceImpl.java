@@ -1,11 +1,18 @@
 package com.example.demo700.Services.UserServices;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -19,13 +26,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.ShareholderResponse;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.UserModels.CompanyInformation;
 import com.example.demo700.Model.UserModels.Shareholder;
 import com.example.demo700.Model.UserModels.User;
+import com.example.demo700.Model.UserModels.UserContactInfo;
+import com.example.demo700.Model.UserModels.UserLocation;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.UserRepositories.CompanyInformationRepository;
 import com.example.demo700.Repositories.UserRepositories.ShareholderRepository;
+import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
+import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 
 @Service
@@ -33,6 +45,12 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private UserContactInfoRepository contactRepository;
+
+	@Autowired
+	private UserLocationRepository locationRepository;
 
 	@Autowired
 	private CenterAdminRepository centerAdminRepository;
@@ -534,7 +552,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findById_' + #id")
-	public Shareholder findById(String id) {
+	public ShareholderResponse findById(String id) {
 
 		if (id == null) {
 
@@ -552,7 +570,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 			}
 
-			return holder;
+			return getShareholderResponse(holder);
 
 		} catch (Exception e) {
 
@@ -563,7 +581,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findAll'")
-	public List<Shareholder> findAll() {
+	public List<ShareholderResponse> findAll() {
 
 		try {
 
@@ -575,7 +593,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 			}
 
-			return list;
+			return getShareholderResponse(list);
 
 		} catch (Exception e) {
 
@@ -587,7 +605,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
-	public Shareholder findByUserId(String userId) {
+	public ShareholderResponse findByUserId(String userId) {
 
 		if (userId == null) {
 
@@ -605,7 +623,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 			}
 
-			return holder;
+			return getShareholderResponse(holder);
 
 		} catch (Exception e) {
 
@@ -616,7 +634,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByNid_' + #nid")
-	public List<Shareholder> findByNid(String nid) {
+	public List<ShareholderResponse> findByNid(String nid) {
 
 		if (nid == null) {
 
@@ -634,7 +652,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 			}
 
-			return list;
+			return getShareholderResponse(list);
 
 		} catch (Exception e) {
 
@@ -645,7 +663,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByTin_' + #tin")
-	public List<Shareholder> findByTin(String tin) {
+	public List<ShareholderResponse> findByTin(String tin) {
 
 		if (tin == null) {
 
@@ -663,7 +681,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 			}
 
-			return list;
+			return getShareholderResponse(list);
 
 		} catch (Exception e) {
 
@@ -674,7 +692,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCompanyId_' + #companyId")
-	public List<Shareholder> findByShareCompanyId(String companyId) {
+	public List<ShareholderResponse> findByShareCompanyId(String companyId) {
 
 		if (companyId == null) {
 
@@ -692,7 +710,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 			}
 
-			return list;
+			return getShareholderResponse(list);
 
 		} catch (Exception e) {
 
@@ -703,7 +721,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCompanyIdAndPercentage_' + #companyId + '_' + #percentage")
-	public List<Shareholder> findByShareCompanyIdAndPercentage(String companyId, Double percentage) {
+	public List<ShareholderResponse> findByShareCompanyIdAndPercentage(String companyId, Double percentage) {
 
 		if (companyId == null || percentage <= 0.0) {
 
@@ -721,7 +739,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 			}
 
-			return list;
+			return getShareholderResponse(list);
 
 		} catch (Exception e) {
 
@@ -732,7 +750,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCompanyIdAndPercentageGTE_' + #companyId + '_' + #percentage")
-	public List<Shareholder> findByShareCompanyIdAndPercentageGte(String companyId, Double percentage) {
+	public List<ShareholderResponse> findByShareCompanyIdAndPercentageGte(String companyId, Double percentage) {
 
 		if (companyId == null || percentage <= 0.0) {
 
@@ -750,7 +768,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 			}
 
-			return list;
+			return getShareholderResponse(list);
 
 		} catch (Exception e) {
 
@@ -761,7 +779,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCompanyIdAndPercentageLTE_' + #companyId + '_' + #percentage")
-	public List<Shareholder> findByShareCompanyIdAndPercentageLte(String companyId, Double percentage) {
+	public List<ShareholderResponse> findByShareCompanyIdAndPercentageLte(String companyId, Double percentage) {
 
 		if (companyId == null || percentage <= 0.0) {
 
@@ -779,7 +797,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 			}
 
-			return list;
+			return getShareholderResponse(list);
 
 		} catch (Exception e) {
 
@@ -790,7 +808,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCompanyIdAndPercentageBetween_' + #companyId + '_' + #minPercentage + '_' + #maxPercentage")
-	public List<Shareholder> findByShareCompanyIdAndPercentageBetween(String companyId, Double minPercentage,
+	public List<ShareholderResponse> findByShareCompanyIdAndPercentageBetween(String companyId, Double minPercentage,
 			Double maxPercentage) {
 
 		if (companyId == null || minPercentage <= 0.0 || maxPercentage <= 0.0) {
@@ -810,7 +828,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 			}
 
-			return list;
+			return getShareholderResponse(list);
 
 		} catch (Exception e) {
 
@@ -896,6 +914,212 @@ public class ShareholderServiceImpl implements ShareholderService {
 		cleaner.removeShareholder(id);
 
 		return count != holderRepository.count();
+	}
+
+	private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+	private ShareholderResponse getShareholderResponse(Shareholder holder) {
+
+		List<Shareholder> list = new ArrayList<>();
+
+		list.add(holder);
+
+		return getShareholderResponse(list).get(0);
+
+	}
+
+	private List<ShareholderResponse> getShareholderResponse(List<Shareholder> shareHolders) {
+
+		List<ShareholderResponse> responses = new ArrayList<>();
+
+		CompletableFuture<List<String>> shareHoldersIdFuture = CompletableFuture.supplyAsync(
+				() -> shareHolders.stream().map(Shareholder::getId).collect(Collectors.toList()), executor);
+
+		CompletableFuture<Map<String, Set<CompanyInformation>>> companyMapFuture = shareHoldersIdFuture
+				.thenApplyAsync(holdersId -> {
+
+					Map<String, Set<CompanyInformation>> map = new HashMap<>();
+
+					List<CompanyInformation> companies = companyRepository.findByShareHoldersIn(holdersId);
+
+					for (CompanyInformation company : companies) {
+
+						List<String> holders = company.getShareHolders();
+
+						for (String i : holders) {
+
+							if (map.containsKey(i)) {
+
+								map.get(i).add(company);
+
+							} else {
+
+								map.put(i, new HashSet<>());
+
+								map.get(i).add(company);
+
+							}
+
+						}
+
+					}
+
+					return map;
+
+				}, executor);
+
+		CompletableFuture<List<String>> userIdFuture = CompletableFuture.supplyAsync(
+				() -> shareHolders.stream().map(Shareholder::getUserId).collect(Collectors.toList()), executor);
+
+		CompletableFuture<Map<String, User>> userNameMapFuture = userIdFuture.thenApplyAsync(usersId -> {
+
+			return userRepository.findAllById(usersId).stream()
+					.collect(Collectors.toMap(User::getId, Function.identity()));
+
+		}, executor);
+
+		CompletableFuture<Map<String, UserContactInfo>> contactFuture = userIdFuture.thenApplyAsync(usersId -> {
+
+			return contactRepository.findByUserIdIn(usersId).stream()
+					.collect(Collectors.toMap(UserContactInfo::getUserId, Function.identity()));
+
+		}, executor);
+
+		CompletableFuture<Map<String, UserLocation>> locationFuture = userIdFuture.thenApplyAsync(usersId -> {
+
+			return locationRepository.findByUserIdIn(usersId).stream()
+					.collect(Collectors.toMap(UserLocation::getUserId, Function.identity()));
+
+		}, executor);
+
+		CompletableFuture<List<String>> sharedCompanyIdFuture = shareHoldersIdFuture.thenApplyAsync(ids -> {
+
+			List<Map<String, List<Double>>> shares = shareHolders.stream().map(Shareholder::getSharePercentage)
+					.collect(Collectors.toList());
+
+			Set<String> set = new HashSet<>();
+
+			for (Map<String, List<Double>> map : shares) {
+
+				Set<String> list = map.keySet();
+
+				for (String i : list) {
+
+					set.add(i);
+
+				}
+
+			}
+
+			return new ArrayList<>(set);
+
+		}, executor);
+
+		CompletableFuture<Map<String, CompanyInformation>> sharedCompanyMapFuture = sharedCompanyIdFuture
+				.thenApplyAsync(ids -> {
+
+					return companyRepository.findAllById(ids).stream()
+							.collect(Collectors.toMap(CompanyInformation::getId, Function.identity()));
+
+				}, executor);
+
+		CompletableFuture.allOf(shareHoldersIdFuture, companyMapFuture, userIdFuture, userNameMapFuture, contactFuture,
+				locationFuture, sharedCompanyIdFuture).join();
+
+		Map<String, User> userNameMap = userNameMapFuture.join();
+		Map<String, UserLocation> locationMap = locationFuture.join();
+		Map<String, Set<CompanyInformation>> companyMap = companyMapFuture.join();
+		Map<String, CompanyInformation> sharedCompanyInformation = sharedCompanyMapFuture.join();
+		Map<String, UserContactInfo> contactMap = contactFuture.join();
+
+		for (Shareholder holder : shareHolders) {
+
+			try {
+
+				ShareholderResponse response = new ShareholderResponse();
+
+				response.setId(holder.getId());
+				response.setUserId(holder.getUserId());
+				response.setNid(holder.getNid());
+				response.setTin(holder.getTin());
+				response.setUserName(userNameMap.get(holder.getUserId()).getFullName() == null
+						? userNameMap.get(holder.getUserId()).getName()
+						: userNameMap.get(holder.getUserId()).getFullName());
+				response.setSharePercentage(holder.getSharePercentage());
+
+				try {
+
+					response.setCompanies(new ArrayList<>(companyMap.get(holder.getId())));
+
+				} catch (Exception e) {
+
+					System.out.println(e.getMessage());
+
+				}
+
+				try {
+
+					UserContactInfo contact = contactMap.get(holder.getUserId());
+
+					response.setContactInfoId(contact.getId());
+					response.setEmail(contact.getEmail());
+					response.setPhone(contact.getPhone());
+
+				} catch (Exception e) {
+
+					System.out.println(e.getMessage());
+
+				}
+
+				try {
+
+					UserLocation location = locationMap.get(holder.getUserId());
+
+					response.setLocationId(location.getId());
+					response.setLocationName(location.getLocationName());
+					response.setLattitude(location.getLattitude());
+					response.setLongititude(location.getLongitude());
+
+				} catch (Exception e) {
+
+					System.out.println(e.getMessage());
+
+				}
+
+				try {
+
+					Map<String, List<Double>> sharedCompanies = holder.getSharePercentage();
+
+					Map<String, List<Double>> map = new HashMap<>();
+
+					for (String i : sharedCompanies.keySet()) {
+
+						String companyName = sharedCompanyInformation.get(i).getCompanyName();
+
+						map.put(companyName, sharedCompanies.get(i));
+
+					}
+
+					response.setSharePercentageWithCompanyName(map);
+
+				} catch (Exception e) {
+
+					System.out.println(e.getMessage());
+
+				}
+
+				responses.add(response);
+
+			} catch (Exception e) {
+
+				System.out.println(e.getMessage());
+
+			}
+
+		}
+
+		return responses;
+
 	}
 
 }

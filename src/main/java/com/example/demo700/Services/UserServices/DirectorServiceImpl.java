@@ -1,7 +1,17 @@
 package com.example.demo700.Services.UserServices;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -15,11 +25,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.DirectorResponse;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
+import com.example.demo700.Model.UserModels.CompanyInformation;
 import com.example.demo700.Model.UserModels.Director;
 import com.example.demo700.Model.UserModels.User;
+import com.example.demo700.Model.UserModels.UserContactInfo;
+import com.example.demo700.Model.UserModels.UserLocation;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
+import com.example.demo700.Repositories.UserRepositories.CompanyInformationRepository;
 import com.example.demo700.Repositories.UserRepositories.DirectorRepository;
+import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
+import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 
 @Service
@@ -33,6 +50,15 @@ public class DirectorServiceImpl implements DirectorService {
 
 	@Autowired
 	private CenterAdminRepository centerAdminRepository;
+
+	@Autowired
+	private CompanyInformationRepository companyRepository;
+
+	@Autowired
+	private UserContactInfoRepository userContactInfoRepository;
+
+	@Autowired
+	private UserLocationRepository locationRepository;
 
 	@Autowired
 	private ImageService imageService;
@@ -132,10 +158,8 @@ public class DirectorServiceImpl implements DirectorService {
 	}
 
 	@Override
-	@Caching(evict = {
-			@CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "CompanyInformation", allEntries = true)
-	})
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true) })
 	public Director updateDirector(Director director, String userId, String id, MultipartFile nid) {
 		if (director == null || userId == null || !director.getUserId().equals(userId)) {
 
@@ -272,7 +296,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findById_' + #id")
-	public Director findById(String id) {
+	public DirectorResponse findById(String id) {
 
 		if (id == null) {
 
@@ -290,7 +314,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 			}
 
-			return director;
+			return getDirectorResponse(director);
 
 		} catch (Exception e) {
 
@@ -302,7 +326,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByPosition_' + #position")
-	public List<Director> findByPosition(String position) {
+	public List<DirectorResponse> findByPosition(String position) {
 
 		if (position == null) {
 
@@ -320,7 +344,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 			}
 
-			return list;
+			return getDirectorResponse(list);
 
 		} catch (Exception e) {
 
@@ -331,7 +355,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findAll'")
-	public List<Director> findAll() {
+	public List<DirectorResponse> findAll() {
 
 		try {
 
@@ -343,7 +367,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 			}
 
-			return list;
+			return getDirectorResponse(list);
 
 		} catch (Exception e) {
 
@@ -354,7 +378,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
-	public Director findByUserId(String userId) {
+	public DirectorResponse findByUserId(String userId) {
 
 		if (userId == null) {
 
@@ -372,7 +396,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 			}
 
-			return director;
+			return getDirectorResponse(director);
 
 		} catch (Exception e) {
 
@@ -383,7 +407,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByNid_' + #nid")
-	public List<Director> findByNid(String nid) {
+	public List<DirectorResponse> findByNid(String nid) {
 
 		if (nid == null) {
 
@@ -401,7 +425,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 			}
 
-			return list;
+			return getDirectorResponse(list);
 
 		} catch (Exception e) {
 
@@ -411,10 +435,8 @@ public class DirectorServiceImpl implements DirectorService {
 	}
 
 	@Override
-	@Caching(evict = {
-			@CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "CompanyInformation", allEntries = true)
-	})
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true) })
 	public boolean removeDirector(String id, String userId) {
 
 		if (id == null || userId == null) {
@@ -488,6 +510,158 @@ public class DirectorServiceImpl implements DirectorService {
 		cleaner.removeDirector(id);
 
 		return count != directorRepository.count();
+	}
+
+	private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+	private DirectorResponse getDirectorResponse(Director director) {
+
+		List<Director> list = new ArrayList<>();
+
+		list.add(director);
+
+		return getDirectorResponse(list).get(0);
+
+	}
+
+	private List<DirectorResponse> getDirectorResponse(List<Director> directors) {
+
+		List<DirectorResponse> responses = new ArrayList<>();
+
+		CompletableFuture<List<String>> directorsIdFuture = CompletableFuture
+				.supplyAsync(() -> directors.stream().map(Director::getId).collect(Collectors.toList()), executor);
+
+		CompletableFuture<Map<String, Set<CompanyInformation>>> companyMapFuture = directorsIdFuture
+				.thenApplyAsync(directorId -> {
+
+					Map<String, Set<CompanyInformation>> map = new HashMap<>();
+
+					List<CompanyInformation> companies = companyRepository.findByDirectorsIdIn(directorId);
+
+					for (CompanyInformation company : companies) {
+
+						List<String> directorsId = company.getDirectorsId();
+
+						for (String i : directorsId) {
+
+							if (map.containsKey(i)) {
+
+								map.get(i).add(company);
+
+							} else {
+
+								map.put(i, new HashSet<>());
+
+								map.get(i).add(company);
+
+							}
+
+						}
+
+					}
+
+					return map;
+
+				}, executor);
+
+		CompletableFuture<List<String>> userIdFuture = CompletableFuture
+				.supplyAsync(() -> directors.stream().map(Director::getUserId).collect(Collectors.toList()), executor);
+
+		CompletableFuture<Map<String, User>> userNameMapFuture = userIdFuture.thenApplyAsync(usersId -> {
+			return userRepository.findAllById(usersId).stream()
+					.collect(Collectors.toMap(User::getId, Function.identity()));
+		}, executor);
+
+		CompletableFuture<List<String>> contactInfoIdFuture = userIdFuture.thenApplyAsync(usersId -> {
+
+			return userContactInfoRepository.findByUserIdIn(usersId).stream().map(UserContactInfo::getId)
+					.collect(Collectors.toList());
+
+		}, executor);
+
+		CompletableFuture<Map<String, UserContactInfo>> contactMapFuture = contactInfoIdFuture
+				.thenApplyAsync(contactInfoIds -> {
+
+					return userContactInfoRepository.findAllById(contactInfoIds).stream()
+							.collect(Collectors.toMap(UserContactInfo::getUserId, Function.identity()));
+
+				}, executor);
+
+		CompletableFuture<Map<String, UserLocation>> userLocationMapFuture = userIdFuture.thenApplyAsync(usersId -> {
+
+			return locationRepository.findByUserIdIn(usersId).stream()
+					.collect(Collectors.toMap(UserLocation::getUserId, Function.identity()));
+
+		}, executor);
+
+		CompletableFuture.allOf(directorsIdFuture, companyMapFuture, userIdFuture, userNameMapFuture,
+				contactInfoIdFuture, contactMapFuture, userLocationMapFuture).join();
+
+		Map<String, Set<CompanyInformation>> companyMap = companyMapFuture.join();
+
+		Map<String, User> userNameMap = userNameMapFuture.join();
+
+		Map<String, UserContactInfo> userContactMap = contactMapFuture.join();
+
+		Map<String, UserLocation> locationMap = userLocationMapFuture.join();
+
+		for (Director director : directors) {
+
+			DirectorResponse response = new DirectorResponse();
+
+			response.setId(director.getId());
+			response.setUserId(director.getUserId());
+			response.setUserName(userNameMap.get(director.getUserId()).getFullName() == null
+					? userNameMap.get(director.getUserId()).getFullName()
+					: userNameMap.get(director.getUserId()).getName());
+			response.setPosition(director.getPosition());
+			response.setNid(director.getNid());
+
+			try {
+
+				response.setCompanies(new ArrayList<>(companyMap.getOrDefault(director.getId(), new HashSet<>())));
+
+			} catch (Exception e) {
+
+				System.out.println(e.getMessage());
+
+			}
+
+			try {
+
+				UserContactInfo contactInfo = userContactMap.get(director.getUserId());
+
+				response.setUserContactInfnfoId(contactInfo.getId());
+				response.setEmail(contactInfo.getEmail());
+				response.setPhone(contactInfo.getPhone());
+
+			} catch (Exception e) {
+
+				System.out.println(e.getMessage());
+
+			}
+
+			try {
+				
+				UserLocation location = locationMap.get(director.getUserId());
+				
+				response.setLocationId(location.getId());
+				response.setLattitude(location.getLattitude());
+				response.setLongititude(location.getLongitude());
+				response.setLocationName(location.getLocationName());
+				
+			} catch(Exception e) {
+				
+				System.out.println(e.getMessage());
+				
+			}
+			
+			responses.add(response);
+
+		}
+
+		return responses;
+
 	}
 
 }
