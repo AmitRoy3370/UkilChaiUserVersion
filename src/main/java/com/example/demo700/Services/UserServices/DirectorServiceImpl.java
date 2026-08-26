@@ -614,6 +614,7 @@ public class DirectorServiceImpl implements DirectorService {
 			response.setUserName(userNameMap.get(director.getUserId()).getFullName() == null
 					? userNameMap.get(director.getUserId()).getFullName()
 					: userNameMap.get(director.getUserId()).getName());
+			response.setProfileImageId(userNameMap.get(director.getUserId()).getProfileImageId());
 			response.setPosition(director.getPosition());
 			response.setNid(director.getNid());
 
@@ -642,20 +643,20 @@ public class DirectorServiceImpl implements DirectorService {
 			}
 
 			try {
-				
+
 				UserLocation location = locationMap.get(director.getUserId());
-				
+
 				response.setLocationId(location.getId());
 				response.setLattitude(location.getLattitude());
 				response.setLongititude(location.getLongitude());
 				response.setLocationName(location.getLocationName());
-				
-			} catch(Exception e) {
-				
+
+			} catch (Exception e) {
+
 				System.out.println(e.getMessage());
-				
+
 			}
-			
+
 			responses.add(response);
 
 		}

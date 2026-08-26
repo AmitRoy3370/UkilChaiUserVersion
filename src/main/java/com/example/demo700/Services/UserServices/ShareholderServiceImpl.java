@@ -1045,7 +1045,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 				response.setUserName(userNameMap.get(holder.getUserId()).getFullName() == null
 						? userNameMap.get(holder.getUserId()).getName()
 						: userNameMap.get(holder.getUserId()).getFullName());
-				response.setSharePercentage(holder.getSharePercentage());
+				response.setProfileImageId(userNameMap.get(holder.getUserId()).getProfileImageId());
 
 				try {
 

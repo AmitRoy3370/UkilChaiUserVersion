@@ -19,7 +19,7 @@ public class DirectorResponse implements Serializable {
 
 	private String id;
 
-	private String userId, userName;
+	private String userId, userName, profileImageId;
 
 	private String userContactInfnfoId, email, phone;
 
@@ -35,7 +35,7 @@ public class DirectorResponse implements Serializable {
 
 	public DirectorResponse(String id, String userId, String userName, String userContactInfnfoId, String email,
 			String phone, String locationId, String locationName, double lattitude, double longititude, String position,
-			String nid, List<CompanyInformation> companies) {
+			String nid, List<CompanyInformation> companies, String profileImageId) {
 		super();
 		this.id = id;
 		this.userId = userId;
@@ -50,6 +50,7 @@ public class DirectorResponse implements Serializable {
 		this.position = position;
 		this.nid = nid;
 		this.companies = companies;
+		this.profileImageId = profileImageId;
 	}
 
 	public DirectorResponse() {
@@ -164,12 +165,21 @@ public class DirectorResponse implements Serializable {
 		this.companies = companies;
 	}
 
+	public String getProfileImageId() {
+		return profileImageId;
+	}
+
+	public void setProfileImageId(String profileImageId) {
+		this.profileImageId = profileImageId;
+	}
+
 	@Override
 	public String toString() {
-		return "DirectorResponse [id=" + id + ", userId=" + userId + ", userName=" + userName + ", userContactInfnfoId="
-				+ userContactInfnfoId + ", email=" + email + ", phone=" + phone + ", locationId=" + locationId
-				+ ", locationName=" + locationName + ", lattitude=" + lattitude + ", longititude=" + longititude
-				+ ", position=" + position + ", nid=" + nid + ", companies=" + companies + "]";
+		return "DirectorResponse [id=" + id + ", userId=" + userId + ", userName=" + userName + ", profileImageId="
+				+ profileImageId + ", userContactInfnfoId=" + userContactInfnfoId + ", email=" + email + ", phone="
+				+ phone + ", locationId=" + locationId + ", locationName=" + locationName + ", lattitude=" + lattitude
+				+ ", longititude=" + longititude + ", position=" + position + ", nid=" + nid + ", companies="
+				+ companies + "]";
 	}
 
 }

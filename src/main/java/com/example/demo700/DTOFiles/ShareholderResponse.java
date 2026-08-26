@@ -17,7 +17,7 @@ public class ShareholderResponse implements Serializable {
 
 	private String id;
 
-	private String userId, userName;
+	private String userId, userName, profileImageId;
 
 	private String contactInfoId, email, phone;
 
@@ -35,7 +35,7 @@ public class ShareholderResponse implements Serializable {
 	
 	public ShareholderResponse(String id, String userId, String userName, String contactInfoId, String email,
 			String phone, String locationId, String locationName, double lattitude, double longititude, String nid,
-			String tin, Map<String, List<Double>> sharePercentage) {
+			String tin, Map<String, List<Double>> sharePercentage, String profileImageId) {
 		super();
 		this.id = id;
 		this.userId = userId;
@@ -50,6 +50,7 @@ public class ShareholderResponse implements Serializable {
 		this.nid = nid;
 		this.tin = tin;
 		this.sharePercentage = sharePercentage;
+		this.profileImageId = profileImageId;
 	}
 
 	public ShareholderResponse() {
@@ -180,13 +181,22 @@ public class ShareholderResponse implements Serializable {
 		this.sharePercentageWithCompanyName = sharePercentageWithCompanyName;
 	}
 
+	public String getProfileImageId() {
+		return profileImageId;
+	}
+
+	public void setProfileImageId(String profileImageId) {
+		this.profileImageId = profileImageId;
+	}
+
 	@Override
 	public String toString() {
-		return "ShareholderResponse [id=" + id + ", userId=" + userId + ", userName=" + userName + ", contactInfoId="
-				+ contactInfoId + ", email=" + email + ", phone=" + phone + ", locationId=" + locationId
-				+ ", locationName=" + locationName + ", lattitude=" + lattitude + ", longititude=" + longititude
-				+ ", nid=" + nid + ", tin=" + tin + ", companies=" + companies + ", sharePercentage=" + sharePercentage
-				+ ", sharePercentageWithCompanyName=" + sharePercentageWithCompanyName + "]";
+		return "ShareholderResponse [id=" + id + ", userId=" + userId + ", userName=" + userName + ", profileImageId="
+				+ profileImageId + ", contactInfoId=" + contactInfoId + ", email=" + email + ", phone=" + phone
+				+ ", locationId=" + locationId + ", locationName=" + locationName + ", lattitude=" + lattitude
+				+ ", longititude=" + longititude + ", nid=" + nid + ", tin=" + tin + ", companies=" + companies
+				+ ", sharePercentage=" + sharePercentage + ", sharePercentageWithCompanyName="
+				+ sharePercentageWithCompanyName + "]";
 	}
 
 }
