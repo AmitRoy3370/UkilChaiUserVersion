@@ -261,6 +261,15 @@ public class DirectorServiceImpl implements DirectorService {
 
 				} else {
 
+				    try {
+
+				        imageService.delete(director.getNid());
+
+				    } catch(Exception e) {
+
+
+				    }
+
 					director.setNid(nidId);
 
 				}
