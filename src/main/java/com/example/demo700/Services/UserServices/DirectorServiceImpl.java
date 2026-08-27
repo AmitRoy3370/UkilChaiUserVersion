@@ -275,7 +275,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 		}
 
-		Query query = new Query(Criteria.where("_id"));
+		Query query = new Query(Criteria.where("_id").is(id));
 
 		Update update = new Update();
 
