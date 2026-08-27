@@ -343,7 +343,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 				 try {
 
-				        imageService.delete(director.getNid());
+				        imageService.delete(holder.getNid());
 
                  } catch(Exception e) {
 
@@ -391,7 +391,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 				 try {
 
-                    imageService.delete(director.getTin());
+                    imageService.delete(holder.getTin());
 
                   } catch(Exception e) {
 
