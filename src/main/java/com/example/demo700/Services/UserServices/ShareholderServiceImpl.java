@@ -341,6 +341,16 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 				}
 
+				 try {
+
+				        imageService.delete(director.getNid());
+
+                 } catch(Exception e) {
+
+
+                  }
+
+
 				holder.setNid(nidId);
 
 			} else if (holder.getNid() != null) {
@@ -378,6 +388,16 @@ public class ShareholderServiceImpl implements ShareholderService {
 					throw new ArithmeticException();
 
 				}
+
+				 try {
+
+                    imageService.delete(director.getTin());
+
+                  } catch(Exception e) {
+
+
+                  }
+
 
 				holder.setTin(nidId);
 
