@@ -65,7 +65,8 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 			@CacheEvict(value = "ShareHolder", allEntries = true), @CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "CompanyInformation", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyContact", allEntries = true), @CacheEvict(value = "CompanyPayment", allEntries = true) })
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public RegistrationProcess addRegistrationProcess(RegistrationProcess process, String userId) {
 
 		if (process == null || userId == null || process.getShareValuePerShare() <= 0
@@ -191,6 +192,15 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 		process = processRepository.save(process);
 
+		try {
+
+			company.setOfficeRegistryId(process.getId());
+			companyRepository.save(company);
+
+		} catch (Exception e) {
+
+		}
+
 		return process;
 	}
 
@@ -199,13 +209,34 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 			@CacheEvict(value = "ShareHolder", allEntries = true), @CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "CompanyInformation", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyContact", allEntries = true), @CacheEvict(value = "CompanyPayment", allEntries = true) })
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public RegistrationProcess updateRegistrationprocess(RegistrationProcess process, String userId, String id) {
 
 		if (process == null || userId == null || process.getShareValuePerShare() <= 0
 				|| process.getCompanyId() == null) {
 
 			throw new NullPointerException("False request....");
+
+		}
+
+		CompanyInformation info = null;
+
+		try {
+
+			RegistrationProcess regProcess = processRepository.findById(id).get();
+
+			if (regProcess == null) {
+
+				throw new Exception();
+
+			}
+
+			info = companyRepository.findById(id).get();
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such registration process find at here...");
 
 		}
 
@@ -349,6 +380,19 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 		mongoTemplate.updateFirst(query, update, RegistrationProcess.class);
 
+		try {
+
+			info.setOfficeRegistryId(null);
+
+			companyRepository.save(info);
+
+			company.setOfficeRegistryId(process.getId());
+			companyRepository.save(company);
+
+		} catch (Exception e) {
+
+		}
+
 		return process = mongoTemplate.findOne(query, RegistrationProcess.class);
 
 	}
@@ -358,7 +402,8 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 			@CacheEvict(value = "ShareHolder", allEntries = true), @CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "CompanyInformation", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyContact", allEntries = true), @CacheEvict(value = "CompanyPayment", allEntries = true) })
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public RegistrationProcess addSteps(String id, String step, String userId) {
 
 		if (id == null || step == null | userId == null) {
@@ -684,7 +729,8 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 			@CacheEvict(value = "ShareHolder", allEntries = true), @CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "CompanyInformation", allEntries = true),
 			@CacheEvict(value = "Capital", allEntries = true), @CacheEvict(value = "Subscription", allEntries = true),
-			@CacheEvict(value = "CompanyContact", allEntries = true), @CacheEvict(value = "CompanyPayment", allEntries = true) })
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true) })
 	public boolean deleteRegistrationProcess(String id, String userId) {
 
 		if (id == null || userId == null) {
