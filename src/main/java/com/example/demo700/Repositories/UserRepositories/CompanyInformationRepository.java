@@ -26,7 +26,7 @@ public interface CompanyInformationRepository extends MongoRepository<CompanyInf
 	public List<CompanyInformation> findByDirectorsIdIn(List<String> directorsId);
 	public List<CompanyInformation> findByAuthorizedContainingIgnoreCase(String authorized);
 	public List<CompanyInformation> findByCapitalContainingIgnoreCase(String capital);
-	@Query("{ 'creatorId' : {$in: ?0}}")
-	public List<CompanyInformation> findByCreatorId(String creatorId);
+    @Query("{ 'creatorId' : {$in: ?0} }")
+    public List<CompanyInformation> findByCreatorId(List<String> creatorIds);
 
 }
