@@ -1,6 +1,7 @@
 package com.example.demo700.Controllers.UserControllers;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -104,6 +105,21 @@ public class CompanyInformationController {
 
 		}
 
+	}
+	
+	// ==========================================
+	// GET COMPANIES BY CREATOR ID
+	// ==========================================
+	@GetMapping("/search/by-creator-id")
+	public ResponseEntity<?> getCompaniesByCreatorId(@RequestParam("creatorId") String creatorId) {
+	    try {
+	        List<CompanyResponse> result = companyInformationService.findByCreatorId(creatorId);
+	        return new ResponseEntity<>(result, HttpStatus.OK);
+	    } catch (NoSuchElementException | NullPointerException e) {
+	        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>("Error fetching companies: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+	    }
 	}
 
 	// ==========================================

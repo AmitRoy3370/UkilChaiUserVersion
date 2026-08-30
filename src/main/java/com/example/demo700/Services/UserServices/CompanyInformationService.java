@@ -26,6 +26,7 @@ public interface CompanyInformationService {
 	public List<CompanyResponse> findByDirectorsIdContainingIgnoreCase(String directorsId);
 	public List<CompanyResponse> findByAuthorizedContainingIgnoreCase(String authorized);
 	public List<CompanyResponse> findByCapital(String capital);
+	public List<CompanyResponse> findByCreatorId(String creatorId);
 	
 	public boolean deleteCompanyInformation(String id, String userId);
 	

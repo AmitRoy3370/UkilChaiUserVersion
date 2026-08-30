@@ -1304,6 +1304,36 @@ public List<CompanyResponse> findAll() {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByCreatorId_' + #creatorId")
+	public List<CompanyResponse> findByCreatorId(String creatorId) {
+		
+		if(creatorId == null) {
+			
+			throw new NullPointerException("False request...");
+			
+		}
+		
+		try {
+			
+			List<CompanyInformation> list = companyInformationRepository.findByCreatorId(creatorId);
+			
+			if(list.isEmpty()) {
+				
+				throw new Exception();
+				
+			}
+			
+			return getCompanyResponse(list);
+			
+		} catch(Exception e) {
+			
+			throw new NoSuchElementException("No such company of that creator find ");
+			
+		}
+		
+	}
+	
+	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
 			@CacheEvict(value = "ShareHolder", allEntries = true), @CacheEvict(value = "Director", allEntries = true),
 			@CacheEvict(value = "RegistrationProcess", allEntries = true),
