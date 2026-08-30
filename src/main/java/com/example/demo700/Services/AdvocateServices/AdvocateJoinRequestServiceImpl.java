@@ -766,6 +766,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 		advocate.setDegrees(advocateJoinRequest.getDegrees());
 		advocate.setExperience(advocateJoinRequest.getExperience());
 		advocate.setLicenseKey(advocateJoinRequest.getLicenseKey());
+                advocate.setDistrict(advocateJoinRequest.getDistrict());
 		advocate.setUserId(advocateJoinRequest.getUserId());
 		advocate.setWorkingExperiences(advocateJoinRequest.getWorkingExperiences());
 		advocate.setId(advocateJoinRequest.getId());
