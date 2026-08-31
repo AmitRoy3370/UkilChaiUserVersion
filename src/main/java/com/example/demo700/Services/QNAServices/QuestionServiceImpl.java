@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,9 +54,10 @@ public class QuestionServiceImpl implements QuestionService {
 	private Cleaner cleaner;
 
 	private static final String cacheValue = "Question";
-	
+
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Answer", allEntries = true) })
 	public AskQuestion AskQuestion(AskQuestion askQuestion, String userId, MultipartFile file) {
 
 		if (askQuestion == null || userId == null) {
@@ -268,7 +270,8 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Answer", allEntries = true) })
 	public AskQuestion updateQuestion(AskQuestion askQuestion, String userId, String questionId, MultipartFile file) {
 
 		if (askQuestion == null || userId == null) {
@@ -348,7 +351,8 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Answer", allEntries = true) })
 	public boolean removeQuestion(String userId, String questionId) {
 
 		if (userId == null || questionId == null) {
@@ -430,51 +434,38 @@ public class QuestionServiceImpl implements QuestionService {
 
 		List<QuestionResponse> responses = new ArrayList<>();
 
-		CompletableFuture<Map<String, User>> userFuture =
-		        CompletableFuture.supplyAsync(() -> {
+		CompletableFuture<Map<String, User>> userFuture = CompletableFuture.supplyAsync(() -> {
 
-		            List<User> users = userRepository.findAll();
+			List<User> users = userRepository.findAll();
 
-		            if (users == null || users.isEmpty()) {
+			if (users == null || users.isEmpty()) {
 
-		                return new HashMap<String, User>();
+				return new HashMap<String, User>();
 
-		            }
+			}
 
-		            return users.stream()
-		                    .filter(Objects::nonNull)
-		                    .filter(user -> user.getId() != null)
-		                    .collect(Collectors.toMap(
-		                            User::getId,
-		                            Function.identity(),
-		                            (existing, replacement) -> existing
-		                    ));
+			return users.stream().filter(Objects::nonNull).filter(user -> user.getId() != null)
+					.collect(Collectors.toMap(User::getId, Function.identity(), (existing, replacement) -> existing));
 
-		        }, executor);
+		}, executor);
 
 		List<String> allQuestionId = questions.stream().map(AskQuestion::getId).collect(Collectors.toList());
 
 		List<AnswerResponse> answers = answerQuestionService.findByQuestionIdIn(allQuestionId);
 
-		CompletableFuture<Map<String, List<AnswerResponse>>> answerFuture =
-		        CompletableFuture.supplyAsync(() -> {
+		CompletableFuture<Map<String, List<AnswerResponse>>> answerFuture = CompletableFuture.supplyAsync(() -> {
 
-		            if (answers == null || answers.isEmpty()) {
+			if (answers == null || answers.isEmpty()) {
 
-		                return new HashMap<String, List<AnswerResponse>>();
+				return new HashMap<String, List<AnswerResponse>>();
 
-		            }
+			}
 
-		            return answers.stream()
-		                    .filter(Objects::nonNull)
-		                    .filter(answerResponse -> answerResponse.getQuestionId() != null)
-		                    .collect(Collectors.groupingBy(
-		                            AnswerResponse::getQuestionId,
-		                            HashMap::new,
-		                            Collectors.toList()
-		                    ));
+			return answers.stream().filter(Objects::nonNull)
+					.filter(answerResponse -> answerResponse.getQuestionId() != null)
+					.collect(Collectors.groupingBy(AnswerResponse::getQuestionId, HashMap::new, Collectors.toList()));
 
-		        }, executor);
+		}, executor);
 
 		CompletableFuture.allOf(userFuture, answerFuture).join();
 
@@ -524,7 +515,6 @@ public class QuestionServiceImpl implements QuestionService {
 
 						response.setFullName(userMap.get(question.getUserId()).getFullName());
 
-						
 					} catch (Exception e) {
 
 					}

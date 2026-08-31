@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -65,7 +66,8 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 	private static final String cacheValue = "Answer";
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Question", allEntries = true) })
 	public AnswerQuestion answer(AnswerQuestion answerQuestion, String userId, MultipartFile file) {
 
 		if (answerQuestion == null || userId == null) {
@@ -134,7 +136,8 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Question", allEntries = true) })
 	public AnswerQuestion updateAnswer(AnswerQuestion answerQuestion, String userID, String answerId,
 			MultipartFile file) {
 
@@ -439,7 +442,8 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Question", allEntries = true) })
 	public boolean deleteAnswer(String answerId, String userId) {
 
 		if (answerId == null || userId == null) {

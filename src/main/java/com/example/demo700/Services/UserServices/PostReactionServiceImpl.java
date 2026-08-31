@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -50,7 +51,9 @@ public class PostReactionServiceImpl implements PostReactionService {
 	private static final String cacheValue = "PostReaction";
 	
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = {
+			@CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "AdvocatePost", allEntries = true)})
 	public PostReaction addPostReaction(PostReaction postReaction, String userId) {
 
 		if (postReaction == null || userId == null) {
@@ -103,7 +106,9 @@ public class PostReactionServiceImpl implements PostReactionService {
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = {
+			@CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "AdvocatePost", allEntries = true)})
 	public PostReaction updatePostReaction(PostReaction postReaction, String userId, String postReactionId) {
 
 		if (postReaction == null || userId == null || postReactionId == null) {
@@ -329,7 +334,9 @@ public class PostReactionServiceImpl implements PostReactionService {
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = {
+			@CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "AdvocatePost", allEntries = true)})
 	public boolean removePostReaction(String id, String userId) {
 
 		if (id == null || userId == null) {

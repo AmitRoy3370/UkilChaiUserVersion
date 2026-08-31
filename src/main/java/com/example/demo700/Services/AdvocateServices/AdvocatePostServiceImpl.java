@@ -65,7 +65,9 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	private static final String cacheValue = "AdvocatePost";
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = {
+			@CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "PostReaction", allEntries = true)})
 	public AdvocatePost uploadPost(AdvocatePost advocatePost, String userId, MultipartFile file) {
 
 		if (advocatePost == null || userId == null) {
@@ -275,7 +277,9 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = {
+			@CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "PostReaction", allEntries = true)})
 	public AdvocatePost updateAdvocatePost(String postId, String userId, AdvocatePost advocatePost,
 			MultipartFile file) {
 
@@ -386,7 +390,8 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 			@CacheEvict(value = "ReadStatus", allEntries = true),
 			@CacheEvict(value = "Answer", allEntries = true),
 			@CacheEvict(value = "Question", allEntries = true),
-			@CacheEvict(value = "PaymentDetails", allEntries = true)
+			@CacheEvict(value = "PaymentDetails", allEntries = true),
+			@CacheEvict(value = "PostReaction", allEntries = true)
 	})
 	public boolean deleteAdvocatePost(String postId, String userId) {
 
