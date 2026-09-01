@@ -30,7 +30,6 @@ public class DirectorController {
 	private DirectorService directorService;
 
 	// ==================== ADD DIRECTOR (POST) ====================
-	// Accepts JSON data for the Director and a MultipartFile for the NID
 	@PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
 	public ResponseEntity<?> addDirector(@RequestPart("director") Director director,
 			@RequestParam("userId") String userId, @RequestPart(value = "nid", required = false) MultipartFile nid) {
@@ -65,7 +64,7 @@ public class DirectorController {
 	}
 
 	// ==================== GET ALL DIRECTORS ====================
-	@GetMapping
+	@GetMapping("/all")
 	public ResponseEntity<?> getAllDirectors() {
 		try {
 			List<DirectorResponse> directors = directorService.findAll();
@@ -94,8 +93,8 @@ public class DirectorController {
 	@GetMapping("/user/{userId}")
 	public ResponseEntity<?> getDirectorByUserId(@PathVariable String userId) {
 		try {
-			DirectorResponse director = directorService.findByUserId(userId);
-			return new ResponseEntity<>(director, HttpStatus.OK);
+			List<DirectorResponse> directors = directorService.findByUserId(userId);
+			return new ResponseEntity<>(directors, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
@@ -126,6 +125,71 @@ public class DirectorController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
 			return new ResponseEntity<>("Error fetching directors by position", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	// ==================== SEARCH DIRECTORS BY FULL NAME ====================
+	@GetMapping("/search/fullname")
+	public ResponseEntity<?> getDirectorsByFullName(@RequestParam("fullName") String fullName) {
+		try {
+			List<DirectorResponse> directors = directorService.findByFullNameContainingIgnoreCase(fullName);
+			return new ResponseEntity<>(directors, HttpStatus.OK);
+		} catch (NoSuchElementException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>("Error searching directors by full name", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	// ==================== SEARCH DIRECTORS BY FATHER NAME ====================
+	@GetMapping("/search/fathername")
+	public ResponseEntity<?> getDirectorsByFatherName(@RequestParam("fatherName") String fatherName) {
+		try {
+			List<DirectorResponse> directors = directorService.findByFatherNameContainingIgnoreCase(fatherName);
+			return new ResponseEntity<>(directors, HttpStatus.OK);
+		} catch (NoSuchElementException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>("Error searching directors by father name", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	// ==================== SEARCH DIRECTORS BY MOTHER NAME ====================
+	@GetMapping("/search/mothername")
+	public ResponseEntity<?> getDirectorsByMotherName(@RequestParam("motherName") String motherName) {
+		try {
+			List<DirectorResponse> directors = directorService.findByMotherNameContainingIgnoreCase(motherName);
+			return new ResponseEntity<>(directors, HttpStatus.OK);
+		} catch (NoSuchElementException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>("Error searching directors by mother name", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	// ==================== SEARCH DIRECTORS BY MOBILE NUMBER ====================
+	@GetMapping("/search/mobile")
+	public ResponseEntity<?> getDirectorsByMobileNumber(@RequestParam("mobileNumber") String mobileNumber) {
+		try {
+			List<DirectorResponse> directors = directorService.findByMobileNumberContainingIgnoreCase(mobileNumber);
+			return new ResponseEntity<>(directors, HttpStatus.OK);
+		} catch (NoSuchElementException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>("Error searching directors by mobile number", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	// ==================== SEARCH DIRECTORS BY EMAIL ====================
+	@GetMapping("/search/email")
+	public ResponseEntity<?> getDirectorsByEmail(@RequestParam("email") String email) {
+		try {
+			List<DirectorResponse> directors = directorService.findByEmailContainingIgnoreCase(email);
+			return new ResponseEntity<>(directors, HttpStatus.OK);
+		} catch (NoSuchElementException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>("Error searching directors by email", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 

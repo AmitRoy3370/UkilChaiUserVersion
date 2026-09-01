@@ -15,7 +15,7 @@ public class ShareholderResponse implements Serializable {
 	 */
 	private static final long serialVersionUID = 1052L;
 
-	private String id;
+	private String id, fullName;
 
 	private String userId, userName, profileImageId;
 
@@ -189,14 +189,22 @@ public class ShareholderResponse implements Serializable {
 		this.profileImageId = profileImageId;
 	}
 
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
 	@Override
 	public String toString() {
-		return "ShareholderResponse [id=" + id + ", userId=" + userId + ", userName=" + userName + ", profileImageId="
-				+ profileImageId + ", contactInfoId=" + contactInfoId + ", email=" + email + ", phone=" + phone
-				+ ", locationId=" + locationId + ", locationName=" + locationName + ", lattitude=" + lattitude
-				+ ", longititude=" + longititude + ", nid=" + nid + ", tin=" + tin + ", companies=" + companies
-				+ ", sharePercentage=" + sharePercentage + ", sharePercentageWithCompanyName="
-				+ sharePercentageWithCompanyName + "]";
+		return "ShareholderResponse [id=" + id + ", fullName=" + fullName + ", userId=" + userId + ", userName="
+				+ userName + ", profileImageId=" + profileImageId + ", contactInfoId=" + contactInfoId + ", email="
+				+ email + ", phone=" + phone + ", locationId=" + locationId + ", locationName=" + locationName
+				+ ", lattitude=" + lattitude + ", longititude=" + longititude + ", nid=" + nid + ", tin=" + tin
+				+ ", companies=" + companies + ", sharePercentage=" + sharePercentage
+				+ ", sharePercentageWithCompanyName=" + sharePercentageWithCompanyName + "]";
 	}
 
 }

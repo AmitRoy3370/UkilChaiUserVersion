@@ -27,19 +27,22 @@ public class DirectorResponse implements Serializable {
 
 	private double lattitude, longititude;
 
-	private String position;
+	private String position, fullName, fatherName, motherName, nidNumber, mobileNumber, directorEmail;
 
 	private String nid;
-	
+
 	private List<CompanyInformation> companies = new ArrayList<>();
 
-	public DirectorResponse(String id, String userId, String userName, String userContactInfnfoId, String email,
-			String phone, String locationId, String locationName, double lattitude, double longititude, String position,
-			String nid, List<CompanyInformation> companies, String profileImageId) {
+	public DirectorResponse(String id, String userId, String userName, String profileImageId,
+			String userContactInfnfoId, String email, String phone, String locationId, String locationName,
+			double lattitude, double longititude, String position, String fullName, String fatherName,
+			String motherName, String nidNumber, String mobileNumber, String directorEmail, String nid,
+			List<CompanyInformation> companies) {
 		super();
 		this.id = id;
 		this.userId = userId;
 		this.userName = userName;
+		this.profileImageId = profileImageId;
 		this.userContactInfnfoId = userContactInfnfoId;
 		this.email = email;
 		this.phone = phone;
@@ -48,9 +51,14 @@ public class DirectorResponse implements Serializable {
 		this.lattitude = lattitude;
 		this.longititude = longititude;
 		this.position = position;
+		this.fullName = fullName;
+		this.fatherName = fatherName;
+		this.motherName = motherName;
+		this.nidNumber = nidNumber;
+		this.mobileNumber = mobileNumber;
+		this.directorEmail = directorEmail;
 		this.nid = nid;
 		this.companies = companies;
-		this.profileImageId = profileImageId;
 	}
 
 	public DirectorResponse() {
@@ -173,13 +181,62 @@ public class DirectorResponse implements Serializable {
 		this.profileImageId = profileImageId;
 	}
 
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+	public String getFatherName() {
+		return fatherName;
+	}
+
+	public void setFatherName(String fatherName) {
+		this.fatherName = fatherName;
+	}
+
+	public String getMotherName() {
+		return motherName;
+	}
+
+	public void setMotherName(String motherName) {
+		this.motherName = motherName;
+	}
+
+	public String getNidNumber() {
+		return nidNumber;
+	}
+
+	public void setNidNumber(String nidNumber) {
+		this.nidNumber = nidNumber;
+	}
+
+	public String getMobileNumber() {
+		return mobileNumber;
+	}
+
+	public void setMobileNumber(String mobileNumber) {
+		this.mobileNumber = mobileNumber;
+	}
+
+	public String getDirectorEmail() {
+		return directorEmail;
+	}
+
+	public void setDirectorEmail(String directorEmail) {
+		this.directorEmail = directorEmail;
+	}
+
 	@Override
 	public String toString() {
 		return "DirectorResponse [id=" + id + ", userId=" + userId + ", userName=" + userName + ", profileImageId="
 				+ profileImageId + ", userContactInfnfoId=" + userContactInfnfoId + ", email=" + email + ", phone="
 				+ phone + ", locationId=" + locationId + ", locationName=" + locationName + ", lattitude=" + lattitude
-				+ ", longititude=" + longititude + ", position=" + position + ", nid=" + nid + ", companies="
-				+ companies + "]";
+				+ ", longititude=" + longititude + ", position=" + position + ", fullName=" + fullName + ", fatherName="
+				+ fatherName + ", motherName=" + motherName + ", nidNumber=" + nidNumber + ", mobileNumber="
+				+ mobileNumber + ", directorEmail=" + directorEmail + ", nid=" + nid + ", companies=" + companies + "]";
 	}
 
 }

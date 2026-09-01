@@ -117,31 +117,6 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 		try {
 
-			Director director = directorRepository.findByUserId(userId);
-
-			if (director == null) {
-
-				throw new Exception();
-
-			}
-
-			if (companyInformation.getDirectorsId() != null && !companyInformation.getDirectorsId().isEmpty()
-					&& companyInformation.getDirectorsId().contains(director.getId())) {
-
-			} else {
-
-				throw new Exception();
-
-			}
-
-		} catch (Exception e) {
-
-			throw new ArithmeticException("The actioned user must be a director");
-
-		}
-
-		try {
-
 			CompanyInformation information = companyInformationRepository
 					.findByCompanyNameIgnoreCase(companyInformation.getCompanyName());
 
@@ -316,31 +291,6 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 		try {
 
-			Director director = directorRepository.findByUserId(userId);
-
-			if (director == null) {
-
-				throw new Exception();
-
-			}
-
-			if (companyInformation.getDirectorsId() != null && !companyInformation.getDirectorsId().isEmpty()
-					&& companyInformation.getDirectorsId().contains(director.getId())) {
-
-			} else {
-
-				throw new Exception();
-
-			}
-
-		} catch (Exception e) {
-
-			throw new ArithmeticException("The actioned user must be a director");
-
-		}
-
-		try {
-
 			CompanyInformation _information = companyInformationRepository
 					.findByCompanyNameIgnoreCase(companyInformation.getCompanyName());
 
@@ -364,23 +314,23 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 		try {
 
-		  if(companyInformation.getOfficeRegistryId() != null) {
+			if (companyInformation.getOfficeRegistryId() != null) {
 
-			RegistrationProcess process = registrationProcessRepository.findByCompanyId(id).get(0);
+				RegistrationProcess process = registrationProcessRepository.findByCompanyId(id).get(0);
 
-			if (process == null) {
+				if (process == null) {
 
-				throw new Exception();
+					throw new Exception();
+
+				}
+
+				if (!process.getId().equals(companyInformation.getOfficeRegistryId())) {
+
+					throw new Exception();
+
+				}
 
 			}
-
-			if(!process.getId().equals(companyInformation.getOfficeRegistryId())) {
-
-                throw new Exception();
-
-			}
-
-		  }
 
 		} catch (Exception e) {
 
@@ -464,7 +414,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 					} else {
 
-					    List<String> ids = companyInformation.getCapital();
+						List<String> ids = companyInformation.getCapital();
 
 						List<Capital> inputedCapitals = capitalRepository.findAllById(ids);
 
@@ -532,17 +482,17 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 				} else {
 
-				    List<Capital> _capitals = capitalRepository.findByCompanyId(id);
+					List<Capital> _capitals = capitalRepository.findByCompanyId(id);
 
-                    List<String> removalId = new ArrayList<>();
+					List<String> removalId = new ArrayList<>();
 
-                    for(Capital i1 : _capitals) {
+					for (Capital i1 : _capitals) {
 
-                        removalId.add(i1.getId());
+						removalId.add(i1.getId());
 
-                    }
+					}
 
-                    capitalRepository.deleteAllById(removalId);
+					capitalRepository.deleteAllById(removalId);
 
 				}
 
@@ -641,25 +591,6 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 		}
 
-		Director actionedDirector = null;
-
-		try {
-
-			actionedDirector = directorRepository.findByUserId(user.getId());
-
-			if (actionedDirector == null) {
-
-				throw new Exception();
-
-			}
-
-		} catch (Exception e) {
-
-			throw new ArithmeticException(
-					"You have to be the director of this company to add another director at here...");
-
-		}
-
 		CompanyInformation information = null;
 
 		List<Director> directors = new ArrayList<>();
@@ -682,12 +613,6 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 			}
 
 			directorsId = information.getDirectorsId();
-
-			if (!directorsId.contains(actionedDirector.getId())) {
-
-				throw new Exception();
-
-			}
 
 			directors = directorRepository.findAllById(directorsId);
 
@@ -801,25 +726,6 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 		}
 
-		Director actionedDirector = null;
-
-		try {
-
-			actionedDirector = directorRepository.findByUserId(user.getId());
-
-			if (actionedDirector == null) {
-
-				throw new Exception();
-
-			}
-
-		} catch (Exception e) {
-
-			throw new ArithmeticException(
-					"You have to be the director of this company to add another director at here...");
-
-		}
-
 		CompanyInformation information = null;
 
 		List<Shareholder> holders = new ArrayList<>();
@@ -845,12 +751,6 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 			holdersId = information.getShareHolders();
 
 			List<String> directorsId = information.getDirectorsId();
-
-			if (!directorsId.contains(actionedDirector.getId())) {
-
-				throw new Exception();
-
-			}
 
 			holders = holderRepository.findAllById(holdersId);
 
@@ -932,42 +832,42 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 	}
 
 	@Override
-@Cacheable(value = cacheValue, key = "'findAll'")
-public List<CompanyResponse> findAll() {
-    try {
-        System.out.println("========== DEBUG START ==========");
-        System.out.println("1. Calling companyInformationRepository.findAll()");
+	@Cacheable(value = cacheValue, key = "'findAll'")
+	public List<CompanyResponse> findAll() {
+		try {
+			System.out.println("========== DEBUG START ==========");
+			System.out.println("1. Calling companyInformationRepository.findAll()");
 
-        List<CompanyInformation> list = companyInformationRepository.findAll();
+			List<CompanyInformation> list = companyInformationRepository.findAll();
 
-        System.out.println("2. Found " + list.size() + " companies in database");
+			System.out.println("2. Found " + list.size() + " companies in database");
 
-        if (list.isEmpty()) {
-            System.out.println("3. List is EMPTY - throwing exception");
-            throw new Exception();
-        }
+			if (list.isEmpty()) {
+				System.out.println("3. List is EMPTY - throwing exception");
+				throw new Exception();
+			}
 
-        System.out.println("3. List has data, proceeding to getCompanyResponse()");
-        System.out.println("4. First company ID: " + list.get(0).getId());
-        System.out.println("4. First company Name: " + list.get(0).getCompanyName());
+			System.out.println("3. List has data, proceeding to getCompanyResponse()");
+			System.out.println("4. First company ID: " + list.get(0).getId());
+			System.out.println("4. First company Name: " + list.get(0).getCompanyName());
 
-        List<CompanyResponse> response = getCompanyResponse(list);
+			List<CompanyResponse> response = getCompanyResponse(list);
 
-        System.out.println("5. getCompanyResponse() completed successfully!");
-        System.out.println("5. Response size: " + response.size());
-        System.out.println("========== DEBUG END ==========");
+			System.out.println("5. getCompanyResponse() completed successfully!");
+			System.out.println("5. Response size: " + response.size());
+			System.out.println("========== DEBUG END ==========");
 
-        return response;
+			return response;
 
-    } catch (Exception e) {
-        System.err.println("========== ERROR OCCURRED ==========");
-        System.err.println("Exception type: " + e.getClass().getName());
-        System.err.println("Exception message: " + e.getMessage());
-        e.printStackTrace();
-        System.err.println("====================================");
-        throw new NoSuchElementException("No such company information exist at here...");
-    }
-}
+		} catch (Exception e) {
+			System.err.println("========== ERROR OCCURRED ==========");
+			System.err.println("Exception type: " + e.getClass().getName());
+			System.err.println("Exception message: " + e.getMessage());
+			e.printStackTrace();
+			System.err.println("====================================");
+			throw new NoSuchElementException("No such company information exist at here...");
+		}
+	}
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findById_' + #id")
@@ -1306,33 +1206,33 @@ public List<CompanyResponse> findAll() {
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCreatorId_' + #creatorId")
 	public List<CompanyResponse> findByCreatorId(String creatorId) {
-		
-		if(creatorId == null) {
-			
+
+		if (creatorId == null) {
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			List<CompanyInformation> list = companyInformationRepository.findByCreatorId(creatorId);
-			
-			if(list.isEmpty()) {
-				
+
+			if (list.isEmpty()) {
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return getCompanyResponse(list);
-			
-		} catch(Exception e) {
-			
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException("No such company of that creator find ");
-			
+
 		}
-		
+
 	}
-	
+
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
 			@CacheEvict(value = "ShareHolder", allEntries = true), @CacheEvict(value = "Director", allEntries = true),
@@ -1397,31 +1297,6 @@ public List<CompanyResponse> findAll() {
 			}
 
 		} catch (Exception e) {
-
-		}
-
-		try {
-
-			Director director = directorRepository.findByUserId(userId);
-
-			if (director == null) {
-
-				throw new Exception();
-
-			}
-
-			if (information.getDirectorsId() != null && !information.getDirectorsId().isEmpty()
-					&& information.getDirectorsId().contains(director.getId())) {
-
-			} else {
-
-				throw new Exception();
-
-			}
-
-		} catch (Exception e) {
-
-			throw new ArithmeticException("The actioned user must be a director");
 
 		}
 

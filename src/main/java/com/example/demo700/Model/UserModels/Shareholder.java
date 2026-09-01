@@ -22,8 +22,8 @@ public class Shareholder implements Serializable {
 	private String id;
 
 	@NonNull
-	@Indexed(unique = true)
-	private String userId;
+	@Indexed
+	private String userId, fullName;
 
 	@Indexed
 	private String nid, tin;
@@ -31,9 +31,13 @@ public class Shareholder implements Serializable {
 	@Indexed
 	private Map<String, List<Double>> sharePercentage = new HashMap<>();
 
-	public Shareholder(String userId, String nid, String tin, Map<String, List<Double>> sharePercentage) {
+	
+
+	public Shareholder(String userId, String fullName, String nid, String tin,
+			Map<String, List<Double>> sharePercentage) {
 		super();
 		this.userId = userId;
+		this.fullName = fullName;
 		this.nid = nid;
 		this.tin = tin;
 		this.sharePercentage = sharePercentage;
@@ -87,10 +91,18 @@ public class Shareholder implements Serializable {
 		return serialVersionUID;
 	}
 
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
 	@Override
 	public String toString() {
-		return "Shareholder [id=" + id + ", userId=" + userId + ", nid=" + nid + ", tin=" + tin + ", sharePercentage="
-				+ sharePercentage + "]";
+		return "Shareholder [id=" + id + ", userId=" + userId + ", fullName=" + fullName + ", nid=" + nid + ", tin="
+				+ tin + ", sharePercentage=" + sharePercentage + "]";
 	}
 
 }

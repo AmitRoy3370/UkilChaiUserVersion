@@ -270,7 +270,7 @@ public class Cleaner {
 
 				try {
 
-					Shareholder holder = holderRepository.findByUserId(user.getId());
+					List<Shareholder> holder = holderRepository.findByUserId(user.getId());
 
 					if (holder == null) {
 
@@ -278,7 +278,11 @@ public class Cleaner {
 
 					}
 
-					removeShareholder(holder.getId());
+					for (Shareholder i : holder) {
+
+						removeShareholder(i.getId());
+
+					}
 
 				} catch (Exception e) {
 
@@ -286,7 +290,7 @@ public class Cleaner {
 
 				try {
 
-					Director director = directorRepository.findByUserId(userId);
+					List<Director> director = directorRepository.findByUserId(userId);
 
 					if (director == null) {
 
@@ -294,7 +298,11 @@ public class Cleaner {
 
 					}
 
-					removeDirector(director.getId());
+					for (Director i : director) {
+
+						removeDirector(i.getId());
+
+					}
 
 				} catch (Exception e) {
 

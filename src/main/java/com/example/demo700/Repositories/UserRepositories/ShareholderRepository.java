@@ -11,7 +11,10 @@ import com.example.demo700.Model.UserModels.Shareholder;
 @Repository
 public interface ShareholderRepository extends MongoRepository<Shareholder, String> {
 
-	public Shareholder findByUserId(String userId);
+	@Query("{ 'fullName' : { $regex : ?0, $options : 'i' }}")
+	public List<Shareholder> findByFullNameContainingIgnoreCase(String fullName);
+
+	public List<Shareholder> findByUserId(String userId);
 
 	public List<Shareholder> findByNid(String nid);
 

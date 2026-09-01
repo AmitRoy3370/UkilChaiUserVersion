@@ -101,24 +101,6 @@ public class DirectorServiceImpl implements DirectorService {
 
 		try {
 
-			Director _director = directorRepository.findByUserId(user.getId());
-
-			if (_director != null) {
-
-				throw new ArithmeticException();
-
-			}
-
-		} catch (ArithmeticException e) {
-
-			throw new ArithmeticException("This user is already added as a director...");
-
-		} catch (Exception e) {
-
-		}
-
-		try {
-
 			if (nid != null && !nid.isEmpty()) {
 
 				String fileName = nid.getOriginalFilename().toLowerCase();
@@ -138,6 +120,7 @@ public class DirectorServiceImpl implements DirectorService {
 				} else {
 
 					director.setNid(nidId);
+					director.setNidNumber(nidId);
 
 				}
 
@@ -195,31 +178,15 @@ public class DirectorServiceImpl implements DirectorService {
 
 			}
 
-		} catch (Exception e) {
+			if (!_director.getUserId().equals(userId)) {
 
-			throw new NoSuchElementException("No such director exist at here...");
-
-		}
-
-		try {
-
-			Director _director = directorRepository.findByUserId(user.getId());
-
-			if (_director != null) {
-
-				if (!_director.getId().equals(id)) {
-
-					throw new ArithmeticException();
-
-				}
+				throw new Exception();
 
 			}
 
-		} catch (ArithmeticException e) {
-
-			throw new ArithmeticException("This user is already added as a director...");
-
 		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such director exist at here...");
 
 		}
 
@@ -261,16 +228,16 @@ public class DirectorServiceImpl implements DirectorService {
 
 				} else {
 
-				    try {
+					try {
 
-				        imageService.delete(director.getNid());
+						imageService.delete(director.getNid());
 
-				    } catch(Exception e) {
+					} catch (Exception e) {
 
-
-				    }
+					}
 
 					director.setNid(nidId);
+					director.setNidNumber(nidId);
 
 				}
 
@@ -290,6 +257,12 @@ public class DirectorServiceImpl implements DirectorService {
 
 		update.set("id", id);
 		update.set("userID", director.getUserId());
+		update.set("fullName", director.getFullName());
+		update.set("fatherName", director.getFatherName());
+		update.set("motherName", director.getMotherName());
+		update.set("nidNumber", director.getNidNumber());
+		update.set("mobileNumber", director.getMobileNumber());
+		update.set("email", director.getEmail());
 
 		if (director.getNid() != null) {
 
@@ -300,6 +273,156 @@ public class DirectorServiceImpl implements DirectorService {
 		mongoTemplate.updateFirst(query, update, Director.class);
 
 		return mongoTemplate.findOne(query, Director.class);
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByFullNamePrefix_' + #fullName")
+	public List<DirectorResponse> findByFullNameContainingIgnoreCase(String fullName) {
+
+		if (fullName == null) {
+
+			throw new NullPointerException("False request...");
+
+		}
+
+		try {
+
+			List<Director> list = directorRepository.findByFullNameContainingIgnoreCase(fullName);
+
+			if (list.isEmpty()) {
+
+				throw new Exception();
+
+			}
+
+			return getDirectorResponse(list);
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such director find at here...");
+
+		}
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByFatherName_' + #fatherName")
+	public List<DirectorResponse> findByFatherNameContainingIgnoreCase(String fatherName) {
+
+		if (fatherName == null) {
+
+			throw new NullPointerException("Fasle request...");
+
+		}
+
+		try {
+
+			List<Director> list = directorRepository.findByFatherNameContainingIgnoreCase(fatherName);
+
+			if (list.isEmpty()) {
+
+				throw new Exception();
+
+			}
+
+			return getDirectorResponse(list);
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such director find at here...");
+
+		}
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByMotherName_' + #motherName")
+	public List<DirectorResponse> findByMotherNameContainingIgnoreCase(String motherName) {
+
+		if (motherName == null) {
+
+			throw new NullPointerException("Fasle request...");
+
+		}
+
+		try {
+
+			List<Director> list = directorRepository.findByMotherNameContainingIgnoreCase(motherName);
+
+			if (list.isEmpty()) {
+
+				throw new Exception();
+
+			}
+
+			return getDirectorResponse(list);
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such director find at here...");
+
+		}
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByMobileNumber_' + #mobileNumber")
+	public List<DirectorResponse> findByMobileNumberContainingIgnoreCase(String mobileNumber) {
+
+		if (mobileNumber == null) {
+
+			throw new NullPointerException("Fasle request...");
+
+		}
+
+		try {
+
+			List<Director> list = directorRepository.findByMobileNumberContainingIgnoreCase(mobileNumber);
+
+			if (list.isEmpty()) {
+
+				throw new Exception();
+
+			}
+
+			return getDirectorResponse(list);
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such director find at here...");
+
+		}
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByEmail_' + #email")
+	public List<DirectorResponse> findByEmailContainingIgnoreCase(String email) {
+
+		if (email == null) {
+
+			throw new NullPointerException("Fasle request...");
+
+		}
+
+		try {
+
+			List<Director> list = directorRepository.findByEmailContainingIgnoreCase(email);
+
+			if (list.isEmpty()) {
+
+				throw new Exception();
+
+			}
+
+			return getDirectorResponse(list);
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such director find at here...");
+
+		}
 
 	}
 
@@ -387,7 +510,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
-	public DirectorResponse findByUserId(String userId) {
+	public List<DirectorResponse> findByUserId(String userId) {
 
 		if (userId == null) {
 
@@ -397,7 +520,7 @@ public class DirectorServiceImpl implements DirectorService {
 
 		try {
 
-			Director director = directorRepository.findByUserId(userId);
+			List<Director> director = directorRepository.findByUserId(userId);
 
 			if (director == null) {
 
@@ -626,6 +749,12 @@ public class DirectorServiceImpl implements DirectorService {
 			response.setProfileImageId(userNameMap.get(director.getUserId()).getProfileImageId());
 			response.setPosition(director.getPosition());
 			response.setNid(director.getNid());
+			response.setFullName(director.getFullName());
+			response.setMotherName(director.getMotherName());
+			response.setFatherName(director.getFatherName());
+			response.setNidNumber(director.getNidNumber());
+			response.setMobileNumber(director.getMobileNumber());
+			response.setDirectorEmail(director.getEmail());
 
 			try {
 

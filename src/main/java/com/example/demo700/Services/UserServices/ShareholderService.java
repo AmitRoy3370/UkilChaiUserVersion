@@ -14,9 +14,10 @@ public interface ShareholderService {
 	public Shareholder updateShareholder(Shareholder holder, String userId, String id, MultipartFile nid, MultipartFile tin);
 	public Shareholder shareProfit(String companyId, double percentage, String shareHolderId, String userId);
 	
+	public List<ShareholderResponse> findByFullNamePrefix(String fullName);
 	public ShareholderResponse findById(String id);
 	public List<ShareholderResponse> findAll();
-	public ShareholderResponse findByUserId(String userId);
+	public List<ShareholderResponse> findByUserId(String userId);
 	public List<ShareholderResponse> findByNid(String nid);
 	public List<ShareholderResponse> findByTin(String tin);
 	public List<ShareholderResponse> findByShareCompanyId(String companyId);

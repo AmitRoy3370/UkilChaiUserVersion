@@ -14,9 +14,14 @@ public interface DirectorService {
 	
 	public DirectorResponse findById(String id);
 	public List<DirectorResponse> findAll();
-	public DirectorResponse findByUserId(String userId);
+	public List<DirectorResponse> findByUserId(String userId);
 	public List<DirectorResponse> findByNid(String nid);
 	public List<DirectorResponse> findByPosition(String position);
+	public List<DirectorResponse> findByFullNameContainingIgnoreCase(String fullName);
+	public List<DirectorResponse> findByFatherNameContainingIgnoreCase(String fatherName);
+	public List<DirectorResponse> findByMotherNameContainingIgnoreCase(String motherName);
+	public List<DirectorResponse> findByMobileNumberContainingIgnoreCase(String mobileNumber);
+	public List<DirectorResponse> findByEmailContainingIgnoreCase(String email);
 	
 	public boolean removeDirector(String id, String userId);
 	

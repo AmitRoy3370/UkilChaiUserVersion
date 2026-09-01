@@ -102,24 +102,6 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 		try {
 
-			Shareholder shareHolder = holderRepository.findByUserId(user.getId());
-
-			if (shareHolder != null) {
-
-				throw new ArithmeticException();
-
-			}
-
-		} catch (ArithmeticException e) {
-
-			throw new ArithmeticException("This user is already added as a shareholder....");
-
-		} catch (Exception e) {
-
-		}
-
-		try {
-
 			if (!holder.getSharePercentage().isEmpty()) {
 
 				throw new Exception();
@@ -251,28 +233,6 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 		try {
 
-			Shareholder shareHolder = holderRepository.findByUserId(user.getId());
-
-			if (shareHolder != null) {
-
-				if (!shareHolder.getId().equals(id)) {
-
-					throw new ArithmeticException();
-
-				}
-
-			}
-
-		} catch (ArithmeticException e) {
-
-			throw new ArithmeticException("This user is already added as a shareholder....");
-
-		} catch (Exception e) {
-
-		}
-
-		try {
-
 			if (!holder.getSharePercentage().isEmpty()) {
 
 				Set<String> companies = holder.getSharePercentage().keySet();
@@ -341,15 +301,13 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 				}
 
-				 try {
+				try {
 
-				        imageService.delete(holder.getNid());
+					imageService.delete(holder.getNid());
 
-                 } catch(Exception e) {
+				} catch (Exception e) {
 
-
-                  }
-
+				}
 
 				holder.setNid(nidId);
 
@@ -389,15 +347,13 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 				}
 
-				 try {
+				try {
 
-                    imageService.delete(holder.getTin());
+					imageService.delete(holder.getTin());
 
-                  } catch(Exception e) {
+				} catch (Exception e) {
 
-
-                  }
-
+				}
 
 				holder.setTin(nidId);
 
@@ -424,6 +380,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 		Update update = new Update();
 
 		update.set("id", holder.getId());
+		update.set("fullName", holder.getFullName());
 		update.set("userId", holder.getUserId());
 		update.set("nid", holder.getNid());
 		update.set("tin", holder.getTin());
@@ -487,22 +444,6 @@ public class ShareholderServiceImpl implements ShareholderService {
 		} catch (Exception e) {
 
 			throw new NoSuchElementException("No such share holder exist at here....");
-
-		}
-
-		try {
-
-			Shareholder shareHolder = holderRepository.findByUserId(userId);
-
-			if (shareHolder == null) {
-
-				throw new Exception();
-
-			}
-
-		} catch (Exception e) {
-
-			throw new ArithmeticException("You are not registered as a shareholder....");
 
 		}
 
@@ -625,7 +566,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
-	public ShareholderResponse findByUserId(String userId) {
+	public List<ShareholderResponse> findByUserId(String userId) {
 
 		if (userId == null) {
 
@@ -635,7 +576,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 		try {
 
-			Shareholder holder = holderRepository.findByUserId(userId);
+			List<Shareholder> holder = holderRepository.findByUserId(userId);
 
 			if (holder == null) {
 
@@ -858,6 +799,36 @@ public class ShareholderServiceImpl implements ShareholderService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByFullNamePrefix_' + #fullName")
+	public List<ShareholderResponse> findByFullNamePrefix(String fullName) {
+
+		if (fullName == null) {
+
+			throw new NullPointerException("False request...");
+
+		}
+
+		try {
+
+			List<Shareholder> list = holderRepository.findByFullNameContainingIgnoreCase(fullName);
+
+			if (list.isEmpty()) {
+
+				throw new Exception();
+
+			}
+
+			return getShareholderResponse(list);
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such shareholder find at here...");
+
+		}
+
+	}
+
+	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
 			@CacheEvict(value = "RegistrationProcess", allEntries = true),
 			@CacheEvict(value = "CompanyInformation", allEntries = true),
@@ -909,11 +880,11 @@ public class ShareholderServiceImpl implements ShareholderService {
 
 		try {
 
-			Shareholder shareHolder = holderRepository.findByUserId(user.getId());
+			List<Shareholder> shareHolder = holderRepository.findByUserId(user.getId());
 
 			if (shareHolder != null) {
 
-				if (!shareHolder.getId().equals(id)) {
+				if (!shareHolder.stream().map(Shareholder::getUserId).collect(Collectors.toList()).contains(id)) {
 
 					throw new ArithmeticException();
 
@@ -1059,6 +1030,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 				ShareholderResponse response = new ShareholderResponse();
 
 				response.setId(holder.getId());
+
 				response.setUserId(holder.getUserId());
 				response.setNid(holder.getNid());
 				response.setTin(holder.getTin());
