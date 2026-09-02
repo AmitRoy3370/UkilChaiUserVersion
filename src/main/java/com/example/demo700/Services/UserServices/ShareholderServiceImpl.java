@@ -1034,6 +1034,7 @@ public class ShareholderServiceImpl implements ShareholderService {
 				response.setUserId(holder.getUserId());
 				response.setNid(holder.getNid());
 				response.setTin(holder.getTin());
+				response.setFullName(holder.getFullName());
 				response.setSharePercentage(holder.getSharePercentage());
 				response.setUserName(userNameMap.get(holder.getUserId()).getFullName() == null
 						? userNameMap.get(holder.getUserId()).getName()

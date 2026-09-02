@@ -1535,9 +1535,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 						try {
 
-							directorsName.add(userMap.get(directorMap.get(i).getUserId()).getFullName() == null
-									? userMap.get(directorMap.get(i).getUserId()).getName()
-									: userMap.get(directorMap.get(i).getUserId()).getFullName());
+							directorsName.add(directorMap.get(i).getFullName());
 
 						} catch (Exception e) {
 
@@ -1559,9 +1557,7 @@ public class CompanyInformationServiceImpl implements CompanyInformationService 
 
 						try {
 
-							shareHoldersName.add(userMap.get(holderMap.get(i).getUserId()).getFullName() == null
-									? userMap.get(holderMap.get(i).getUserId()).getName()
-									: userMap.get(holderMap.get(i).getUserId()).getFullName());
+							shareHoldersName.add(holderMap.get(i).getFullName());
 
 						} catch (Exception e) {
 
