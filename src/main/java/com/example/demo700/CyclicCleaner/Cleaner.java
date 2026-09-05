@@ -91,6 +91,7 @@ import com.example.demo700.Repositories.UserRepositories.UserContactInfoReposito
 import com.example.demo700.Repositories.UserRepositories.UserGenderRepository;
 import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
+import com.example.demo700.Services.RedisService;
 import com.example.demo700.Services.UserServices.ImageService;
 
 @Service
@@ -221,6 +222,9 @@ public class Cleaner {
 
 	@Autowired
 	private CompanyPaymentRepository paymentRepository;
+	
+	@Autowired
+	private RedisService redisService;
 
 	public void removeUser(String userId) {
 
@@ -240,6 +244,8 @@ public class Cleaner {
 
 			if (count != userRepository.count()) {
 
+				redisService.clearAllCaches();
+				
 				try {
 
 					List<CompanyRequestPayment> list = paymentRepository.findBySenderUserId(userId);
