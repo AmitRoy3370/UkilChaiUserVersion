@@ -1,4 +1,4 @@
-package com.example.demo700.Services.UserServices;
+package com.example.demo700.Services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.cache.RedisCacheManager;
