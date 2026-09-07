@@ -94,102 +94,112 @@ public class TinController {
 		}
 	}
 
-	@PutMapping(value = "/update/{id}", consumes = { "application/json" })
-public ResponseEntity<Map<String, Object>> updateTin(
-        @PathVariable String id,
-        @RequestParam String userId,
-        @RequestParam(required = false) String fullName,
-        @RequestParam(required = false) String fatherName,
-        @RequestParam(required = false) String motherName,
-        @RequestParam(required = false) String phone,
-        @RequestParam(required = false) String dateOfBirth,
-        @RequestParam(required = false) String presentAdress,
-        @RequestParam(required = false) String permanentAdress,
-        @RequestParam(required = false) String attachmentsId,
-        @RequestPart(value = "documents", required = false) MultipartFile[] documents) {
+	 // ==================== UPDATE ====================
+    @PutMapping(value = "/update/{id}", consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<Map<String, Object>> updateTin(
+            @PathVariable String id,
+            @RequestParam String userId,
+            @RequestParam(required = false) String fullName,
+            @RequestParam(required = false) String fatherName,
+            @RequestParam(required = false) String motherName,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String dateOfBirth,
+            @RequestParam(required = false) String presentAdress,
+            @RequestParam(required = false) String permanentAdress,
+            @RequestParam(required = false) String attachmentsId,
+            @RequestPart(value = "documents", required = false) MultipartFile[] documents) {
 
-    Map<String, Object> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
 
-    try {
-        Tin tin = new Tin();
-        tin.setUserId(userId);
+        try {
+            // Validate required fields
+            if (id == null || id.trim().isEmpty()) {
+                response.put("status", "error");
+                response.put("message", "Tin ID is required");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
 
-        if (fullName != null)
-            tin.setFullName(fullName);
-        if (fatherName != null)
-            tin.setFatherName(fatherName);
-        if (motherName != null)
-            tin.setMotherName(motherName);
-        if (phone != null)
-            tin.setPhone(phone);
-        if (dateOfBirth != null)
-            tin.setDateOfBirth(Instant.parse(dateOfBirth));
-        if (presentAdress != null)
-            tin.setPresentAdress(presentAdress);
-        if (permanentAdress != null)
-            tin.setPermanentAdress(permanentAdress);
+            if (userId == null || userId.trim().isEmpty()) {
+                response.put("status", "error");
+                response.put("message", "User ID is required");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
 
-        // Use ObjectMapper to convert JSON string to List
-        if (attachmentsId != null && !attachmentsId.isEmpty()) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            List<String> attachmentList = objectMapper.readValue(attachmentsId,
-                new TypeReference<List<String>>() {});
-            tin.setDocuments(attachmentList);
+            Tin tin = new Tin();
+            tin.setUserId(userId);
+
+            // Set optional fields with validation
+            if (fullName != null && !fullName.trim().isEmpty()) {
+                tin.setFullName(fullName.trim());
+            }
+            if (fatherName != null && !fatherName.trim().isEmpty()) {
+                tin.setFatherName(fatherName.trim());
+            }
+            if (motherName != null && !motherName.trim().isEmpty()) {
+                tin.setMotherName(motherName.trim());
+            }
+            if (phone != null && !phone.trim().isEmpty()) {
+                tin.setPhone(phone.trim());
+            }
+            if (dateOfBirth != null && !dateOfBirth.trim().isEmpty()) {
+                try {
+                    tin.setDateOfBirth(Instant.parse(dateOfBirth.trim()));
+                } catch (DateTimeParseException e) {
+                    response.put("status", "error");
+                    response.put("message", "Invalid date format. Use ISO-8601 format (e.g., 2024-01-01T00:00:00Z)");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+                }
+            }
+            if (presentAdress != null && !presentAdress.trim().isEmpty()) {
+                tin.setPresentAdress(presentAdress.trim());
+            }
+            if (permanentAdress != null && !permanentAdress.trim().isEmpty()) {
+                tin.setPermanentAdress(permanentAdress.trim());
+            }
+
+            // Use ObjectMapper to convert JSON string to List
+            if (attachmentsId != null && !attachmentsId.trim().isEmpty()) {
+                try {
+                    List<String> attachmentList = objectMapper.readValue(
+                        attachmentsId.trim(),
+                        new TypeReference<List<String>>() {}
+                    );
+                    tin.setDocuments(attachmentList);
+                } catch (Exception e) {
+                    response.put("status", "error");
+                    response.put("message", "Invalid attachmentsId format. Must be a JSON array: [\"id1\", \"id2\"]");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+                }
+            }
+
+            Tin updatedTin = tinService.updateTin(tin, userId, id, documents);
+
+            response.put("status", "success");
+            response.put("message", "Tin updated successfully");
+            response.put("data", updatedTin);
+            return ResponseEntity.ok(response);
+
+        } catch (NullPointerException e) {
+            response.put("status", "error");
+            response.put("message", "Invalid request: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+
+        } catch (NoSuchElementException e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
+        } catch (ArithmeticException e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "An unexpected error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-
-        Tin updatedTin = tinService.updateTin(tin, userId, id, documents);
-
-        response.put("status", "success");
-        response.put("message", "Tin updated successfully");
-        response.put("data", updatedTin);
-        return ResponseEntity.ok(response);
-
-    } catch (NullPointerException e) {
-        response.put("status", "error");
-        response.put("message", "False request: " + e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-
-    } catch (NoSuchElementException e) {
-        response.put("status", "error");
-        response.put("message", e.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-
-    } catch (ArithmeticException e) {
-        response.put("status", "error");
-        response.put("message", e.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-
-    } catch (Exception e) {
-        response.put("status", "error");
-        response.put("message", "An unexpected error occurred: " + e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
-}
-
-	// --------------------------------------------------
-	// Download Post content
-	// --------------------------------------------------
-
-	@GetMapping("download/postContent")
-	public ResponseEntity<?> downloadPostContent(@RequestParam String attachmentId) {
-
-		try {
-
-			if (attachmentId == null) {
-
-				throw new Exception("False request...");
-
-			}
-
-			return serveAttachment(attachmentId, "attachment");
-
-		} catch (Exception e) {
-
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-
-		}
-
-	}
 
 	// -------------- view the attachment ---------------------
 
