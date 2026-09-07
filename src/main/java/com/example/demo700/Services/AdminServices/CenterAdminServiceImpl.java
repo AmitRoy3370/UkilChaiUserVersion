@@ -478,7 +478,16 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 			@CacheEvict(value = "ReadStatus", allEntries = true),
 			@CacheEvict(value = "Answer", allEntries = true),
 			@CacheEvict(value = "Question", allEntries = true),
-			@CacheEvict(value = "PaymentDetails", allEntries = true)
+			@CacheEvict(value = "PaymentDetails", allEntries = true),
+          @CacheEvict(value = "Director", allEntries = true),
+           @CacheEvict(value = "ShareHolder", allEntries = true),
+          @CacheEvict(value = "Subscription", allEntries = true),
+          @CacheEvict(value = "RegistrationProcess", allEntries = true),
+          @CacheEvict(value = "CompanyPayment", allEntries = true),
+           @CacheEvict(value = "CompanyContact", allEntries = true),
+          @CacheEvict(value = "CompanyInformation", allEntries = true),
+          @CacheEvict(value = "TinRegistrationProcess", allEntries = true),
+          @CacheEvict(value = "Tin", allEntries = true),
 	})
 	public boolean removeCentralAdmin(String centerAdminId, String userId) {
 

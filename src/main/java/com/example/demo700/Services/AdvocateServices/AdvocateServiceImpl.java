@@ -70,7 +70,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 	@Autowired
 	private CVUploadService cvUpload;
-	
+
 	private static final String cacheValue = "Advocate";
 
 	@Override
@@ -557,7 +557,16 @@ public class AdvocateServiceImpl implements AdvocateService {
 			@CacheEvict(value = "Answer", allEntries = true),
 			@CacheEvict(value = "Question", allEntries = true),
 			@CacheEvict(value = "PaymentDetails", allEntries = true),
-			@CacheEvict(value = "UserActiveLocation", allEntries = true)
+			@CacheEvict(value = "UserActiveLocation", allEntries = true),
+          @CacheEvict(value = "Director", allEntries = true),
+           @CacheEvict(value = "ShareHolder", allEntries = true),
+          @CacheEvict(value = "Subscription", allEntries = true),
+          @CacheEvict(value = "RegistrationProcess", allEntries = true),
+          @CacheEvict(value = "CompanyPayment", allEntries = true),
+           @CacheEvict(value = "CompanyContact", allEntries = true),
+          @CacheEvict(value = "CompanyInformation", allEntries = true),
+          @CacheEvict(value = "TinRegistrationProcess", allEntries = true),
+          @CacheEvict(value = "Tin", allEntries = true),
 	})
 	public boolean deleteAdvocate(String userId, String advocateId) {
 
