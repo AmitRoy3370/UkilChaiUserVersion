@@ -99,6 +99,7 @@ public class TinController {
 			@RequestParam(required = false) String motherName, @RequestParam(required = false) String phone,
 			@RequestParam(required = false) String dateOfBirth, @RequestParam(required = false) String presentAdress,
 			@RequestParam(required = false) String permanentAdress,
+            @RequestParam(required = false) List<String> attachmentsId,
 			@RequestPart(value = "documents", required = false) MultipartFile[] documents) {
 
 		Map<String, Object> response = new HashMap<>();
@@ -121,6 +122,12 @@ public class TinController {
 				tin.setPresentAdress(presentAdress);
 			if (permanentAdress != null)
 				tin.setPermanentAdress(permanentAdress);
+
+			if(attachmentsId != null && !attachmentsId.isEmpty()) {
+
+                tin.setDocuments(attachmentsId);
+
+			}
 
 			Tin updatedTin = tinService.updateTin(tin, userId, id, documents);
 
