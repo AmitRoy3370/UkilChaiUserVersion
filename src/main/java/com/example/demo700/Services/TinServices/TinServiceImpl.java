@@ -770,260 +770,381 @@ public class TinServiceImpl implements TinService {
 
 	private List<TinResponseDTO> getTinResponse(List<Tin> list) {
 
-		List<TinResponseDTO> responses = new ArrayList<>();
-
-		CompletableFuture<List<String>> tinIdListFuture = CompletableFuture
-				.supplyAsync(() -> list.stream().map(Tin::getId).collect(Collectors.toList()), executor);
-
-		CompletableFuture<List<String>> usersIdListFuture = CompletableFuture
-				.supplyAsync(() -> list.stream().map(Tin::getUserId).collect(Collectors.toList()), executor);
-
-		CompletableFuture<List<TinRegistrationProcess>> tinRegistrationProcessListFuture = tinIdListFuture
-				.thenApplyAsync(tinsId -> {
-
-					if (tinsId.isEmpty()) {
-
-						return new ArrayList<>();
-
-					}
-
-					return processRepository.findByTinIdIn(tinsId);
-
-				}, executor);
-
-		CompletableFuture<List<String>> advocatesIdFuture = tinRegistrationProcessListFuture
-				.thenApplyAsync(tinRegistrationProcess -> {
-
-					if (tinRegistrationProcess.isEmpty()) {
-
-						return new ArrayList<>();
-
-					}
-
-					return tinRegistrationProcess.stream().map(TinRegistrationProcess::getAdvocateId)
-							.collect(Collectors.toList());
-
-				}, executor);
-
-		CompletableFuture<Map<String, Advocate>> advocateMapFuture = advocatesIdFuture.thenApplyAsync(advocatesId -> {
-
-			if (advocatesId.isEmpty()) {
-
-				return new HashMap<>();
-
-			}
-
-			return advocateRepository.findAllById(advocatesId).stream()
-					.collect(Collectors.toMap(Advocate::getId, Function.identity()));
-
-		}, executor);
-
-		CompletableFuture<List<Advocate>> advocatesListFuture = advocateMapFuture.thenApplyAsync(advocatesMap -> {
-
-			if (advocatesMap.isEmpty()) {
-
-				return new ArrayList<>();
-
-			}
-
-			List<Advocate> advocates = advocatesMap.values().stream().collect(Collectors.toList());
-
-			return advocates;
-
-		}, executor);
-
-		CompletableFuture<List<String>> advocatesUserIdFuture = advocatesListFuture.thenApplyAsync(advocatesList -> {
-
-			if (advocatesList.isEmpty()) {
-
-				return new ArrayList<>();
-
-			}
-
-			List<String> usersId = advocatesList.stream().map(Advocate::getUserId).collect(Collectors.toList());
-
-			return usersId;
-
-		}, executor);
-
-		CompletableFuture<List<String>> advocatesUserIdWithRequestedUsersId = usersIdListFuture
-				.thenCombine(advocatesUserIdFuture, (usersIdListFuture1, advocatesUserIdFuture1) -> Stream
-						.concat(advocatesUserIdFuture1.stream(), usersIdListFuture1.stream()).toList());
-
-		CompletableFuture<List<String>> centerAdminsIdFuture = tinRegistrationProcessListFuture
-				.thenApplyAsync(tinRegistrationProcess -> {
-
-					if (tinRegistrationProcess.isEmpty()) {
-
-						return new ArrayList<>();
-
-					}
-
-					return tinRegistrationProcess.stream().map(TinRegistrationProcess::getCenterAdminId)
-							.collect(Collectors.toList());
-
-				}, executor);
-
-		CompletableFuture<Map<String, CenterAdmin>> centerAdminMapFuture = centerAdminsIdFuture
-				.thenApplyAsync(centerAdminsId -> {
-
-					if (centerAdminsId.isEmpty()) {
-
-						return new HashMap<>();
-
-					}
-
-					return centerAdminRepository.findAllById(centerAdminsId).stream()
-							.collect(Collectors.toMap(CenterAdmin::getId, Function.identity()));
-
-				}, executor);
-
-		CompletableFuture<List<CenterAdmin>> centerAdminListFuture = centerAdminMapFuture
-				.thenApplyAsync(centerAdminsMap -> {
-
-					if (centerAdminsMap.isEmpty()) {
-
-						return new ArrayList<>();
-
-					}
-
-					return centerAdminsMap.values().stream().collect(Collectors.toList());
-
-				}, executor);
-
-		CompletableFuture<List<String>> centerAdminsUserIdFuture = centerAdminListFuture
-				.thenApplyAsync(centerAdmins -> {
-
-					if (centerAdmins.isEmpty()) {
-
-						return new ArrayList<>();
-
-					}
-
-					return centerAdmins.stream().map(CenterAdmin::getUserId).collect(Collectors.toList());
-
-				}, executor);
-
-		CompletableFuture<List<String>> allUsersIdFuture = advocatesUserIdWithRequestedUsersId.thenCombine(
-				centerAdminsUserIdFuture, (list1, list2) -> Stream.concat(list1.stream(), list2.stream()).toList());
-
-		CompletableFuture<Map<String, User>> userMapFuture = allUsersIdFuture.thenApplyAsync(usersId -> {
-
-			if (usersId.isEmpty()) {
-
-				return new HashMap<>();
-
-			}
-
-			return userRepository.findAllById(usersId).stream()
-					.collect(Collectors.toMap(User::getId, Function.identity()));
-
-		}, executor);
-
-		CompletableFuture<Map<String, TinRegistrationProcess>> processMapFuture = tinRegistrationProcessListFuture
-				.thenApplyAsync(processes -> {
-
-					if (processes.isEmpty()) {
-
-						return new HashMap<>();
-
-					}
-
-					return processes.stream()
-							.collect(Collectors.toMap(TinRegistrationProcess::getTinId, Function.identity()));
-
-				}, executor);
-
-		CompletableFuture.allOf(tinIdListFuture, usersIdListFuture, tinRegistrationProcessListFuture, advocatesIdFuture,
-				centerAdminsIdFuture, userMapFuture, centerAdminMapFuture, processMapFuture, advocateMapFuture,
-				advocatesListFuture, advocatesUserIdFuture, advocatesUserIdWithRequestedUsersId, centerAdminListFuture,
-				centerAdminsUserIdFuture, allUsersIdFuture).join();
-
-		Map<String, User> userMap = userMapFuture.join();
-		Map<String, Advocate> advocateMap = advocateMapFuture.join();
-		Map<String, CenterAdmin> centerAdminMap = centerAdminMapFuture.join();
-		Map<String, TinRegistrationProcess> processMap = processMapFuture.join();
-
-		for (Tin tin : list) {
-
-			try {
-
-				TinResponseDTO response = new TinResponseDTO();
-
-				response.setId(tin.getId());
-				response.setUserId(tin.getUserId());
-				response.setDateOfBirth(tin.getDateOfBirth());
-				response.setDocuments(tin.getDocuments());
-				response.setFatherName(tin.getFatherName());
-				response.setMotherName(tin.getMotherName());
-				response.setFullName(tin.getFullName());
-				response.setPermanentAdress(tin.getPermanentAdress());
-				response.setPresentAdress(tin.getPresentAdress());
-				response.setPhone(tin.getPhone());
-
-				try {
-
-					response.setUserName(
-							userMap.get(tin.getUserId()).getFullName() == null ? userMap.get(tin.getUserId()).getName()
-									: userMap.get(tin.getUserId()).getFullName());
-
-				} catch (Exception e) {
-
-				}
-
-				try {
-
-					TinRegistrationProcess process = processMap.getOrDefault(tin.getId(), null);
-
-					if (process == null) {
-
-						throw new Exception();
-
-					}
-
-					TinRegistrationProcessDTO processResponse = new TinRegistrationProcessDTO();
-
-					processResponse.setId(process.getId());
-					processResponse.setTinId(process.getTinId());
-					processResponse.setAdvocateId(process.getAdvocateId());
-					processResponse.setCenterAdminId(process.getCenterAdminId());
-					processResponse.setRequestedUserId(tin.getUserId());
-					processResponse.setRequestedUserName(
-							userMap.get(tin.getUserId()).getFullName() == null ? userMap.get(tin.getUserId()).getName()
-									: userMap.get(tin.getUserId()).getFullName());
-
-					Advocate advocate = advocateMap.get(process.getAdvocateId());
-
-					processResponse.setAdvocateName(userMap.get(advocate.getUserId()).getFullName() == null
-							? userMap.get(advocate.getUserId()).getName()
-							: userMap.get(advocate.getUserId()).getFullName());
-
-					CenterAdmin centerAdmin = centerAdminMap.get(process.getCenterAdminId());
-
-					processResponse.setCenterAdminName(userMap.get(centerAdmin.getUserId()).getFullName() == null
-							? userMap.get(centerAdmin.getUserId()).getName()
-							: userMap.get(centerAdmin.getUserId()).getFullName());
-
-					processResponse.setTin(tin);
-
-					response.setRegistrationProcess(processResponse);
-
-				} catch (Exception e) {
-
-				}
-
-				responses.add(response);
-
-			} catch (Exception e) {
-
-				System.out.println(e.getMessage());
-
-			}
-
-		}
-
-		return responses;
-
-	}
-
+    System.out.println("=== START getTinResponse ===");
+    System.out.println("Input list size: " + (list != null ? list.size() : "null"));
+
+    if (list == null || list.isEmpty()) {
+        System.out.println("List is null or empty, returning empty list");
+        return new ArrayList<>();
+    }
+
+    List<TinResponseDTO> responses = new ArrayList<>();
+
+    System.out.println("Creating CompletableFutures...");
+
+    CompletableFuture<List<String>> tinIdListFuture = CompletableFuture
+            .supplyAsync(() -> {
+                System.out.println("tinIdListFuture: Extracting Tin IDs");
+                List<String> tinIds = list.stream().map(Tin::getId).collect(Collectors.toList());
+                System.out.println("tinIdListFuture: Found " + tinIds.size() + " tin IDs");
+                return tinIds;
+            }, executor);
+
+    CompletableFuture<List<String>> usersIdListFuture = CompletableFuture
+            .supplyAsync(() -> {
+                System.out.println("usersIdListFuture: Extracting User IDs");
+                List<String> userIds = list.stream().map(Tin::getUserId).collect(Collectors.toList());
+                System.out.println("usersIdListFuture: Found " + userIds.size() + " user IDs");
+                return userIds;
+            }, executor);
+
+    CompletableFuture<List<TinRegistrationProcess>> tinRegistrationProcessListFuture = tinIdListFuture
+            .thenApplyAsync(tinsId -> {
+                System.out.println("tinRegistrationProcessListFuture: Processing tin IDs");
+                if (tinsId.isEmpty()) {
+                    System.out.println("tinRegistrationProcessListFuture: Tin ID list is empty");
+                    return new ArrayList<>();
+                }
+                System.out.println("tinRegistrationProcessListFuture: Fetching processes for " + tinsId.size() + " tin IDs");
+                List<TinRegistrationProcess> processes = processRepository.findByTinIdIn(tinsId);
+                System.out.println("tinRegistrationProcessListFuture: Found " + processes.size() + " processes");
+                return processes;
+            }, executor);
+
+    CompletableFuture<List<String>> advocatesIdFuture = tinRegistrationProcessListFuture
+            .thenApplyAsync(tinRegistrationProcess -> {
+                System.out.println("advocatesIdFuture: Processing registration processes");
+                if (tinRegistrationProcess.isEmpty()) {
+                    System.out.println("advocatesIdFuture: No registration processes found");
+                    return new ArrayList<>();
+                }
+                List<String> advocateIds = tinRegistrationProcess.stream()
+                        .map(TinRegistrationProcess::getAdvocateId)
+                        .collect(Collectors.toList());
+                System.out.println("advocatesIdFuture: Found " + advocateIds.size() + " advocate IDs");
+                return advocateIds;
+            }, executor);
+
+    CompletableFuture<Map<String, Advocate>> advocateMapFuture = advocatesIdFuture.thenApplyAsync(advocatesId -> {
+        System.out.println("advocateMapFuture: Processing advocate IDs");
+        if (advocatesId.isEmpty()) {
+            System.out.println("advocateMapFuture: No advocate IDs found");
+            return new HashMap<>();
+        }
+        System.out.println("advocateMapFuture: Fetching advocates for " + advocatesId.size() + " IDs");
+        Map<String, Advocate> advocateMap = advocateRepository.findAllById(advocatesId).stream()
+                .collect(Collectors.toMap(Advocate::getId, Function.identity()));
+        System.out.println("advocateMapFuture: Found " + advocateMap.size() + " advocates");
+        return advocateMap;
+    }, executor);
+
+    CompletableFuture<List<Advocate>> advocatesListFuture = advocateMapFuture.thenApplyAsync(advocatesMap -> {
+        System.out.println("advocatesListFuture: Converting advocate map to list");
+        if (advocatesMap.isEmpty()) {
+            System.out.println("advocatesListFuture: Advocate map is empty");
+            return new ArrayList<>();
+        }
+        List<Advocate> advocates = advocatesMap.values().stream().collect(Collectors.toList());
+        System.out.println("advocatesListFuture: Found " + advocates.size() + " advocates");
+        return advocates;
+    }, executor);
+
+    CompletableFuture<List<String>> advocatesUserIdFuture = advocatesListFuture.thenApplyAsync(advocatesList -> {
+        System.out.println("advocatesUserIdFuture: Extracting advocate user IDs");
+        if (advocatesList.isEmpty()) {
+            System.out.println("advocatesUserIdFuture: No advocates found");
+            return new ArrayList<>();
+        }
+        List<String> userIds = advocatesList.stream()
+                .map(Advocate::getUserId)
+                .collect(Collectors.toList());
+        System.out.println("advocatesUserIdFuture: Found " + userIds.size() + " advocate user IDs");
+        return userIds;
+    }, executor);
+
+    CompletableFuture<List<String>> advocatesUserIdWithRequestedUsersId = usersIdListFuture
+            .thenCombine(advocatesUserIdFuture, (usersIdListFuture1, advocatesUserIdFuture1) -> {
+                System.out.println("advocatesUserIdWithRequestedUsersId: Combining user IDs");
+                System.out.println("  - Requested user IDs count: " + (usersIdListFuture1 != null ? usersIdListFuture1.size() : "null"));
+                System.out.println("  - Advocate user IDs count: " + (advocatesUserIdFuture1 != null ? advocatesUserIdFuture1.size() : "null"));
+
+                if (usersIdListFuture1 == null) {
+                    System.out.println("  - usersIdListFuture1 is null");
+                    return new ArrayList<>();
+                }
+                if (advocatesUserIdFuture1 == null) {
+                    System.out.println("  - advocatesUserIdFuture1 is null");
+                    return new ArrayList<>();
+                }
+
+                List<String> combined = Stream.concat(advocatesUserIdFuture1.stream(), usersIdListFuture1.stream())
+                        .collect(Collectors.toList());
+                System.out.println("  - Combined count: " + combined.size());
+                return combined;
+            });
+
+    CompletableFuture<List<String>> centerAdminsIdFuture = tinRegistrationProcessListFuture
+            .thenApplyAsync(tinRegistrationProcess -> {
+                System.out.println("centerAdminsIdFuture: Extracting center admin IDs");
+                if (tinRegistrationProcess.isEmpty()) {
+                    System.out.println("centerAdminsIdFuture: No registration processes found");
+                    return new ArrayList<>();
+                }
+                List<String> centerAdminIds = tinRegistrationProcess.stream()
+                        .map(TinRegistrationProcess::getCenterAdminId)
+                        .collect(Collectors.toList());
+                System.out.println("centerAdminsIdFuture: Found " + centerAdminIds.size() + " center admin IDs");
+                return centerAdminIds;
+            }, executor);
+
+    CompletableFuture<Map<String, CenterAdmin>> centerAdminMapFuture = centerAdminsIdFuture
+            .thenApplyAsync(centerAdminsId -> {
+                System.out.println("centerAdminMapFuture: Processing center admin IDs");
+                if (centerAdminsId.isEmpty()) {
+                    System.out.println("centerAdminMapFuture: No center admin IDs found");
+                    return new HashMap<>();
+                }
+                System.out.println("centerAdminMapFuture: Fetching center admins for " + centerAdminsId.size() + " IDs");
+                Map<String, CenterAdmin> centerAdminMap = centerAdminRepository.findAllById(centerAdminsId).stream()
+                        .collect(Collectors.toMap(CenterAdmin::getId, Function.identity()));
+                System.out.println("centerAdminMapFuture: Found " + centerAdminMap.size() + " center admins");
+                return centerAdminMap;
+            }, executor);
+
+    CompletableFuture<List<CenterAdmin>> centerAdminListFuture = centerAdminMapFuture
+            .thenApplyAsync(centerAdminsMap -> {
+                System.out.println("centerAdminListFuture: Converting center admin map to list");
+                if (centerAdminsMap.isEmpty()) {
+                    System.out.println("centerAdminListFuture: Center admin map is empty");
+                    return new ArrayList<>();
+                }
+                List<CenterAdmin> centerAdmins = centerAdminsMap.values().stream().collect(Collectors.toList());
+                System.out.println("centerAdminListFuture: Found " + centerAdmins.size() + " center admins");
+                return centerAdmins;
+            }, executor);
+
+    CompletableFuture<List<String>> centerAdminsUserIdFuture = centerAdminListFuture
+            .thenApplyAsync(centerAdmins -> {
+                System.out.println("centerAdminsUserIdFuture: Extracting center admin user IDs");
+                if (centerAdmins.isEmpty()) {
+                    System.out.println("centerAdminsUserIdFuture: No center admins found");
+                    return new ArrayList<>();
+                }
+                List<String> userIds = centerAdmins.stream()
+                        .map(CenterAdmin::getUserId)
+                        .collect(Collectors.toList());
+                System.out.println("centerAdminsUserIdFuture: Found " + userIds.size() + " center admin user IDs");
+                return userIds;
+            }, executor);
+
+    CompletableFuture<List<String>> allUsersIdFuture = advocatesUserIdWithRequestedUsersId
+            .thenCombine(centerAdminsUserIdFuture, (list1, list2) -> {
+                System.out.println("allUsersIdFuture: Combining all user IDs");
+                System.out.println("  - List1 (advocates + requested) count: " + (list1 != null ? list1.size() : "null"));
+                System.out.println("  - List2 (center admins) count: " + (list2 != null ? list2.size() : "null"));
+
+                if (list1 == null && list2 == null) {
+                    System.out.println("  - Both lists are null");
+                    return new ArrayList<>();
+                }
+                if (list1 == null) {
+                    System.out.println("  - List1 is null, returning list2");
+                    return list2 != null ? list2 : new ArrayList<>();
+                }
+                if (list2 == null) {
+                    System.out.println("  - List2 is null, returning list1");
+                    return list1;
+                }
+
+                List<String> combined = Stream.concat(list1.stream(), list2.stream())
+                        .collect(Collectors.toList());
+                System.out.println("  - Combined count: " + combined.size());
+                return combined;
+            });
+
+    CompletableFuture<Map<String, User>> userMapFuture = allUsersIdFuture.thenApplyAsync(usersId -> {
+        System.out.println("userMapFuture: Fetching users");
+        if (usersId.isEmpty()) {
+            System.out.println("userMapFuture: No user IDs found");
+            return new HashMap<>();
+        }
+        System.out.println("userMapFuture: Fetching " + usersId.size() + " users");
+        Map<String, User> userMap = userRepository.findAllById(usersId).stream()
+                .collect(Collectors.toMap(User::getId, Function.identity()));
+        System.out.println("userMapFuture: Found " + userMap.size() + " users");
+        return userMap;
+    }, executor);
+
+    CompletableFuture<Map<String, TinRegistrationProcess>> processMapFuture = tinRegistrationProcessListFuture
+            .thenApplyAsync(processes -> {
+                System.out.println("processMapFuture: Creating process map");
+                if (processes.isEmpty()) {
+                    System.out.println("processMapFuture: No processes found");
+                    return new HashMap<>();
+                }
+                Map<String, TinRegistrationProcess> processMap = processes.stream()
+                        .collect(Collectors.toMap(TinRegistrationProcess::getTinId, Function.identity()));
+                System.out.println("processMapFuture: Created map with " + processMap.size() + " entries");
+                return processMap;
+            }, executor);
+
+    System.out.println("Waiting for all CompletableFutures to complete...");
+    try {
+        CompletableFuture.allOf(tinIdListFuture, usersIdListFuture, tinRegistrationProcessListFuture, advocatesIdFuture,
+                centerAdminsIdFuture, userMapFuture, centerAdminMapFuture, processMapFuture, advocateMapFuture,
+                advocatesListFuture, advocatesUserIdFuture, advocatesUserIdWithRequestedUsersId, centerAdminListFuture,
+                centerAdminsUserIdFuture, allUsersIdFuture).join();
+        System.out.println("All CompletableFutures completed successfully");
+    } catch (Exception e) {
+        System.err.println("ERROR: CompletableFuture.allOf failed: " + e.getMessage());
+        e.printStackTrace();
+        return new ArrayList<>();
+    }
+
+    System.out.println("Getting results from futures...");
+    Map<String, User> userMap = userMapFuture.join();
+    System.out.println("  - userMap size: " + userMap.size());
+
+    Map<String, Advocate> advocateMap = advocateMapFuture.join();
+    System.out.println("  - advocateMap size: " + advocateMap.size());
+
+    Map<String, CenterAdmin> centerAdminMap = centerAdminMapFuture.join();
+    System.out.println("  - centerAdminMap size: " + centerAdminMap.size());
+
+    Map<String, TinRegistrationProcess> processMap = processMapFuture.join();
+    System.out.println("  - processMap size: " + processMap.size());
+
+    System.out.println("Building response DTOs for " + list.size() + " tins...");
+    int processedCount = 0;
+    int failedCount = 0;
+
+    for (Tin tin : list) {
+        try {
+            System.out.println("  Processing tin ID: " + tin.getId());
+
+            TinResponseDTO response = new TinResponseDTO();
+
+            response.setId(tin.getId());
+            response.setUserId(tin.getUserId());
+            response.setDateOfBirth(tin.getDateOfBirth());
+            response.setDocuments(tin.getDocuments());
+            response.setFatherName(tin.getFatherName());
+            response.setMotherName(tin.getMotherName());
+            response.setFullName(tin.getFullName());
+            response.setPermanentAdress(tin.getPermanentAdress());
+            response.setPresentAdress(tin.getPresentAdress());
+            response.setPhone(tin.getPhone());
+
+            // Set user name
+            try {
+                User user = userMap.get(tin.getUserId());
+                if (user != null) {
+                    response.setUserName(user.getFullName() != null ? user.getFullName() : user.getName());
+                    System.out.println("    - User name set to: " + response.getUserName());
+                } else {
+                    System.out.println("    - WARNING: User not found for userId: " + tin.getUserId());
+                }
+            } catch (Exception e) {
+                System.err.println("    - ERROR setting user name: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            // Set registration process
+            try {
+                TinRegistrationProcess process = processMap.get(tin.getId());
+                System.out.println("    - Process found: " + (process != null ? "Yes" : "No"));
+
+                if (process != null) {
+                    TinRegistrationProcessDTO processResponse = new TinRegistrationProcessDTO();
+
+                    processResponse.setId(process.getId());
+                    processResponse.setTinId(process.getTinId());
+                    processResponse.setAdvocateId(process.getAdvocateId());
+                    processResponse.setCenterAdminId(process.getCenterAdminId());
+                    processResponse.setRequestedUserId(tin.getUserId());
+
+                    // Set requested user name
+                    try {
+                        User requestedUser = userMap.get(tin.getUserId());
+                        if (requestedUser != null) {
+                            processResponse.setRequestedUserName(
+                                    requestedUser.getFullName() != null ? requestedUser.getFullName()
+                                            : requestedUser.getName());
+                            System.out.println("    - Requested user name: " + processResponse.getRequestedUserName());
+                        }
+                    } catch (Exception e) {
+                        System.err.println("    - ERROR setting requested user name: " + e.getMessage());
+                    }
+
+                    // Set advocate name
+                    try {
+                        Advocate advocate = advocateMap.get(process.getAdvocateId());
+                        if (advocate != null) {
+                            User advocateUser = userMap.get(advocate.getUserId());
+                            if (advocateUser != null) {
+                                processResponse.setAdvocateName(
+                                        advocateUser.getFullName() != null ? advocateUser.getFullName()
+                                                : advocateUser.getName());
+                                System.out.println("    - Advocate name: " + processResponse.getAdvocateName());
+                            } else {
+                                System.out.println("    - WARNING: Advocate user not found for userId: " + advocate.getUserId());
+                            }
+                        } else {
+                            System.out.println("    - WARNING: Advocate not found for advocateId: " + process.getAdvocateId());
+                        }
+                    } catch (Exception e) {
+                        System.err.println("    - ERROR setting advocate name: " + e.getMessage());
+                    }
+
+                    // Set center admin name
+                    try {
+                        CenterAdmin centerAdmin = centerAdminMap.get(process.getCenterAdminId());
+                        if (centerAdmin != null) {
+                            User adminUser = userMap.get(centerAdmin.getUserId());
+                            if (adminUser != null) {
+                                processResponse.setCenterAdminName(
+                                        adminUser.getFullName() != null ? adminUser.getFullName()
+                                                : adminUser.getName());
+                                System.out.println("    - Center admin name: " + processResponse.getCenterAdminName());
+                            } else {
+                                System.out.println("    - WARNING: Center admin user not found for userId: " + centerAdmin.getUserId());
+                            }
+                        } else {
+                            System.out.println("    - WARNING: Center admin not found for centerAdminId: " + process.getCenterAdminId());
+                        }
+                    } catch (Exception e) {
+                        System.err.println("    - ERROR setting center admin name: " + e.getMessage());
+                    }
+
+                    processResponse.setTin(tin);
+                    response.setRegistrationProcess(processResponse);
+                    System.out.println("    - Registration process set successfully");
+                } else {
+                    System.out.println("    - No registration process found for this tin");
+                }
+
+            } catch (Exception e) {
+                System.err.println("    - ERROR processing registration process: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            responses.add(response);
+            processedCount++;
+            System.out.println("  - Successfully processed tin ID: " + tin.getId());
+
+        } catch (Exception e) {
+            failedCount++;
+            System.err.println("  - ERROR processing tin ID " + tin.getId() + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    System.out.println("=== END getTinResponse ===");
+    System.out.println("Total tins processed: " + list.size());
+    System.out.println("Successfully processed: " + processedCount);
+    System.out.println("Failed to process: " + failedCount);
+    System.out.println("Response size: " + responses.size());
+
+    return responses;
+}
 }
