@@ -46,12 +46,12 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
-	
+
 	@Autowired
 	private Cleaner cleaner;
 
 	private static final String cacheValue = "TinRegistrationProcess";
-	
+
 	@Override
 	@Caching(evict = {
 			@CacheEvict(value = cacheValue, allEntries = true),
@@ -202,7 +202,7 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 		}
 
 		CenterAdmin admin = null;
-		
+
 		try {
 
 			admin = centerAdminRepository.findByUserId(user.getId());
@@ -226,27 +226,27 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 		}
 
 		try {
-			
+
 			TinRegistrationProcess registrationProcess = processRepository.findById(id).get();
-			
+
 			if(registrationProcess == null) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
-			if(!registrationProcess.getId().equals(admin.getId())) {
-				
+
+			if(!registrationProcess.getCenterAdminId().equals(admin.getId())) {
+
 				throw new Exception();
-				
+
 			}
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here...");
-			
+
 		}
-		
+
 		try {
 
 			Advocate advocate = advocateRepository.findById(process.getAdvocateId()).get();
@@ -306,17 +306,17 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 		Query query = new Query(Criteria.where("_id").is(id));
 
 		Update update = new Update();
-		
+
 		update.set("id", id);
 		update.set("centerAdminId", process.getCenterAdminId());
 		update.set("advocateId", process.getAdvocateId());
 		update.set("tinId", process.getTinId());
 		update.set("steps", process.getSteps());
-		
+
 		mongoTemplate.updateFirst(query, update, TinRegistrationProcess.class);
-		
+
 		process = mongoTemplate.findOne(query, TinRegistrationProcess.class);
-		
+
 		return process;
 
 	}
@@ -324,31 +324,31 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 	@Override
 	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public TinRegistrationProcess findById(String id) {
-		
+
 		if(id == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			TinRegistrationProcess process = processRepository.findById(id).get();
-			
+
 			if(process == null) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return process;
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here.....");
-			
+
 		}
-		
+
 	}
 
 	@Override
@@ -356,23 +356,23 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 	public List<TinRegistrationProcess> findAll() {
 
 		try {
-			
+
 			List<TinRegistrationProcess> process = processRepository.findAll();
-			
+
 			if(process == null || process.isEmpty()) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return process;
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here.....");
-			
+
 		}
-		
+
 	}
 
 	@Override
@@ -380,29 +380,29 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 	public List<TinRegistrationProcess> findByCenterAdminId(String centerAdminId) {
 
 		if(centerAdminId == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			List<TinRegistrationProcess> process = processRepository.findByCenterAdminId(centerAdminId);
-			
+
 			if(process == null || process.isEmpty()) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return process;
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here.....");
-			
+
 		}
-		
+
 	}
 
 	@Override
@@ -410,29 +410,29 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 	public List<TinRegistrationProcess> findByAdvocateId(String advocateId) {
 
 		if(advocateId == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			List<TinRegistrationProcess> process = processRepository.findByAdvocateId(advocateId);
-			
+
 			if(process == null || process.isEmpty()) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return process;
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here.....");
-			
+
 		}
-		
+
 	}
 
 	@Override
@@ -440,29 +440,29 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 	public TinRegistrationProcess findByTinId(String tinId) {
 
 		if(tinId == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			TinRegistrationProcess process = processRepository.findByTinId(tinId);
-			
+
 			if(process == null ) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return process;
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here.....");
-			
+
 		}
-		
+
 	}
 
 	@Override
@@ -470,29 +470,29 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 	public List<TinRegistrationProcess> findByStepsContainingIgnoreCase(String steps) {
 
 		if(steps == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			List<TinRegistrationProcess> process = processRepository.findByStepsContainingIgnoreCase(steps);
-			
+
 			if(process == null || process.isEmpty()) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return process;
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here.....");
-			
+
 		}
-		
+
 	}
 
 	@Override
@@ -501,13 +501,13 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 			@CacheEvict(value = "Tin", allEntries = true)
 	})
 	public boolean removeTinRegistrationProcess(String id, String userId) {
-		
+
 		if(id == null || userId == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 
 		User user = null;
 
@@ -528,7 +528,7 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 		}
 
 		CenterAdmin admin = null;
-		
+
 		try {
 
 			admin = centerAdminRepository.findByUserId(user.getId());
@@ -546,31 +546,31 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 		}
 
 		try {
-			
+
 			TinRegistrationProcess registrationProcess = processRepository.findById(id).get();
-			
+
 			if(registrationProcess == null) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
-			if(!registrationProcess.getId().equals(admin.getId())) {
-				
+
+			if(!registrationProcess.getCenterAdminId().equals(admin.getId())) {
+
 				throw new Exception();
-				
+
 			}
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here...");
-			
+
 		}
-		
+
 		long count = processRepository.count();
-		
+
 		cleaner.removeTinRegistrationProcess(id);
-		
+
 		return count != processRepository.count();
 	}
 
