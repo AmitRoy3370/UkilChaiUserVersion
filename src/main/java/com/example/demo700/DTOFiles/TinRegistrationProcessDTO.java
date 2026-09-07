@@ -1,12 +1,19 @@
 package com.example.demo700.DTOFiles;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.example.demo700.Model.TinModels.Tin;
 
-public class TinRegistrationProcessDTO {
+public class TinRegistrationProcessDTO implements Serializable {
+
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 10060L;
 
 	private String id;
 
