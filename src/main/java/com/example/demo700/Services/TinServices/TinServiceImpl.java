@@ -64,6 +64,7 @@ public class TinServiceImpl implements TinService {
 	@Autowired
 	private Cleaner cleaner;
 
+	@Autowired
 	private TinRegistrationProcessRepository processRepository;
 
 	private static final String cacheValue = "Tin";
