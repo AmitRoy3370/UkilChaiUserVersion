@@ -1118,7 +1118,7 @@ public class TinServiceImpl implements TinService {
                     }
 
                     processResponse.setTin(tin);
-                    processResponse.setSteps(processResponse.getSteps());
+                    processResponse.setSteps(process.getSteps());
                     response.setRegistrationProcess(processResponse);
                     System.out.println("    - Registration process set successfully");
                 } else {
