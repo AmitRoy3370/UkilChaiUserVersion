@@ -33,6 +33,8 @@ import com.example.demo700.Model.NotificationModel.Notification;
 import com.example.demo700.Model.PaymentModels.PaymentDetails;
 import com.example.demo700.Model.QNAModels.AnswerQuestion;
 import com.example.demo700.Model.QNAModels.AskQuestion;
+import com.example.demo700.Model.TinModels.Tin;
+import com.example.demo700.Model.TinModels.TinRegistrationProcess;
 import com.example.demo700.Model.UserActiveModel.UserActive;
 import com.example.demo700.Model.UserModels.AdvocateRating;
 import com.example.demo700.Model.UserModels.Capital;
@@ -74,6 +76,8 @@ import com.example.demo700.Repositories.NotificationRepository.NotificationRepos
 import com.example.demo700.Repositories.PaymentRepositories.PaymentDetailsRepository;
 import com.example.demo700.Repositories.QNARepositories.AnswerRepository;
 import com.example.demo700.Repositories.QNARepositories.QuestionRepository;
+import com.example.demo700.Repositories.TinRepositories.TinRegistrationRepository;
+import com.example.demo700.Repositories.TinRepositories.TinRepository;
 import com.example.demo700.Repositories.UserActiveRepositories.UserActiveRepository;
 import com.example.demo700.Repositories.UserLiveLocationRepositories.UserLiveLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.AdvocateRatingRepository;
@@ -222,9 +226,15 @@ public class Cleaner {
 
 	@Autowired
 	private CompanyPaymentRepository paymentRepository;
-	
+
 	@Autowired
 	private RedisService redisService;
+
+	@Autowired
+	private TinRepository tinRepository;
+
+	@Autowired
+	private TinRegistrationRepository tinRegistrationProcessRepository;
 
 	public void removeUser(String userId) {
 
@@ -245,7 +255,21 @@ public class Cleaner {
 			if (count != userRepository.count()) {
 
 				redisService.clearAllCaches();
-				
+
+				try {
+
+					List<Tin> list = tinRepository.findByUserId(userId);
+
+					for (Tin tin : list) {
+
+						removeTin(tin.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
 				try {
 
 					List<CompanyRequestPayment> list = paymentRepository.findBySenderUserId(userId);
@@ -698,6 +722,35 @@ public class Cleaner {
 
 					try {
 
+						List<TinRegistrationProcess> process = tinRegistrationProcessRepository
+								.findByAdvocateId(advocateId);
+
+						for (TinRegistrationProcess i : process) {
+
+							removeTinRegistrationProcess(i.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
+						List<RegistrationProcess> processes = processRepository.findByAdvocateId(advocateId);
+
+						for (RegistrationProcess i : processes) {
+
+							removeRegistrationProcess(i.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
 						LiveLocationData data = userLiveLocationRepository.findByAdvocateId(advocate.getId());
 
 						if (data != null) {
@@ -911,6 +964,21 @@ public class Cleaner {
 				centerAdminRepository.deleteById(centerAdminId);
 
 				if (count != centerAdminRepository.count()) {
+
+					try {
+
+						List<TinRegistrationProcess> list = tinRegistrationProcessRepository
+								.findByCenterAdminId(centerAdminId);
+
+						for (TinRegistrationProcess i : list) {
+
+							removeTinRegistrationProcess(i.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
 
 					for (String i : centerAdmin.getAdmins()) {
 
@@ -2244,6 +2312,72 @@ public class Cleaner {
 			paymentRepository.deleteById(id);
 
 			if (count != paymentRepository.count()) {
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeTin(String id) {
+
+		try {
+
+			Tin tin = tinRepository.findById(id).get();
+
+			if (tin != null) {
+
+				long count = tinRepository.count();
+
+				tinRepository.deleteById(id);
+
+				if (tinRepository.count() != count) {
+
+					try {
+
+						TinRegistrationProcess process = tinRegistrationProcessRepository.findByTinId(id);
+
+						if (process != null) {
+
+							removeTinRegistrationProcess(process.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeTinRegistrationProcess(String id) {
+
+		try {
+
+			TinRegistrationProcess process = tinRegistrationProcessRepository.findById(id).get();
+
+			if (process == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = tinRegistrationProcessRepository.count();
+
+			tinRegistrationProcessRepository.deleteById(id);
+
+			if (count != tinRegistrationProcessRepository.count()) {
+
+				removeTin(process.getTinId());
 
 			}
 
