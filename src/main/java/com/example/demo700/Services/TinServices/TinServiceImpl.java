@@ -397,6 +397,8 @@ public class TinServiceImpl implements TinService {
 
 			List<Tin> list = tinRepository.findAll();
 
+			System.out.println(list);
+
 			if (list.isEmpty()) {
 
 				throw new Exception();
