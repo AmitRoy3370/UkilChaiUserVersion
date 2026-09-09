@@ -792,7 +792,7 @@ public class Cleaner {
 					} catch (Exception e) {
 
 					}
-					
+
 					try {
 
 						List<TinRegistrationProcess> process = tinRegistrationProcessRepository
@@ -1039,13 +1039,13 @@ public class Cleaner {
 				if (count != centerAdminRepository.count()) {
 
 					try {
-						
+
 						removeUser(centerAdmin.getUserId());
-						
+
 					} catch(Exception e) {
-						
+
 					}
-					
+
 					try {
 
 						List<TinRegistrationProcess> list = tinRegistrationProcessRepository
@@ -2416,6 +2416,23 @@ public class Cleaner {
 
 				if (tinRepository.count() != count) {
 
+				try {
+
+				    for(String i : tin.getDocuments()) {
+
+                        try {
+
+                            imageService.delete(i);
+
+                        } catch(Exception e) {
+                        }
+
+				    }
+
+				} catch(Exception e) {
+				}
+
+
 					try {
 
 						TinRegistrationProcess process = tinRegistrationProcessRepository.findByTinId(id);
@@ -2501,6 +2518,22 @@ public class Cleaner {
 
 				} catch (Exception e) {
 
+				}
+
+				try {
+
+				    for(String i : license.getDocuments()) {
+
+                        try {
+
+                            imageService.delete(i);
+
+                        } catch(Exception e) {
+                        }
+
+				    }
+
+				} catch(Exception e) {
 				}
 
 				try {
