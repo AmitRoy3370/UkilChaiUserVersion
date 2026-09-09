@@ -35,6 +35,9 @@ import com.example.demo700.Model.QNAModels.AnswerQuestion;
 import com.example.demo700.Model.QNAModels.AskQuestion;
 import com.example.demo700.Model.TinModels.Tin;
 import com.example.demo700.Model.TinModels.TinRegistrationProcess;
+import com.example.demo700.Model.TradeLicenseModels.TradeLicense;
+import com.example.demo700.Model.TradeLicenseModels.TradeLicensePayment;
+import com.example.demo700.Model.TradeLicenseModels.TradeLicenseRegistrationProcess;
 import com.example.demo700.Model.UserActiveModel.UserActive;
 import com.example.demo700.Model.UserModels.AdvocateRating;
 import com.example.demo700.Model.UserModels.Capital;
@@ -78,6 +81,9 @@ import com.example.demo700.Repositories.QNARepositories.AnswerRepository;
 import com.example.demo700.Repositories.QNARepositories.QuestionRepository;
 import com.example.demo700.Repositories.TinRepositories.TinRegistrationRepository;
 import com.example.demo700.Repositories.TinRepositories.TinRepository;
+import com.example.demo700.Repositories.TradeLicenseRepository.TradeLicensePaymentRepository;
+import com.example.demo700.Repositories.TradeLicenseRepository.TradeLicenseRegistrationProcessRepository;
+import com.example.demo700.Repositories.TradeLicenseRepository.TradeLicenseRepository;
 import com.example.demo700.Repositories.UserActiveRepositories.UserActiveRepository;
 import com.example.demo700.Repositories.UserLiveLocationRepositories.UserLiveLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.AdvocateRatingRepository;
@@ -234,7 +240,16 @@ public class Cleaner {
 	private TinRepository tinRepository;
 
 	@Autowired
+	private TradeLicenseRepository tradeLicenseRepository;
+
+	@Autowired
+	private TradeLicenseRegistrationProcessRepository tradeLicenseRegistrationProcessRepository;
+
+	@Autowired
 	private TinRegistrationRepository tinRegistrationProcessRepository;
+
+	@Autowired
+	private TradeLicensePaymentRepository tradeLicensePaymentRepository;
 
 	public void removeUser(String userId) {
 
@@ -255,6 +270,49 @@ public class Cleaner {
 			if (count != userRepository.count()) {
 
 				redisService.clearAllCaches();
+
+				try {
+
+					List<TradeLicense> license = tradeLicenseRepository.findByUserId(userId);
+
+					for (TradeLicense i : license) {
+
+						removeTradeLicense(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<TradeLicenseRegistrationProcess> license = tradeLicenseRegistrationProcessRepository
+							.findByUserId(userId);
+
+					for (TradeLicenseRegistrationProcess i : license) {
+
+						removeTradeLicenseRegistrationProcess(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<TradeLicensePayment> license = tradeLicensePaymentRepository.findBySenderUserId(userId);
+
+					for (TradeLicensePayment i : license) {
+
+						removeTradeLicensePayment(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
 
 				try {
 
@@ -722,6 +780,21 @@ public class Cleaner {
 
 					try {
 
+						List<TradeLicenseRegistrationProcess> license = tradeLicenseRegistrationProcessRepository
+								.findByAdvocateId(advocate.getId());
+
+						for (TradeLicenseRegistrationProcess i : license) {
+
+							removeTradeLicenseRegistrationProcess(i.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
+					
+					try {
+
 						List<TinRegistrationProcess> process = tinRegistrationProcessRepository
 								.findByAdvocateId(advocateId);
 
@@ -965,6 +1038,14 @@ public class Cleaner {
 
 				if (count != centerAdminRepository.count()) {
 
+					try {
+						
+						removeUser(centerAdmin.getUserId());
+						
+					} catch(Exception e) {
+						
+					}
+					
 					try {
 
 						List<TinRegistrationProcess> list = tinRegistrationProcessRepository
@@ -2378,6 +2459,115 @@ public class Cleaner {
 			if (count != tinRegistrationProcessRepository.count()) {
 
 				removeTin(process.getTinId());
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeTradeLicense(String id) {
+
+		try {
+
+			TradeLicense license = tradeLicenseRepository.findById(id).get();
+
+			if (license == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = tradeLicenseRepository.count();
+
+			tradeLicenseRepository.deleteById(id);
+
+			if (count != tradeLicenseRepository.count()) {
+
+				try {
+
+					TradeLicenseRegistrationProcess process = tradeLicenseRegistrationProcessRepository
+							.findByTradeLicenseId(id);
+
+					if (process == null) {
+
+						throw new Exception();
+
+					}
+
+					removeTradeLicenseRegistrationProcess(process.getId());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<TradeLicensePayment> list = tradeLicensePaymentRepository.findByTradeLicenseId(id);
+
+					for (TradeLicensePayment i : list) {
+
+						removeTradeLicensePayment(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeTradeLicenseRegistrationProcess(String id) {
+
+		try {
+
+			TradeLicenseRegistrationProcess process = tradeLicenseRegistrationProcessRepository.findById(id).get();
+
+			if (process == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = tradeLicenseRegistrationProcessRepository.count();
+
+			if (count != tradeLicenseRegistrationProcessRepository.count()) {
+
+				removeTradeLicense(process.getTradeLicenseId());
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeTradeLicensePayment(String id) {
+
+		try {
+
+			TradeLicensePayment payment = tradeLicensePaymentRepository.findById(id).get();
+
+			if (payment == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = tradeLicensePaymentRepository.count();
+
+			tradeLicensePaymentRepository.deleteById(id);
+
+			if (count != tradeLicensePaymentRepository.count()) {
 
 			}
 
