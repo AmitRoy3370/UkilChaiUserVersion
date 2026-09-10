@@ -2572,6 +2572,8 @@ public class Cleaner {
 
 			long count = tradeLicenseRegistrationProcessRepository.count();
 
+			tradeLicenseRegistrationProcessRepository.deleteById(id);
+
 			if (count != tradeLicenseRegistrationProcessRepository.count()) {
 
 				removeTradeLicense(process.getTradeLicenseId());
