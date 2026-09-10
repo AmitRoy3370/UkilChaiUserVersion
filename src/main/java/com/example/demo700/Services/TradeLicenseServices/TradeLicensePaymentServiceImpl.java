@@ -688,6 +688,8 @@ public class TradeLicensePaymentServiceImpl implements TradeLicensePaymentServic
 				response.setSendingTime(i.getSendingTime());
 				response.setTradeLicenseId(i.getTradeLicenseId());
 				response.setSendingTime(i.getSendingTime());
+				response.setSenderUserId(i.getSenderUserId());
+				response.setTransactionId(i.getTransactionId());
 				response.setSenderUserName(userMap.get(i.getSenderUserId()).getFullName() == null
 						? userMap.get(i.getSenderUserId()).getName()
 						: userMap.get(i.getSenderUserId()).getFullName());
