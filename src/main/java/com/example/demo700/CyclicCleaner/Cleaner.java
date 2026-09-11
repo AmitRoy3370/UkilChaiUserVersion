@@ -38,6 +38,9 @@ import com.example.demo700.Model.TinModels.TinRegistrationProcess;
 import com.example.demo700.Model.TradeLicenseModels.TradeLicense;
 import com.example.demo700.Model.TradeLicenseModels.TradeLicensePayment;
 import com.example.demo700.Model.TradeLicenseModels.TradeLicenseRegistrationProcess;
+import com.example.demo700.Model.Trademarkmodels.Trademark;
+import com.example.demo700.Model.Trademarkmodels.TrademarkPayment;
+import com.example.demo700.Model.Trademarkmodels.TrademarkRegistrationProcess;
 import com.example.demo700.Model.UserActiveModel.UserActive;
 import com.example.demo700.Model.UserModels.AdvocateRating;
 import com.example.demo700.Model.UserModels.Capital;
@@ -84,6 +87,9 @@ import com.example.demo700.Repositories.TinRepositories.TinRepository;
 import com.example.demo700.Repositories.TradeLicenseRepository.TradeLicensePaymentRepository;
 import com.example.demo700.Repositories.TradeLicenseRepository.TradeLicenseRegistrationProcessRepository;
 import com.example.demo700.Repositories.TradeLicenseRepository.TradeLicenseRepository;
+import com.example.demo700.Repositories.TrademarkRepositories.TrademarkPaymentRepository;
+import com.example.demo700.Repositories.TrademarkRepositories.TrademarkRegistrationProcessRepository;
+import com.example.demo700.Repositories.TrademarkRepositories.TrademarkRepository;
 import com.example.demo700.Repositories.UserActiveRepositories.UserActiveRepository;
 import com.example.demo700.Repositories.UserLiveLocationRepositories.UserLiveLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.AdvocateRatingRepository;
@@ -251,6 +257,15 @@ public class Cleaner {
 	@Autowired
 	private TradeLicensePaymentRepository tradeLicensePaymentRepository;
 
+	@Autowired
+	private TrademarkRepository trademarkRepository;
+
+	@Autowired
+	private TrademarkRegistrationProcessRepository trademarkRegistrationProcessRepository;
+
+	@Autowired
+	private TrademarkPaymentRepository trademarkPaymentRepository;
+
 	public void removeUser(String userId) {
 
 		try {
@@ -270,6 +285,49 @@ public class Cleaner {
 			if (count != userRepository.count()) {
 
 				redisService.clearAllCaches();
+
+				try {
+
+					List<Trademark> list = trademarkRepository.findByUserId(userId);
+
+					for (Trademark i : list) {
+
+						removeTrademark(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<TrademarkPayment> list = trademarkPaymentRepository.findBySenderUserId(userId);
+
+					for (TrademarkPayment i : list) {
+
+						removeTrademarkPayment(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<TrademarkRegistrationProcess> list = trademarkRegistrationProcessRepository
+							.findByUserId(userId);
+
+					for (TrademarkRegistrationProcess i : list) {
+
+						removeTrademarkRegistrationProcess(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
 
 				try {
 
@@ -356,6 +414,7 @@ public class Cleaner {
 
 				}
 
+				
 				try {
 
 					List<Shareholder> holder = holderRepository.findByUserId(user.getId());
@@ -1042,7 +1101,7 @@ public class Cleaner {
 
 						removeUser(centerAdmin.getUserId());
 
-					} catch(Exception e) {
+					} catch (Exception e) {
 
 					}
 
@@ -2416,22 +2475,21 @@ public class Cleaner {
 
 				if (tinRepository.count() != count) {
 
-				try {
+					try {
 
-				    for(String i : tin.getDocuments()) {
+						for (String i : tin.getDocuments()) {
 
-                        try {
+							try {
 
-                            imageService.delete(i);
+								imageService.delete(i);
 
-                        } catch(Exception e) {
-                        }
+							} catch (Exception e) {
+							}
 
-				    }
+						}
 
-				} catch(Exception e) {
-				}
-
+					} catch (Exception e) {
+					}
 
 					try {
 
@@ -2522,18 +2580,18 @@ public class Cleaner {
 
 				try {
 
-				    for(String i : license.getDocuments()) {
+					for (String i : license.getDocuments()) {
 
-                        try {
+						try {
 
-                            imageService.delete(i);
+							imageService.delete(i);
 
-                        } catch(Exception e) {
-                        }
+						} catch (Exception e) {
+						}
 
-				    }
+					}
 
-				} catch(Exception e) {
+				} catch (Exception e) {
 				}
 
 				try {
@@ -2603,6 +2661,116 @@ public class Cleaner {
 			tradeLicensePaymentRepository.deleteById(id);
 
 			if (count != tradeLicensePaymentRepository.count()) {
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeTrademark(String id) {
+
+		try {
+
+			Trademark trademark = trademarkRepository.findById(id).get();
+
+			if (trademark == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = trademarkRepository.count();
+
+			trademarkRepository.deleteById(id);
+
+			if (count != trademarkRepository.count()) {
+
+				try {
+
+					TrademarkRegistrationProcess process = trademarkRegistrationProcessRepository.findByTradeMarkId(id);
+
+					if (process == null) {
+
+						throw new Exception();
+
+					}
+
+					removeTrademarkRegistrationProcess(process.getId());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<TrademarkPayment> list = trademarkPaymentRepository.findByTradeMarkId(id);
+
+					for (TrademarkPayment i : list) {
+
+						removeTrademarkPayment(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeTrademarkRegistrationProcess(String id) {
+
+		try {
+
+			TrademarkRegistrationProcess process = trademarkRegistrationProcessRepository.findById(id).get();
+
+			if (process == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = trademarkRegistrationProcessRepository.count();
+
+			trademarkRegistrationProcessRepository.deleteById(id);
+
+			if (count != trademarkRegistrationProcessRepository.count()) {
+
+				removeTrademark(process.getTradeMarkId());
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeTrademarkPayment(String id) {
+
+		try {
+
+			TrademarkPayment payment = trademarkPaymentRepository.findById(id).get();
+
+			if (payment == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = trademarkPaymentRepository.count();
+
+			trademarkPaymentRepository.deleteById(id);
+
+			if (count != trademarkPaymentRepository.count()) {
 
 			}
 
