@@ -176,7 +176,11 @@ public class TrademarkServiceImpl implements TrademarkService {
 
 			List<String> attachments = new ArrayList<>();
 
+			if(trademark.getDocuments() != null && !trademark.getDocuments().isEmpty()) {
+
 			for (String i : trademark.getDocuments()) {
+
+			  try {
 
 				if (imageService.attachmentExists(i)) {
 
@@ -187,6 +191,11 @@ public class TrademarkServiceImpl implements TrademarkService {
 					//throw new Exception();
 
 				}
+
+			  } catch(Exception e) {
+			  }
+
+			}
 
 			}
 
@@ -362,7 +371,11 @@ public class TrademarkServiceImpl implements TrademarkService {
 
 			List<String> attachments = new ArrayList<>();
 
+			if(mark.getDocuments() != null && !mark.getDocuments().isEmpty()) {
+
 			for (String i : mark.getDocuments()) {
+
+			  try {
 
 				if (!trademark.getDocuments().contains(i)) {
 
@@ -370,9 +383,16 @@ public class TrademarkServiceImpl implements TrademarkService {
 
 				}
 
+			  } catch(Exception e) {
+			  }
+
+			}
+
 			}
 
 			for (String i : trademark.getDocuments()) {
+
+			try {
 
 				if (imageService.attachmentExists(i)) {
 
@@ -383,6 +403,9 @@ public class TrademarkServiceImpl implements TrademarkService {
 					//throw new Exception();
 
 				}
+
+			} catch(Exception e) {
+			}
 
 			}
 
