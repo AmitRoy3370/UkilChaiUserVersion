@@ -72,13 +72,13 @@ public class TrademarkServiceImpl implements TrademarkService {
 	private Cleaner cleaner;
 
 	private static final String cacheValue = "Trademark";
-	
+
 	@Override
 	@Caching(evict = {
 			@CacheEvict(value = "Trademark", allEntries = true),
 			@CacheEvict(value = "TrademarkRegistrationProcess", allEntries = true),
 			@CacheEvict(value = "TrademarkPayment", allEntries = true)
-			
+
 	})
 	public Trademark addTrademark(Trademark trademark, String userId, MultipartFile[] documents) {
 
@@ -184,7 +184,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 
 				} else {
 
-					throw new Exception();
+					//throw new Exception();
 
 				}
 
@@ -232,7 +232,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 			@CacheEvict(value = "Trademark", allEntries = true),
 			@CacheEvict(value = "TrademarkRegistrationProcess", allEntries = true),
 			@CacheEvict(value = "TrademarkPayment", allEntries = true)
-			
+
 	})
 	public Trademark updateTrademark(Trademark trademark, String userId, String id, MultipartFile[] documents) {
 
@@ -380,7 +380,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 
 				} else {
 
-					throw new Exception();
+					//throw new Exception();
 
 				}
 
@@ -967,7 +967,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 			@CacheEvict(value = "Trademark", allEntries = true),
 			@CacheEvict(value = "TrademarkRegistrationProcess", allEntries = true),
 			@CacheEvict(value = "TrademarkPayment", allEntries = true)
-			
+
 	})
 	public boolean deleteTrademark(String id, String userId) {
 
