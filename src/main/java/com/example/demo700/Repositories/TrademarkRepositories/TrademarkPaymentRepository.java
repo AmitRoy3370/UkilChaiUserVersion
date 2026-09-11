@@ -21,8 +21,9 @@ public interface TrademarkPaymentRepository extends MongoRepository<TrademarkPay
     @Query("{ 'receiverPhoneNumber': { $regex: ?0, $options: 'i' } }")
     public List<TrademarkPayment> findByReceiverPhoneNumberContaingingIgnoreCase(String receiverPhoneNumber);
 
+    @Query("{ 'tradeMarkId': ?0, 'senderUserId': ?1 }")
     public List<TrademarkPayment> findBySenderUserIdAndTrademarkId(String trademarkId, String senderUserId);
-    
+
     @Query("{ 'tradeMarkId': ?0 }")
     public List<TrademarkPayment> findByTradeMarkId(String tradeMarkId);
 
