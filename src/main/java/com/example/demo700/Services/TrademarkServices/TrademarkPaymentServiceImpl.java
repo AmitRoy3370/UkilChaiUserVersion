@@ -13,6 +13,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -49,6 +51,12 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	private Cleaner cleaner;
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Trademark", allEntries = true),
+			@CacheEvict(value = "TrademarkRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "TrademarkPayment", allEntries = true)
+			
+	})
 	public TrademarkPayment addTrademarkPayment(TrademarkPayment payment, String userId) {
 
 		if (payment == null || userId == null || !payment.getSenderUserId().equals(userId)) {
@@ -130,6 +138,12 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	}
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Trademark", allEntries = true),
+			@CacheEvict(value = "TrademarkRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "TrademarkPayment", allEntries = true)
+			
+	})
 	public TrademarkPayment updateTrademarkPayment(TrademarkPayment payment, String userId, String id) {
 
 		if (id == null || payment == null || userId == null || !payment.getSenderUserId().equals(userId)) {
@@ -602,6 +616,12 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	}
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Trademark", allEntries = true),
+			@CacheEvict(value = "TrademarkRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "TrademarkPayment", allEntries = true)
+			
+	})
 	public boolean deleteTrademarkPayment(String id) {
 
 		if (id == null) {

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -47,6 +49,12 @@ public class TrademarkRegistrationProcessServiceImpl implements TrademarkRegistr
 	private Cleaner cleaner;
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Trademark", allEntries = true),
+			@CacheEvict(value = "TrademarkRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "TrademarkPayment", allEntries = true)
+			
+	})
 	public TrademarkRegistrationProcess addTrademarkRegistrationProcess(TrademarkRegistrationProcess process,
 			String userId) {
 
@@ -152,6 +160,12 @@ public class TrademarkRegistrationProcessServiceImpl implements TrademarkRegistr
 	}
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Trademark", allEntries = true),
+			@CacheEvict(value = "TrademarkRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "TrademarkPayment", allEntries = true)
+			
+	})
 	public TrademarkRegistrationProcess updateTrademarkRegistrationProcess(TrademarkRegistrationProcess process,
 			String userId, String id) {
 
@@ -544,6 +558,12 @@ public class TrademarkRegistrationProcessServiceImpl implements TrademarkRegistr
 	}
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Trademark", allEntries = true),
+			@CacheEvict(value = "TrademarkRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "TrademarkPayment", allEntries = true)
+			
+	})
 	public boolean deleteTrademarkRegistrationProcess(String id, String userId) {
 
 		if (id == null || userId == null) {

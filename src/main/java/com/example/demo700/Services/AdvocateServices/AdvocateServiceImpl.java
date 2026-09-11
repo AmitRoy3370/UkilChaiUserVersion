@@ -537,37 +537,35 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
-	@Caching(evict = {
-			@CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "Admin", allEntries = true),
-			@CacheEvict(value = "Advocate", allEntries = true),
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Admin", allEntries = true), @CacheEvict(value = "Advocate", allEntries = true),
 			@CacheEvict(value = "AdvocateRating", allEntries = true),
 			@CacheEvict(value = "AdvocatePost", allEntries = true),
 			@CacheEvict(value = "ClientFeedback", allEntries = true),
 			@CacheEvict(value = "PostReaction", allEntries = true),
 			@CacheEvict(value = "AppealHearing", allEntries = true),
-			@CacheEvict(value = "CaseAppeal", allEntries = true),
-			@CacheEvict(value = "CaseClose", allEntries = true),
-			@CacheEvict(value = "CaseJudgement", allEntries = true),
-			@CacheEvict(value = "Case", allEntries = true),
+			@CacheEvict(value = "CaseAppeal", allEntries = true), @CacheEvict(value = "CaseClose", allEntries = true),
+			@CacheEvict(value = "CaseJudgement", allEntries = true), @CacheEvict(value = "Case", allEntries = true),
 			@CacheEvict(value = "CaseTracking", allEntries = true),
-			@CacheEvict(value = "DocumentDraft", allEntries = true),
-			@CacheEvict(value = "Hearing", allEntries = true),
-			@CacheEvict(value = "ReadStatus", allEntries = true),
-			@CacheEvict(value = "Answer", allEntries = true),
+			@CacheEvict(value = "DocumentDraft", allEntries = true), @CacheEvict(value = "Hearing", allEntries = true),
+			@CacheEvict(value = "ReadStatus", allEntries = true), @CacheEvict(value = "Answer", allEntries = true),
 			@CacheEvict(value = "Question", allEntries = true),
 			@CacheEvict(value = "PaymentDetails", allEntries = true),
 			@CacheEvict(value = "UserActiveLocation", allEntries = true),
-          @CacheEvict(value = "Director", allEntries = true),
-           @CacheEvict(value = "ShareHolder", allEntries = true),
-          @CacheEvict(value = "Subscription", allEntries = true),
-          @CacheEvict(value = "RegistrationProcess", allEntries = true),
-          @CacheEvict(value = "CompanyPayment", allEntries = true),
-           @CacheEvict(value = "CompanyContact", allEntries = true),
-          @CacheEvict(value = "CompanyInformation", allEntries = true),
-          @CacheEvict(value = "TinRegistrationProcess", allEntries = true),
-          @CacheEvict(value = "Tin", allEntries = true),
-	})
+			@CacheEvict(value = "Director", allEntries = true), @CacheEvict(value = "ShareHolder", allEntries = true),
+			@CacheEvict(value = "Subscription", allEntries = true),
+			@CacheEvict(value = "RegistrationProcess", allEntries = true),
+			@CacheEvict(value = "CompanyPayment", allEntries = true),
+			@CacheEvict(value = "CompanyContact", allEntries = true),
+			@CacheEvict(value = "CompanyInformation", allEntries = true),
+			@CacheEvict(value = "TinRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "Tin", allEntries = true), @CacheEvict(value = "Trademark", allEntries = true),
+			@CacheEvict(value = "TrademarkRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "TrademarkPayment", allEntries = true),
+			@CacheEvict(value = "TradeLicense", allEntries = true),
+			@CacheEvict(value = "TradeLicenseRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "TradeLicensePayment", allEntries = true) })
+
 	public boolean deleteAdvocate(String userId, String advocateId) {
 
 		if (userId == null || advocateId == null) {
@@ -652,7 +650,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 	}
 
 	@Override
-    @Cacheable(value = cacheValue, key = "'findById_' + #advocateId")
+	@Cacheable(value = cacheValue, key = "'findById_' + #advocateId")
 	public AdvocateResponse findById(String advocateId) {
 
 		if (advocateId == null) {
@@ -680,7 +678,8 @@ public class AdvocateServiceImpl implements AdvocateService {
 		}
 
 	}
-    @Cacheable(value = cacheValue, key = "'findByGender_' + #gender")
+
+	@Cacheable(value = cacheValue, key = "'findByGender_' + #gender")
 	public List<AdvocateResponse> findByGender(Gender gender) {
 
 		if (gender == null) {
@@ -718,7 +717,8 @@ public class AdvocateServiceImpl implements AdvocateService {
 		}
 
 	}
-    @Cacheable(value = cacheValue, key = "'findByLocation_' + #location")
+
+	@Cacheable(value = cacheValue, key = "'findByLocation_' + #location")
 	public List<AdvocateResponse> findByLocation(String location) {
 
 		if (location == null) {

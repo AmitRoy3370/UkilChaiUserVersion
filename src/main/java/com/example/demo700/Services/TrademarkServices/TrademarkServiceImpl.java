@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -69,6 +72,12 @@ public class TrademarkServiceImpl implements TrademarkService {
 	private Cleaner cleaner;
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Trademark", allEntries = true),
+			@CacheEvict(value = "TrademarkRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "TrademarkPayment", allEntries = true)
+			
+	})
 	public Trademark addTrademark(Trademark trademark, String userId, MultipartFile[] documents) {
 
 		if (trademark == null || userId == null || !trademark.getUserId().equals(userId)) {
@@ -217,6 +226,12 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Trademark", allEntries = true),
+			@CacheEvict(value = "TrademarkRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "TrademarkPayment", allEntries = true)
+			
+	})
 	public Trademark updateTrademark(Trademark trademark, String userId, String id, MultipartFile[] documents) {
 
 		if (id == null || trademark == null || userId == null || !trademark.getUserId().equals(userId)) {
@@ -928,6 +943,12 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Trademark", allEntries = true),
+			@CacheEvict(value = "TrademarkRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "TrademarkPayment", allEntries = true)
+			
+	})
 	public boolean deleteTrademark(String id, String userId) {
 
 		if (id == null || userId == null) {
