@@ -414,7 +414,7 @@ public class Cleaner {
 
 				}
 
-				
+
 				try {
 
 					List<Shareholder> holder = holderRepository.findByUserId(user.getId());
@@ -2687,6 +2687,22 @@ public class Cleaner {
 			trademarkRepository.deleteById(id);
 
 			if (count != trademarkRepository.count()) {
+
+			try {
+
+					for (String i : trademark.getDocuments()) {
+
+						try {
+
+							imageService.delete(i);
+
+						} catch (Exception e) {
+						}
+
+					}
+
+				} catch (Exception e) {
+				}
 
 				try {
 
