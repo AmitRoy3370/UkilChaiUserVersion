@@ -435,13 +435,6 @@ public class TrademarkServiceImpl implements TrademarkService {
 
 		}
 
-		trademark = trademarkRepository.save(trademark);
-
-		if (trademark == null) {
-
-			throw new ArithmeticException("Trademark not saved...");
-
-		}
 
 		Query query = new Query(Criteria.where("_id").is(id));
 
