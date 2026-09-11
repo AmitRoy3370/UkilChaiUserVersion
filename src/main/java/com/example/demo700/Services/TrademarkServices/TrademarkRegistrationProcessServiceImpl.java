@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -47,6 +48,8 @@ public class TrademarkRegistrationProcessServiceImpl implements TrademarkRegistr
 
 	@Autowired
 	private Cleaner cleaner;
+	
+	private static final String cacheValue = "TrademarkRegistrationProcess";
 
 	@Override
 	@Caching(evict = {
@@ -340,6 +343,7 @@ public class TrademarkRegistrationProcessServiceImpl implements TrademarkRegistr
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public TrademarkRegistrationProcess findById(String id) {
 
 		if (id == null) {
@@ -369,6 +373,7 @@ public class TrademarkRegistrationProcessServiceImpl implements TrademarkRegistr
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<TrademarkRegistrationProcess> findAll() {
 
 		try {
@@ -392,6 +397,7 @@ public class TrademarkRegistrationProcessServiceImpl implements TrademarkRegistr
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public List<TrademarkRegistrationProcess> findByUserId(String userId) {
 
 		if (userId == null) {
@@ -421,6 +427,7 @@ public class TrademarkRegistrationProcessServiceImpl implements TrademarkRegistr
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAdvocateId_' + #advocateId")
 	public List<TrademarkRegistrationProcess> findByAdvocateId(String advocateId) {
 
 		if (advocateId == null) {
@@ -450,6 +457,7 @@ public class TrademarkRegistrationProcessServiceImpl implements TrademarkRegistr
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByTrademarkId_' + #tradeMarkid")
 	public TrademarkRegistrationProcess findByTradeMarkId(String tradeMarkId) {
 
 		if (tradeMarkId == null) {
@@ -478,6 +486,7 @@ public class TrademarkRegistrationProcessServiceImpl implements TrademarkRegistr
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByStatus_' + #status")
 	public List<TrademarkRegistrationProcess> findByStatus(boolean status) {
 
 		try {
@@ -500,6 +509,7 @@ public class TrademarkRegistrationProcessServiceImpl implements TrademarkRegistr
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByStepsPrefix_' + #steps")
 	public List<TrademarkRegistrationProcess> findByStepsContainingIgnoreCase(String steps) {
 
 		if (steps == null) {
@@ -529,6 +539,7 @@ public class TrademarkRegistrationProcessServiceImpl implements TrademarkRegistr
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByTrademarksId_' + #trademarksId")
 	public List<TrademarkRegistrationProcess> findByTrademarkIdIn(List<String> trademarksId) {
 
 		if (trademarksId == null || trademarksId.isEmpty()) {

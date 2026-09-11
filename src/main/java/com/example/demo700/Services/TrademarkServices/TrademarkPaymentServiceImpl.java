@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -50,6 +51,8 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue = "TrademarkPayment";
+	
 	@Override
 	@Caching(evict = {
 			@CacheEvict(value = "Trademark", allEntries = true),
@@ -270,6 +273,7 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public TrademarkPaymentResponse findById(String id) {
 		
 		if(id == null) {
@@ -298,6 +302,7 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<TrademarkPaymentResponse> findAll() {
 
 		try {
@@ -320,6 +325,7 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findBySenderUserId_' + #senderUserId")
 	public List<TrademarkPaymentResponse> findBySenderUserId(String senderUserId) {
 
 		if(senderUserId == null) {
@@ -348,6 +354,7 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findBySenderPhoneNumber_' + #senderPhoneNumber")
 	public List<TrademarkPaymentResponse> findBySenderPhoneNumberContainingIgnoreCase(String senderPhoneNumber) {
 
 		if(senderPhoneNumber == null) {
@@ -376,6 +383,7 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByReceiverPhoneNumber_' + #receiverPhoneNumber")
 	public List<TrademarkPaymentResponse> findByReceiverPhoneNumberContaingingIgnoreCase(String receiverPhoneNumber) {
 
 		if(receiverPhoneNumber == null) {
@@ -404,6 +412,7 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findBySenderUserIdAndTrademarkId_' + #senderUserId + '_' + #trademarkId")
 	public List<TrademarkPaymentResponse> findBySenderUserIdAndTrademarkId(String trademarkId, String senderUserId) {
 
 		if(trademarkId == null || senderUserId == null) {
@@ -432,6 +441,7 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByTrademarkId_' + #trademarkId")
 	public List<TrademarkPaymentResponse> findByTradeMarkId(String trademarkId) {
 
 		if(trademarkId == null) {
@@ -460,6 +470,7 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByTransactionId_' + #transactionId")
 	public TrademarkPaymentResponse findByTransactionId(String transactionId) {
 
 		if(transactionId == null) {
@@ -488,6 +499,7 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByTransactionIdPrefix_' + #transactionId")
 	public List<TrademarkPaymentResponse> findByTransactionIdContainingIgnoreCase(String transactionId) {
 
 		if(transactionId == null) {
@@ -516,6 +528,7 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAmountGTE_' + #amount")
 	public List<TrademarkPaymentResponse> findByAmountGreaterThanEqual(double amount) {
 
 		try {
@@ -538,6 +551,7 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAmountLTE_' + #amount")
 	public List<TrademarkPaymentResponse> findByAmountLessThanEqual(double amount) {
 
 		try {
@@ -560,6 +574,7 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findBySendingTimeBefore_' + #sendingTime")
 	public List<TrademarkPaymentResponse> findBySendingTimeBefore(Instant sendingTime) {
 
 		if(sendingTime == null) {
@@ -588,6 +603,7 @@ public class TrademarkPaymentServiceImpl implements TrademarkPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findBySendingTimeAfter_' + #sendingTime")
 	public List<TrademarkPaymentResponse> findBySendingTimeAfter(Instant sendingTime) {
 
 		if(sendingTime == null) {

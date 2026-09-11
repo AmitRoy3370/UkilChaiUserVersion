@@ -71,6 +71,8 @@ public class TrademarkServiceImpl implements TrademarkService {
 	@Autowired
 	private Cleaner cleaner;
 
+	private static final String cacheValue = "Trademark";
+	
 	@Override
 	@Caching(evict = {
 			@CacheEvict(value = "Trademark", allEntries = true),
@@ -446,6 +448,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public TrademarkResponse findById(String id) {
 
 		if (id == null) {
@@ -474,6 +477,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findAll'")
 	public List<TrademarkResponse> findAll() {
 
 		try {
@@ -496,6 +500,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByLegalProtection_' + #legalProtection")
 	public List<TrademarkResponse> findByLegalProtectionContainingIgnoreCase(String legalProtection) {
 
 		if (legalProtection == null) {
@@ -524,6 +529,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByNationWiseValidityPrefix_' + #nationWiseValidity")
 	public List<TrademarkResponse> findByNationWiseValidityContainingIgnoreCase(String nationWiseValidity) {
 
 		if (nationWiseValidity == null) {
@@ -552,6 +558,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByApplicationTypePrefix_' + #applicationType")
 	public List<TrademarkResponse> findByApplicationTypeContainingIgnoreCase(String applicationType) {
 
 		if (applicationType == null) {
@@ -580,6 +587,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByApplicationNamePrefix_' + #applicationName")
 	public List<TrademarkResponse> findByApplicationNameContainingIgnoreCase(String applicationName) {
 
 		if (applicationName == null) {
@@ -608,6 +616,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByGovernmentFeeGTE_' + #governmentFee")
 	public List<TrademarkResponse> findByGovernmentFeeGreaterThanEqual(double governmentFee) {
 
 		try {
@@ -630,6 +639,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByGovernmentFeeLTE_' + #governmentFee")
 	public List<TrademarkResponse> findByGovernmentFeeLessThanEqual(double governmentFee) {
 
 		try {
@@ -653,6 +663,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByEmail_' + #email")
 	public TrademarkResponse findByEmailIgnoreCase(String email) {
 
 		if (email == null) {
@@ -682,6 +693,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByEmailPrefix_' + #email")
 	public List<TrademarkResponse> findByEmailContainingIgnoreCase(String email) {
 
 		if (email == null) {
@@ -711,6 +723,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByMobileNumber_' + #mobileNumber")
 	public TrademarkResponse findByMobileNumberIgnoreCase(String mobileNumber) {
 
 		if (mobileNumber == null) {
@@ -740,6 +753,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByMobileNumberPrefix_' + #mobileNumber")
 	public List<TrademarkResponse> findByMobileNumberContainingIgnoreCase(String mobileNumber) {
 
 		if (mobileNumber == null) {
@@ -769,6 +783,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByDocuments_' + #documents")
 	public List<TrademarkResponse> findByDocumentsContainingIgnoreCase(String documents) {
 
 		if (documents == null) {
@@ -798,6 +813,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserId_' + #userId")
 	public List<TrademarkResponse> findByUserId(String userId) {
 
 		if (userId == null) {
@@ -827,6 +843,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByAdressPrefix_' + #adress")
 	public List<TrademarkResponse> findByAdressContainingIgnoreCase(String adress) {
 
 		if (adress == null) {
@@ -856,6 +873,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByTrademarkNamePrefix_' + #trademarkName")
 	public List<TrademarkResponse> findByTrademarkNameContainingIgnoreCase(String trademarkName) {
 
 		if (trademarkName == null) {
@@ -885,6 +903,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByTrademarkTypePrefix_' + #trademarkType")
 	public List<TrademarkResponse> findByTrademarkTypeContainingIgnoreCase(String trademarkType) {
 
 		if (trademarkType == null) {
@@ -914,6 +933,7 @@ public class TrademarkServiceImpl implements TrademarkService {
 	}
 
 	@Override
+	@Cacheable(value = cacheValue, key = "'findByClassOfGoodsPrefix_' + #classOfGoods")
 	public List<TrademarkResponse> findByClassOfGoodsContainingIgnoreCase(String classOfGoods) {
 
 		if (classOfGoods == null) {
