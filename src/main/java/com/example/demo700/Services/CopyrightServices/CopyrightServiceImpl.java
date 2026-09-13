@@ -73,7 +73,7 @@ public class CopyrightServiceImpl implements CopyrightService {
 	private MongoTemplate mongoTemplate;
 
 	private static final String cacheValue = "Copyright";
-	
+
 	@Override
 	@Caching(evict = {
 
@@ -456,7 +456,7 @@ public class CopyrightServiceImpl implements CopyrightService {
 
 		Update update = new Update();
 
-		update.set("id", copyright.getId());
+		update.set("id", id);
 		update.set("userId", copyright.getUserId());
 		update.set("author", copyright.getAuthor());
 		update.set("typeOfWork", copyright.getTypeOfWork());
