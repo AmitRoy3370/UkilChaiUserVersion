@@ -28,6 +28,9 @@ import com.example.demo700.Model.ChatModels.ChatMessage;
 import com.example.demo700.Model.ChatModels.Group;
 import com.example.demo700.Model.ChatModels.GroupMessage;
 import com.example.demo700.Model.ChatModels.ReadableChat;
+import com.example.demo700.Model.CopyrightModels.Copyright;
+import com.example.demo700.Model.CopyrightModels.CopyrightPayment;
+import com.example.demo700.Model.CopyrightModels.CopyrightRegistrationProcess;
 import com.example.demo700.Model.LiveLocations.LiveLocationData;
 import com.example.demo700.Model.NotificationModel.Notification;
 import com.example.demo700.Model.PaymentModels.PaymentDetails;
@@ -78,6 +81,9 @@ import com.example.demo700.Repositories.ChatRepositories.ChatMessageRepository;
 import com.example.demo700.Repositories.ChatRepositories.GroupMessageRepository;
 import com.example.demo700.Repositories.ChatRepositories.GroupRepository;
 import com.example.demo700.Repositories.ChatRepositories.ReadableChatRepository;
+import com.example.demo700.Repositories.CopyrightRepositories.CopyrightPaymentRepository;
+import com.example.demo700.Repositories.CopyrightRepositories.CopyrightRegistrationProcessRepository;
+import com.example.demo700.Repositories.CopyrightRepositories.CopyrightRepository;
 import com.example.demo700.Repositories.NotificationRepository.NotificationRepository;
 import com.example.demo700.Repositories.PaymentRepositories.PaymentDetailsRepository;
 import com.example.demo700.Repositories.QNARepositories.AnswerRepository;
@@ -266,6 +272,15 @@ public class Cleaner {
 	@Autowired
 	private TrademarkPaymentRepository trademarkPaymentRepository;
 
+	@Autowired
+	private CopyrightRepository copyrightRepository;
+
+	@Autowired
+	private CopyrightRegistrationProcessRepository copyrightRegistrationProcessRepository;
+
+	@Autowired
+	private CopyrightPaymentRepository copyrightPaymentRepository;
+
 	public void removeUser(String userId) {
 
 		try {
@@ -285,6 +300,49 @@ public class Cleaner {
 			if (count != userRepository.count()) {
 
 				redisService.clearAllCaches();
+
+				try {
+
+					List<Copyright> list = copyrightRepository.findByUserId(userId);
+
+					for (Copyright i : list) {
+
+						removeCopyright(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<CopyrightPayment> list = copyrightPaymentRepository.findBySenderUserId(userId);
+
+					for (CopyrightPayment i : list) {
+
+						removeCopyrightPayment(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<CopyrightRegistrationProcess> list = copyrightRegistrationProcessRepository
+							.findByUserId(userId);
+
+					for (CopyrightRegistrationProcess i : list) {
+
+						removeCopyrightRegistrationProcess(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
 
 				try {
 
@@ -413,7 +471,6 @@ public class Cleaner {
 				} catch (Exception e) {
 
 				}
-
 
 				try {
 
@@ -836,6 +893,21 @@ public class Cleaner {
 				advocateRepository.deleteById(advocateId);
 
 				if (count != advocateRepository.count()) {
+
+					try {
+
+						List<CopyrightRegistrationProcess> list = copyrightRegistrationProcessRepository
+								.findByAdvocateId(advocateId);
+
+						for (CopyrightRegistrationProcess i : list) {
+
+							removeCopyrightRegistrationProcess(i.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
 
 					try {
 
@@ -2688,7 +2760,7 @@ public class Cleaner {
 
 			if (count != trademarkRepository.count()) {
 
-			try {
+				try {
 
 					for (String i : trademark.getDocuments()) {
 
@@ -2787,6 +2859,134 @@ public class Cleaner {
 			trademarkPaymentRepository.deleteById(id);
 
 			if (count != trademarkPaymentRepository.count()) {
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeCopyright(String id) {
+
+		try {
+
+			Copyright copyright = copyrightRepository.findById(id).get();
+
+			if (copyright == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = copyrightRepository.count();
+
+			copyrightRepository.deleteById(id);
+
+			if (count != copyrightRepository.count()) {
+
+				try {
+
+					for (String i : copyright.getDocuments()) {
+
+						try {
+
+							imageService.delete(i);
+
+						} catch (Exception e) {
+
+						}
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<CopyrightPayment> list = copyrightPaymentRepository.findByCopyrightId(id);
+
+					for (CopyrightPayment i : list) {
+
+						removeCopyrightPayment(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					CopyrightRegistrationProcess process = copyrightRegistrationProcessRepository.findByCopyrightId(id);
+
+					if (process == null) {
+
+						throw new Exception();
+
+					}
+
+					removeCopyrightRegistrationProcess(process.getId());
+
+				} catch (Exception e) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeCopyrightRegistrationProcess(String id) {
+
+		try {
+
+			CopyrightRegistrationProcess process = copyrightRegistrationProcessRepository.findById(id).get();
+
+			if (process == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = copyrightRegistrationProcessRepository.count();
+
+			copyrightRegistrationProcessRepository.deleteById(id);
+
+			if (count != copyrightRegistrationProcessRepository.count()) {
+
+				removeCopyright(process.getCopyrightId());
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeCopyrightPayment(String id) {
+
+		try {
+
+			CopyrightPayment payment = copyrightPaymentRepository.findById(id).get();
+
+			if (payment == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = copyrightPaymentRepository.count();
+
+			copyrightPaymentRepository.deleteById(id);
+
+			if (count != copyrightPaymentRepository.count()) {
 
 			}
 
