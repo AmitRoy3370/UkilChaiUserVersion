@@ -1301,6 +1301,7 @@ public class CopyrightServiceImpl implements CopyrightService {
             response.setEmail(copyright.getEmail());
             response.setMobileNumber(copyright.getMobileNumber());
             response.setTitleOfWork(copyright.getTitleOfWork());
+            response.setTypeOfWork(copyright.getTypeOfWork());
 
             // ⚠️ WARNING: typeOfWork being set to titleOfWork field!
             response.setTitleOfWork(copyright.getTypeOfWork());
