@@ -50,7 +50,7 @@ public class CopyrightRegistrationProcessServiceImpl implements CopyrightRegistr
 	private MongoTemplate mongoTemplate;
 
 	private static final String cacheValue = "CopyrightRegistrationProcess";
-	
+
 	@Override
 	@Caching(evict = {
 
@@ -375,7 +375,7 @@ public class CopyrightRegistrationProcessServiceImpl implements CopyrightRegistr
 		update.set("advocateId", process.getAdvocateId());
 		update.set("copyrightId", process.getCopyrightId());
 		update.set("status", process.isStatus());
-		update.set("steps", process.getStpes());
+		update.set("stpes", process.getStpes());
 
 		mongoTemplate.updateFirst(query, update, CopyrightRegistrationProcess.class);
 
