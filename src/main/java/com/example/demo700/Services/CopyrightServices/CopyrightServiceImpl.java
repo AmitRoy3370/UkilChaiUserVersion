@@ -988,225 +988,446 @@ public class CopyrightServiceImpl implements CopyrightService {
 
 	private List<CopyrightResponse> getCopyrightResponse(List<Copyright> list) {
 
-		List<CopyrightResponse> responses = new ArrayList<>();
-
-		CompletableFuture<List<String>> copyrightIdListFuture = CompletableFuture
-				.supplyAsync(() -> list.stream().map(Copyright::getId).collect(Collectors.toList()), executor);
-
-		CompletableFuture<Map<String, CopyrightRegistrationProcess>> processMapFuture = copyrightIdListFuture
-				.thenApplyAsync(copyrightIds -> {
-
-					if (copyrightIds.isEmpty()) {
-
-						return new HashMap<>();
-
-					}
-
-					return processRepository.findByCopyrightIdIn(copyrightIds).stream().collect(
-							Collectors.toMap(CopyrightRegistrationProcess::getCopyrightId, Function.identity()));
-
-				}, executor);
-
-		CompletableFuture<List<CopyrightRegistrationProcess>> processListFuture = processMapFuture
-				.thenApplyAsync(processMap -> {
-
-					if (processMap.isEmpty()) {
-
-						return new ArrayList<>();
-
-					}
-
-					return processMap.values().stream().collect(Collectors.toList());
-
-				}, executor);
-
-		CompletableFuture<List<String>> advocatesIdFuture = processListFuture.thenApplyAsync(processList -> {
-
-			if (processList.isEmpty()) {
-
-				return new ArrayList<>();
-
-			}
-
-			return processList.stream().map(CopyrightRegistrationProcess::getAdvocateId).distinct()
-					.collect(Collectors.toList());
-
-		}, executor);
-
-		CompletableFuture<List<Advocate>> advocatesListFuture = advocatesIdFuture.thenApplyAsync(advocatesId -> {
-
-			if (advocatesId.isEmpty()) {
-
-				return new ArrayList<>();
-
-			}
-
-			return advocateRepository.findAllById(advocatesId).stream().collect(Collectors.toList());
-
-		}, executor);
-
-		CompletableFuture<Map<String, Advocate>> advocateMapFuture = advocatesListFuture
-				.thenApplyAsync(advocatesList -> {
-
-					if (advocatesList.isEmpty()) {
-
-						return new HashMap<>();
-
-					}
-
-					return advocatesList.stream().collect(Collectors.toMap(Advocate::getId, Function.identity()));
-
-				}, executor);
-
-		CompletableFuture<List<String>> advocatesUserIdListFuture = advocatesListFuture.thenApplyAsync(advocates -> {
-
-			if (advocates.isEmpty()) {
-
-				return new ArrayList<>();
-
-			}
-
-			return advocates.stream().map(Advocate::getUserId).collect(Collectors.toList());
-
-		}, executor);
-
-		CompletableFuture<List<String>> centerAdminsUserIdListFuture = processListFuture.thenApplyAsync(processList -> {
-
-			if (processList.isEmpty()) {
-
-				return new ArrayList<>();
-
-			}
-
-			return processList.stream().map(CopyrightRegistrationProcess::getUserId).distinct()
-					.collect(Collectors.toList());
-
-		}, executor);
-
-		CompletableFuture<List<String>> centerAdminAndAdvocateUser = centerAdminsUserIdListFuture.thenCombine(
-				advocatesUserIdListFuture, (list1, list2) -> Stream.concat(list1.stream(), list2.stream()).toList());
-
-		CompletableFuture<List<String>> requestedUserId = CompletableFuture.supplyAsync(
-				() -> list.stream().map(Copyright::getUserId).distinct().collect(Collectors.toList()), executor);
-
-		CompletableFuture<List<String>> allUserId = requestedUserId.thenCombine(centerAdminAndAdvocateUser,
-				(list1, list2) -> Stream.concat(list1.stream(), list2.stream()).toList());
-
-		CompletableFuture<Map<String, User>> userMapFuture = allUserId.thenApplyAsync(usersId -> {
-
-			if (usersId.isEmpty()) {
-
-				return new HashMap<>();
-
-			}
-
-			return userRepository.findAllById(usersId).stream()
-					.collect(Collectors.toMap(User::getId, Function.identity()));
-
-		}, executor);
-
-		CompletableFuture
-				.allOf(copyrightIdListFuture, processMapFuture, processListFuture, advocatesIdFuture,
-						advocatesListFuture, advocatesUserIdListFuture, centerAdminsUserIdListFuture,
-						centerAdminAndAdvocateUser, requestedUserId, allUserId, userMapFuture, advocateMapFuture)
-				.join();
-
-		Map<String, User> userMap = userMapFuture.join();
-		Map<String, Advocate> advocateMap = advocateMapFuture.join();
-		Map<String, CopyrightRegistrationProcess> processMap = processMapFuture.join();
-
-		for (Copyright copyright : list) {
-
-			try {
-
-				CopyrightResponse response = new CopyrightResponse();
-
-				response.setId(copyright.getId());
-				response.setUserId(copyright.getId());
-				response.setAdress(copyright.getAdress());
-				response.setApplicationName(copyright.getApplicationName());
-				response.setAuthor(copyright.getAuthor());
-				response.setDescription(copyright.getDescription());
-				response.setDocuments(copyright.getDocuments());
-				response.setEmail(copyright.getEmail());
-				response.setMobileNumber(copyright.getMobileNumber());
-				response.setTitleOfWork(copyright.getTitleOfWork());
-				response.setTitleOfWork(copyright.getTypeOfWork());
-				response.setYearOfCreation(copyright.getYearOfCreation());
-
-				try {
-
-					response.setUserName(userMap.get(copyright.getUserId()).getFullName() == null
-							? userMap.get(copyright.getUserId()).getName()
-							: userMap.get(copyright.getUserId()).getFullName());
-
-				} catch (Exception e) {
-
-					System.out.println(e.getMessage());
-
-				}
-
-				try {
-
-					CopyrightRegistrationProcessResponse processResponse = new CopyrightRegistrationProcessResponse();
-
-					CopyrightRegistrationProcess process = processMap.get(copyright.getId());
-
-					processResponse.setId(process.getId());
-					processResponse.setAdvocateId(process.getAdvocateId());
-					processResponse.setUserId((process.getUserId()));
-					processResponse.setStatus(process.isStatus());
-					processResponse.setStpes(process.getStpes());
-					processResponse.setCopyrightId(copyright.getId());
-
-					try {
-
-						processResponse.setAdvocateName(
-								userMap.get(advocateMap.get(process.getAdvocateId()).getUserId()).getFullName() == null
-										? userMap.get(advocateMap.get(process.getAdvocateId()).getUserId()).getName()
-										: userMap.get(advocateMap.get(process.getAdvocateId()).getUserId())
-												.getFullName());
-
-					} catch (Exception e) {
-
-						System.out.println(e.getMessage());
-
-					}
-
-					try {
-
-						processResponse.setUserName(userMap.get(process.getUserId()).getFullName() == null
-								? userMap.get(process.getUserId()).getName()
-								: userMap.get(process.getUserId()).getFullName());
-
-					} catch (Exception e) {
-
-						System.out.println(e.getMessage());
-
-					}
-
-					processResponse.setCopyright(copyright);
-
-					response.setRegistrationProcess(processResponse);
-
-				} catch (Exception e) {
-
-					System.out.println(e.getMessage());
-
-				}
-
-				responses.add(response);
-
-			} catch (Exception e) {
-
-				System.out.println(e.getMessage());
-
-			}
-
-		}
-
-		return responses;
-
-	}
-
+    System.out.println("═══════════════════════════════════════════════════════════════");
+    System.out.println("=== START getCopyrightResponse ===");
+    System.out.println("Input list size: " + (list != null ? list.size() : "null"));
+
+    List<CopyrightResponse> responses = new ArrayList<>();
+
+    if (list == null || list.isEmpty()) {
+        System.out.println("⚠️ List is null or empty, returning empty list");
+        System.out.println("=== END getCopyrightResponse ===");
+        System.out.println("═══════════════════════════════════════════════════════════════");
+        return responses;
+    }
+
+    System.out.println("STEP 1: Creating CompletableFutures...");
+
+    // ==================== FUTURE 1: Extract Copyright IDs ====================
+    CompletableFuture<List<String>> copyrightIdListFuture = CompletableFuture
+            .supplyAsync(() -> {
+                System.out.println("  [Future-1] copyrightIdListFuture: Extracting Copyright IDs");
+                try {
+                    List<String> ids = list.stream().map(Copyright::getId).collect(Collectors.toList());
+                    System.out.println("  [Future-1] ✅ Found " + ids.size() + " copyright IDs: " + ids);
+                    return ids;
+                } catch (Exception e) {
+                    System.err.println("  [Future-1] ❌ ERROR extracting copyright IDs: " + e.getMessage());
+                    e.printStackTrace();
+                    return new ArrayList<>();
+                }
+            }, executor);
+
+    // ==================== FUTURE 2: Fetch Process Map ====================
+    CompletableFuture<Map<String, CopyrightRegistrationProcess>> processMapFuture = copyrightIdListFuture
+            .thenApplyAsync(copyrightIds -> {
+                System.out.println("  [Future-2] processMapFuture: Processing copyright IDs");
+                try {
+                    if (copyrightIds.isEmpty()) {
+                        System.out.println("  [Future-2] ⚠️ Copyright IDs list is empty, returning empty map");
+                        return new HashMap<>();
+                    }
+
+                    System.out.println("  [Future-2] Fetching processes for " + copyrightIds.size() + " copyright IDs");
+                    List<CopyrightRegistrationProcess> processes = processRepository.findByCopyrightIdIn(copyrightIds);
+                    System.out.println("  [Future-2] Found " + processes.size() + " processes from DB");
+
+                    Map<String, CopyrightRegistrationProcess> map = processes.stream()
+                            .collect(Collectors.toMap(
+                                CopyrightRegistrationProcess::getCopyrightId,
+                                Function.identity(),
+                                (existing, replacement) -> {
+                                    System.out.println("  [Future-2] ⚠️ Duplicate key found: "
+                                        + existing.getCopyrightId() + " - keeping existing");
+                                    return existing;
+                                }
+                            ));
+                    System.out.println("  [Future-2] ✅ Created process map with " + map.size() + " entries");
+                    System.out.println("  [Future-2] Process map keys: " + map.keySet());
+                    return map;
+                } catch (Exception e) {
+                    System.err.println("  [Future-2] ❌ ERROR fetching processes: " + e.getMessage());
+                    e.printStackTrace();
+                    return new HashMap<>();
+                }
+            }, executor);
+
+    // ==================== FUTURE 3: Convert Process Map to List ====================
+    CompletableFuture<List<CopyrightRegistrationProcess>> processListFuture = processMapFuture
+            .thenApplyAsync(processMap -> {
+                System.out.println("  [Future-3] processListFuture: Converting process map to list");
+                try {
+                    if (processMap.isEmpty()) {
+                        System.out.println("  [Future-3] ⚠️ Process map is empty, returning empty list");
+                        return new ArrayList<>();
+                    }
+                    List<CopyrightRegistrationProcess> processList = processMap.values().stream()
+                            .collect(Collectors.toList());
+                    System.out.println("  [Future-3] ✅ Found " + processList.size() + " processes");
+                    return processList;
+                } catch (Exception e) {
+                    System.err.println("  [Future-3] ❌ ERROR converting to list: " + e.getMessage());
+                    e.printStackTrace();
+                    return new ArrayList<>();
+                }
+            }, executor);
+
+    // ==================== FUTURE 4: Extract Advocate IDs ====================
+    CompletableFuture<List<String>> advocatesIdFuture = processListFuture.thenApplyAsync(processList -> {
+        System.out.println("  [Future-4] advocatesIdFuture: Extracting advocate IDs");
+        try {
+            if (processList.isEmpty()) {
+                System.out.println("  [Future-4] ⚠️ Process list is empty, returning empty list");
+                return new ArrayList<>();
+            }
+            List<String> advocateIds = processList.stream()
+                    .map(CopyrightRegistrationProcess::getAdvocateId)
+                    .distinct()
+                    .collect(Collectors.toList());
+            System.out.println("  [Future-4] ✅ Found " + advocateIds.size() + " distinct advocate IDs: " + advocateIds);
+            return advocateIds;
+        } catch (Exception e) {
+            System.err.println("  [Future-4] ❌ ERROR extracting advocate IDs: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }, executor);
+
+    // ==================== FUTURE 5: Fetch Advocates ====================
+    CompletableFuture<List<Advocate>> advocatesListFuture = advocatesIdFuture.thenApplyAsync(advocatesId -> {
+        System.out.println("  [Future-5] advocatesListFuture: Fetching advocates");
+        try {
+            if (advocatesId.isEmpty()) {
+                System.out.println("  [Future-5] ⚠️ Advocate IDs list is empty, returning empty list");
+                return new ArrayList<>();
+            }
+            System.out.println("  [Future-5] Fetching " + advocatesId.size() + " advocates from DB");
+            List<Advocate> advocates = advocateRepository.findAllById(advocatesId).stream()
+                    .collect(Collectors.toList());
+            System.out.println("  [Future-5] ✅ Found " + advocates.size() + " advocates");
+            return advocates;
+        } catch (Exception e) {
+            System.err.println("  [Future-5] ❌ ERROR fetching advocates: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }, executor);
+
+    // ==================== FUTURE 6: Create Advocate Map ====================
+    CompletableFuture<Map<String, Advocate>> advocateMapFuture = advocatesListFuture
+            .thenApplyAsync(advocatesList -> {
+                System.out.println("  [Future-6] advocateMapFuture: Creating advocate map");
+                try {
+                    if (advocatesList.isEmpty()) {
+                        System.out.println("  [Future-6] ⚠️ Advocate list is empty, returning empty map");
+                        return new HashMap<>();
+                    }
+                    Map<String, Advocate> map = advocatesList.stream()
+                            .collect(Collectors.toMap(Advocate::getId, Function.identity()));
+                    System.out.println("  [Future-6] ✅ Created advocate map with " + map.size() + " entries");
+                    return map;
+                } catch (Exception e) {
+                    System.err.println("  [Future-6] ❌ ERROR creating advocate map: " + e.getMessage());
+                    e.printStackTrace();
+                    return new HashMap<>();
+                }
+            }, executor);
+
+    // ==================== FUTURE 7: Extract Advocate User IDs ====================
+    CompletableFuture<List<String>> advocatesUserIdListFuture = advocatesListFuture.thenApplyAsync(advocates -> {
+        System.out.println("  [Future-7] advocatesUserIdListFuture: Extracting advocate user IDs");
+        try {
+            if (advocates.isEmpty()) {
+                System.out.println("  [Future-7] ⚠️ Advocates list is empty, returning empty list");
+                return new ArrayList<>();
+            }
+            List<String> userIds = advocates.stream()
+                    .map(Advocate::getUserId)
+                    .collect(Collectors.toList());
+            System.out.println("  [Future-7] ✅ Found " + userIds.size() + " advocate user IDs: " + userIds);
+            return userIds;
+        } catch (Exception e) {
+            System.err.println("  [Future-7] ❌ ERROR extracting advocate user IDs: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }, executor);
+
+    // ==================== FUTURE 8: Extract Center Admin User IDs ====================
+    CompletableFuture<List<String>> centerAdminsUserIdListFuture = processListFuture.thenApplyAsync(processList -> {
+        System.out.println("  [Future-8] centerAdminsUserIdListFuture: Extracting center admin user IDs");
+        try {
+            if (processList.isEmpty()) {
+                System.out.println("  [Future-8] ⚠️ Process list is empty, returning empty list");
+                return new ArrayList<>();
+            }
+            List<String> userIds = processList.stream()
+                    .map(CopyrightRegistrationProcess::getUserId)
+                    .distinct()
+                    .collect(Collectors.toList());
+            System.out.println("  [Future-8] ✅ Found " + userIds.size() + " distinct center admin user IDs: " + userIds);
+            return userIds;
+        } catch (Exception e) {
+            System.err.println("  [Future-8] ❌ ERROR extracting center admin user IDs: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }, executor);
+
+    // ==================== FUTURE 9: Combine Center Admin + Advocate User IDs ====================
+    CompletableFuture<List<String>> centerAdminAndAdvocateUser = centerAdminsUserIdListFuture
+            .thenCombine(advocatesUserIdListFuture, (list1, list2) -> {
+                System.out.println("  [Future-9] centerAdminAndAdvocateUser: Combining center admin + advocate user IDs");
+                try {
+                    List<String> safe1 = list1 != null ? list1 : new ArrayList<>();
+                    List<String> safe2 = list2 != null ? list2 : new ArrayList<>();
+                    List<String> combined = Stream.concat(safe1.stream(), safe2.stream()).toList();
+                    System.out.println("  [Future-9] ✅ Combined " + combined.size() + " user IDs: " + combined);
+                    return combined;
+                } catch (Exception e) {
+                    System.err.println("  [Future-9] ❌ ERROR combining user IDs: " + e.getMessage());
+                    e.printStackTrace();
+                    return new ArrayList<>();
+                }
+            });
+
+    // ==================== FUTURE 10: Extract Requested User IDs ====================
+    CompletableFuture<List<String>> requestedUserId = CompletableFuture.supplyAsync(() -> {
+        System.out.println("  [Future-10] requestedUserId: Extracting requested (copyright owner) user IDs");
+        try {
+            List<String> userIds = list.stream()
+                    .map(Copyright::getUserId)
+                    .distinct()
+                    .collect(Collectors.toList());
+            System.out.println("  [Future-10] ✅ Found " + userIds.size() + " requested user IDs: " + userIds);
+            return userIds;
+        } catch (Exception e) {
+            System.err.println("  [Future-10] ❌ ERROR extracting requested user IDs: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }, executor);
+
+    // ==================== FUTURE 11: Combine All User IDs ====================
+    CompletableFuture<List<String>> allUserId = requestedUserId.thenCombine(centerAdminAndAdvocateUser,
+            (list1, list2) -> {
+                System.out.println("  [Future-11] allUserId: Combining all user IDs");
+                try {
+                    List<String> safe1 = list1 != null ? list1 : new ArrayList<>();
+                    List<String> safe2 = list2 != null ? list2 : new ArrayList<>();
+                    List<String> combined = Stream.concat(safe1.stream(), safe2.stream())
+                            .distinct()
+                            .toList();
+                    System.out.println("  [Future-11] ✅ Combined " + combined.size() + " total user IDs: " + combined);
+                    return combined;
+                } catch (Exception e) {
+                    System.err.println("  [Future-11] ❌ ERROR combining all user IDs: " + e.getMessage());
+                    e.printStackTrace();
+                    return new ArrayList<>();
+                }
+            });
+
+    // ==================== FUTURE 12: Fetch User Map ====================
+    CompletableFuture<Map<String, User>> userMapFuture = allUserId.thenApplyAsync(usersId -> {
+        System.out.println("  [Future-12] userMapFuture: Fetching users");
+        try {
+            if (usersId.isEmpty()) {
+                System.out.println("  [Future-12] ⚠️ User IDs list is empty, returning empty map");
+                return new HashMap<>();
+            }
+            System.out.println("  [Future-12] Fetching " + usersId.size() + " users from DB");
+            Map<String, User> userMap = userRepository.findAllById(usersId).stream()
+                    .collect(Collectors.toMap(User::getId, Function.identity()));
+            System.out.println("  [Future-12] ✅ Found " + userMap.size() + " users");
+            System.out.println("  [Future-12] User map keys: " + userMap.keySet());
+            return userMap;
+        } catch (Exception e) {
+            System.err.println("  [Future-12] ❌ ERROR fetching users: " + e.getMessage());
+            e.printStackTrace();
+            return new HashMap<>();
+        }
+    }, executor);
+
+    // ==================== WAIT FOR ALL FUTURES ====================
+    System.out.println("STEP 2: Waiting for all CompletableFutures to complete...");
+    try {
+        CompletableFuture.allOf(
+                copyrightIdListFuture, processMapFuture, processListFuture,
+                advocatesIdFuture, advocatesListFuture, advocatesUserIdListFuture,
+                centerAdminsUserIdListFuture, centerAdminAndAdvocateUser,
+                requestedUserId, allUserId, userMapFuture, advocateMapFuture
+        ).join();
+        System.out.println("✅ All CompletableFutures completed successfully");
+    } catch (Exception e) {
+        System.err.println("❌ ERROR: CompletableFuture.allOf failed: " + e.getMessage());
+        e.printStackTrace();
+        return new ArrayList<>();
+    }
+
+    // ==================== GET RESULTS FROM FUTURES ====================
+    System.out.println("STEP 3: Getting results from futures...");
+    Map<String, User> userMap = userMapFuture.join();
+    System.out.println("  - userMap size: " + userMap.size());
+
+    Map<String, Advocate> advocateMap = advocateMapFuture.join();
+    System.out.println("  - advocateMap size: " + advocateMap.size());
+
+    Map<String, CopyrightRegistrationProcess> processMap = processMapFuture.join();
+    System.out.println("  - processMap size: " + processMap.size());
+
+    // ==================== BUILD RESPONSES ====================
+    System.out.println("STEP 4: Building response DTOs for " + list.size() + " copyrights...");
+    int processedCount = 0;
+    int failedCount = 0;
+
+    for (Copyright copyright : list) {
+        try {
+            System.out.println("  ───────────────────────────────────────");
+            System.out.println("  Processing Copyright ID: " + copyright.getId());
+            System.out.println("    - User ID: " + copyright.getUserId());
+
+            CopyrightResponse response = new CopyrightResponse();
+
+            // Set basic fields
+            response.setId(copyright.getId());
+            response.setUserId(copyright.getId());  // ⚠️ WARNING: This sets userId = copyrightId! Bug?
+            System.out.println("    ⚠️ Setting userId to copyright.getId(): " + copyright.getId());
+
+            response.setAdress(copyright.getAdress());
+            response.setApplicationName(copyright.getApplicationName());
+            response.setAuthor(copyright.getAuthor());
+            response.setDescription(copyright.getDescription());
+            response.setDocuments(copyright.getDocuments());
+            response.setEmail(copyright.getEmail());
+            response.setMobileNumber(copyright.getMobileNumber());
+            response.setTitleOfWork(copyright.getTitleOfWork());
+
+            // ⚠️ WARNING: typeOfWork being set to titleOfWork field!
+            response.setTitleOfWork(copyright.getTypeOfWork());
+            System.out.println("    ⚠️ Setting titleOfWork to typeOfWork: " + copyright.getTypeOfWork());
+
+            response.setYearOfCreation(copyright.getYearOfCreation());
+            System.out.println("    ✅ Basic fields set");
+
+            // ==================== Set User Name ====================
+            try {
+                System.out.println("    - Looking up user name for userId: " + copyright.getUserId());
+                User user = userMap.get(copyright.getUserId());
+
+                if (user != null) {
+                    String name = user.getFullName() == null ? user.getName() : user.getFullName();
+                    response.setUserName(name);
+                    System.out.println("    ✅ User name set to: " + name);
+                } else {
+                    System.out.println("    ⚠️ WARNING: User not found in userMap for userId: " + copyright.getUserId());
+                    System.out.println("    Available user IDs: " + userMap.keySet());
+                }
+            } catch (Exception e) {
+                System.err.println("    ❌ ERROR setting user name: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            // ==================== Set Registration Process ====================
+            try {
+                System.out.println("    - Looking up registration process for copyrightId: " + copyright.getId());
+                CopyrightRegistrationProcess process = processMap.get(copyright.getId());
+                System.out.println("    - Process found: " + (process != null ? "Yes" : "No"));
+
+                if (process != null) {
+                    CopyrightRegistrationProcessResponse processResponse = new CopyrightRegistrationProcessResponse();
+
+                    processResponse.setId(process.getId());
+                    processResponse.setAdvocateId(process.getAdvocateId());
+                    processResponse.setUserId(process.getUserId());
+                    processResponse.setStatus(process.isStatus());
+                    processResponse.setStpes(process.getStpes());
+                    processResponse.setCopyrightId(copyright.getId());
+                    System.out.println("    - Process basic fields set");
+                    System.out.println("      * processId: " + process.getId());
+                    System.out.println("      * advocateId: " + process.getAdvocateId());
+                    System.out.println("      * processUserId: " + process.getUserId());
+
+                    // ==================== Set Advocate Name ====================
+                    try {
+                        System.out.println("    - Looking up advocate for advocateId: " + process.getAdvocateId());
+                        Advocate advocate = advocateMap.get(process.getAdvocateId());
+
+                        if (advocate != null) {
+                            System.out.println("    - Advocate found: " + advocate.getId());
+                            System.out.println("    - Advocate userId: " + advocate.getUserId());
+
+                            User advocateUser = userMap.get(advocate.getUserId());
+                            if (advocateUser != null) {
+                                String name = advocateUser.getFullName() == null
+                                        ? advocateUser.getName()
+                                        : advocateUser.getFullName();
+                                processResponse.setAdvocateName(name);
+                                System.out.println("    ✅ Advocate name set to: " + name);
+                            } else {
+                                System.out.println("    ⚠️ WARNING: Advocate user not found for userId: " + advocate.getUserId());
+                                System.out.println("    Available user IDs: " + userMap.keySet());
+                            }
+                        } else {
+                            System.out.println("    ⚠️ WARNING: Advocate not found for advocateId: " + process.getAdvocateId());
+                            System.out.println("    Available advocate IDs: " + advocateMap.keySet());
+                        }
+                    } catch (Exception e) {
+                        System.err.println("    ❌ ERROR setting advocate name: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+
+                    // ==================== Set Process User Name ====================
+                    try {
+                        System.out.println("    - Looking up process user name for userId: " + process.getUserId());
+                        User processUser = userMap.get(process.getUserId());
+
+                        if (processUser != null) {
+                            String name = processUser.getFullName() == null
+                                    ? processUser.getName()
+                                    : processUser.getFullName();
+                            processResponse.setUserName(name);
+                            System.out.println("    ✅ Process user name set to: " + name);
+                        } else {
+                            System.out.println("    ⚠️ WARNING: Process user not found for userId: " + process.getUserId());
+                        }
+                    } catch (Exception e) {
+                        System.err.println("    ❌ ERROR setting process user name: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+
+                    // ⚠️ WARNING: Setting full Copyright entity inside DTO - potential circular reference!
+                    System.out.println("    ⚠️ Setting Copyright entity inside processResponse (potential circular ref)");
+                    processResponse.setCopyright(copyright);
+
+                    response.setRegistrationProcess(processResponse);
+                    System.out.println("    ✅ Registration process set successfully");
+                } else {
+                    System.out.println("    - No registration process found for this copyright");
+                    System.out.println("    Available process map keys: " + processMap.keySet());
+                }
+            } catch (Exception e) {
+                System.err.println("    ❌ ERROR processing registration process: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            responses.add(response);
+            processedCount++;
+            System.out.println("  ✅ Successfully processed Copyright ID: " + copyright.getId());
+
+        } catch (Exception e) {
+            failedCount++;
+            System.err.println("  ❌ ERROR processing Copyright ID " + copyright.getId() + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    System.out.println("=== END getCopyrightResponse ===");
+    System.out.println("Total copyrights processed: " + list.size());
+    System.out.println("Successfully processed: " + processedCount);
+    System.out.println("Failed to process: " + failedCount);
+    System.out.println("Response size: " + responses.size());
+    System.out.println("═══════════════════════════════════════════════════════════════");
+
+    return responses;
+}
 }
