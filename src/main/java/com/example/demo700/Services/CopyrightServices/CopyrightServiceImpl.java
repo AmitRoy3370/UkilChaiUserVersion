@@ -1002,7 +1002,7 @@ public class CopyrightServiceImpl implements CopyrightService {
 
 					}
 
-					return processRepository.findAllById(copyrightIds).stream().collect(
+					return processRepository.findByCopyrightId(copyrightIds).stream().collect(
 							Collectors.toMap(CopyrightRegistrationProcess::getCopyrightId, Function.identity()));
 
 				}, executor);
