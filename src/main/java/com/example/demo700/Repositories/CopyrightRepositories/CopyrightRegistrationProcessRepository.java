@@ -14,6 +14,8 @@ public interface CopyrightRegistrationProcessRepository extends MongoRepository<
     @Query("{ 'copyrightId': ?0 }")
     public CopyrightRegistrationProcess findByCopyrightId(String copyrightId);
 
+    public List<CopyrightRegistrationProcess> findByCopyrightIdIn(List<String> copyrightId);
+
     @Query("{ 'userId': ?0 }")
     public List<CopyrightRegistrationProcess> findByUserId(String userId);
 
