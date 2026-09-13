@@ -1304,7 +1304,7 @@ public class CopyrightServiceImpl implements CopyrightService {
             response.setTypeOfWork(copyright.getTypeOfWork());
 
             // ⚠️ WARNING: typeOfWork being set to titleOfWork field!
-            response.setTitleOfWork(copyright.getTypeOfWork());
+             response.setTitleOfWork(copyright.getTitleOfWork());
             System.out.println("    ⚠️ Setting titleOfWork to typeOfWork: " + copyright.getTypeOfWork());
 
             response.setYearOfCreation(copyright.getYearOfCreation());
