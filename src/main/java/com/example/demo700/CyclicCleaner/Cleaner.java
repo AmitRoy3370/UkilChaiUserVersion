@@ -60,7 +60,9 @@ import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Model.UserModels.UserContactInfo;
 import com.example.demo700.Model.UserModels.UserGender;
 import com.example.demo700.Model.UserModels.UserLocation;
-
+import com.example.demo700.Model.VatModels.Vat;
+import com.example.demo700.Model.VatModels.VatPayment;
+import com.example.demo700.Model.VatModels.VatRegistrationProcess;
 import com.example.demo700.Repositories.AdminRepositories.AdminJoinRequestRepository;
 import com.example.demo700.Repositories.AdminRepositories.AdminRepository;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
@@ -113,6 +115,9 @@ import com.example.demo700.Repositories.UserRepositories.UserContactInfoReposito
 import com.example.demo700.Repositories.UserRepositories.UserGenderRepository;
 import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
+import com.example.demo700.Repositories.VatRepositories.VatPaymentRepository;
+import com.example.demo700.Repositories.VatRepositories.VatRegistrationProcessRepository;
+import com.example.demo700.Repositories.VatRepositories.VatRepository;
 import com.example.demo700.Services.RedisService;
 import com.example.demo700.Services.UserServices.ImageService;
 
@@ -281,6 +286,15 @@ public class Cleaner {
 	@Autowired
 	private CopyrightPaymentRepository copyrightPaymentRepository;
 
+	@Autowired
+	private VatRepository vatRepository;
+
+	@Autowired
+	private VatRegistrationProcessRepository vatRegistrationProcessRepository;
+
+	@Autowired
+	private VatPaymentRepository vatPaymentRepository;
+
 	public void removeUser(String userId) {
 
 		try {
@@ -300,6 +314,48 @@ public class Cleaner {
 			if (count != userRepository.count()) {
 
 				redisService.clearAllCaches();
+
+				try {
+
+					List<Vat> list = vatRepository.findByUserId(userId);
+
+					for (Vat i : list) {
+
+						removeVat(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<VatRegistrationProcess> list = vatRegistrationProcessRepository.findByUserId(userId);
+
+					for (VatRegistrationProcess i : list) {
+
+						removeVatRegistrationProcess(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<VatPayment> list = vatPaymentRepository.findBySenderUserId(userId);
+
+					for (VatPayment i : list) {
+
+						removeVatPayment(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
 
 				try {
 
@@ -893,6 +949,21 @@ public class Cleaner {
 				advocateRepository.deleteById(advocateId);
 
 				if (count != advocateRepository.count()) {
+
+					try {
+
+						List<VatRegistrationProcess> list = vatRegistrationProcessRepository
+								.findByAdvocateId(advocateId);
+
+						for (VatRegistrationProcess i : list) {
+
+							removeVatRegistrationProcess(i.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
 
 					try {
 
@@ -2987,6 +3058,134 @@ public class Cleaner {
 			copyrightPaymentRepository.deleteById(id);
 
 			if (count != copyrightPaymentRepository.count()) {
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeVat(String id) {
+
+		try {
+
+			Vat vat = vatRepository.findById(id).get();
+
+			if (vat == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = vatRepository.count();
+
+			vatRepository.deleteById(id);
+
+			if (count != vatRepository.count()) {
+
+				try {
+
+					VatRegistrationProcess process = vatRegistrationProcessRepository.findByVatId(id);
+
+					if (process == null) {
+
+						throw new Exception();
+
+					}
+
+					removeVatRegistrationProcess(process.getId());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<VatPayment> list = vatPaymentRepository.findByVatId(id);
+
+					for (VatPayment i : list) {
+
+						removeVatPayment(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					for (String i : vat.getDocuments()) {
+
+						try {
+
+							imageService.delete(i);
+
+						} catch (Exception e) {
+
+						}
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeVatRegistrationProcess(String id) {
+
+		try {
+
+			VatRegistrationProcess process = vatRegistrationProcessRepository.findById(id).get();
+
+			if (process == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = vatRegistrationProcessRepository.count();
+
+			vatRegistrationProcessRepository.deleteById(id);
+
+			if (count != vatRegistrationProcessRepository.count()) {
+
+				removeVat(process.getVatId());
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeVatPayment(String id) {
+
+		try {
+
+			VatPayment payment = vatPaymentRepository.findById(id).get();
+
+			if (payment == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = vatPaymentRepository.count();
+
+			vatPaymentRepository.deleteById(id);
+
+			if (count != vatPaymentRepository.count()) {
 
 			}
 
