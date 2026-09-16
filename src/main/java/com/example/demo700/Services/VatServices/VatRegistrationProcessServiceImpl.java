@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -47,6 +50,12 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	private MongoTemplate mongoTemplate;
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Vat", allEntries = true),
+			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "VatPayment", allEntries = true),
+			
+	})
 	public VatRegistrationProcess addProcess(VatRegistrationProcess process, String userId) {
 
 		if (process == null || userId == null || !process.getUserId().equals(userId)) {
@@ -151,6 +160,12 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	}
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Vat", allEntries = true),
+			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "VatPayment", allEntries = true),
+			
+	})
 	public VatRegistrationProcess updateProcess(VatRegistrationProcess process, String userId, String id) {
 
 		if (id == null || process == null || userId == null) {
@@ -338,6 +353,7 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	}
 
 	@Override
+	@Cacheable(value = "VatRegistrationProcess", key = "'findById_' + #id")
 	public VatRegistrationProcess findById(String id) {
 		
 		if(id == null) {
@@ -367,6 +383,7 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	}
 
 	@Override
+	@Cacheable(value = "VatRegistrationProcess", key = "'findAll'")
 	public List<VatRegistrationProcess> findAll() {
 
 		try {
@@ -389,6 +406,7 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	}
 
 	@Override
+	@Cacheable(value = "VatRegistrationProcess", key = "'findByVatId_' + #vatId")
 	public VatRegistrationProcess findByVatId(String vatId) {
 
 		if(vatId == null) {
@@ -417,6 +435,7 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	}
 
 	@Override
+	@Cacheable(value = "VatRegistrationProcess", key = "'findByVatsId_' + #vatsId")
 	public List<VatRegistrationProcess> findByVatIdIn(List<String> vatsId) {
 
 		if(vatsId == null || vatsId.isEmpty()) {
@@ -445,6 +464,7 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	}
 
 	@Override
+	@Cacheable(value = "VatRegistrationProcess", key = "'findByUserId_' + #userId")
 	public List<VatRegistrationProcess> findByUserId(String userId) {
 
 		if(userId == null) {
@@ -473,6 +493,7 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	}
 
 	@Override
+	@Cacheable(value = "VatRegistrationProcess", key = "'findByAdvocateId_' + #advocateId")
 	public List<VatRegistrationProcess> findByAdvocateId(String advocateId) {
 
 		if(advocateId == null) {
@@ -501,6 +522,7 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	}
 
 	@Override
+	@Cacheable(value = "VatRegistrationProcess", key = "'findByStatus_' + #status")
 	public List<VatRegistrationProcess> findByStatus(boolean status) {
 
 		try {
@@ -523,6 +545,7 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	}
 
 	@Override
+	@Cacheable(value = "VatRegistrationProcess", key = "'findByUserId_' + #steps")
 	public List<VatRegistrationProcess> findByStepsContainingIgnoreCase(String steps) {
 
 		if(steps == null) {
@@ -551,6 +574,12 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	}
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Vat", allEntries = true),
+			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "VatPayment", allEntries = true),
+			
+	})
 	public boolean deleteProcess(String id, String userId) {
 
 		if (id == null || userId == null) {

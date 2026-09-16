@@ -565,10 +565,11 @@ public class AdvocateServiceImpl implements AdvocateService {
 			@CacheEvict(value = "TradeLicense", allEntries = true),
 			@CacheEvict(value = "TradeLicenseRegistrationProcess", allEntries = true),
 			@CacheEvict(value = "TradeLicensePayment", allEntries = true),
-          @CacheEvict(value = "Copyright", allEntries = true),
+			@CacheEvict(value = "Copyright", allEntries = true),
 			@CacheEvict(value = "CopyrightRegistrationProcess", allEntries = true),
-			@CacheEvict(value = "CopyrightPayment", allEntries = true),
-           })
+			@CacheEvict(value = "CopyrightPayment", allEntries = true), @CacheEvict(value = "Vat", allEntries = true),
+			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "VatPayment", allEntries = true), })
 
 	public boolean deleteAdvocate(String userId, String advocateId) {
 

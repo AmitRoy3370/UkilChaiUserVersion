@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -63,6 +66,12 @@ public class VatServiceImpl implements VatService {
 	private MongoTemplate mongoTemplate;
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Vat", allEntries = true),
+			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "VatPayment", allEntries = true),
+			
+	})
 	public Vat addVat(Vat vat, String userId, MultipartFile[] documents) {
 
 		if (vat == null || userId == null || !vat.getUserId().equals(userId)) {
@@ -181,6 +190,12 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Vat", allEntries = true),
+			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "VatPayment", allEntries = true),
+			
+	})
 	public Vat updateVat(String id, Vat vat, String userId, MultipartFile[] documents) {
 
 		if (id == null || vat == null || userId == null || !vat.getUserId().equals(userId)) {
@@ -374,6 +389,7 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Cacheable(value = "Vat", key = "'findById_' + #id")
 	public VatResponseDTO findById(String id) {
 
 		if (id == null) {
@@ -403,6 +419,7 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Cacheable(value = "Vat", key = "'findAll'")
 	public List<VatResponseDTO> findAll() {
 
 		try {
@@ -426,6 +443,7 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Cacheable(value = "Vat", key = "'findByUserId_' + #userId")
 	public List<VatResponseDTO> findByUserId(String userId) {
 		
 		if(userId == null) {
@@ -454,6 +472,7 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Cacheable(value = "Vat", key = "'findByAdress_' + #adress")
 	public List<VatResponseDTO> findByAdressContainingIgnoreCase(String adress) {
 
 		if(adress == null) {
@@ -482,6 +501,7 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Cacheable(value = "Vat", key = "'findByTinNo_' + #tinNo")
 	public List<VatResponseDTO> findByTinNoContainingIgnoreCase(String tinNo) {
 
 		if(tinNo == null) {
@@ -510,6 +530,7 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Cacheable(value = "Vat", key = "'findByBuisnessName_' + #buisnessName")
 	public List<VatResponseDTO> findByBuisnessNameContainingIgnoreCase(String buisnessName) {
 
 		if(buisnessName == null) {
@@ -538,6 +559,7 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Cacheable(value = "Vat", key = "'findByTradeLicenseNo_' + #tradeLicenseNo")
 	public List<VatResponseDTO> findByTradeLicenseNoContainingIgnoreCase(String tradeLicenseNo) {
 
 		if(tradeLicenseNo == null) {
@@ -566,6 +588,7 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Cacheable(value = "Vat", key = "'findByAnnualTurnOver_' + #annualTurnOver")
 	public List<VatResponseDTO> findByAnnualTurnOverContainingIgnoreCase(String annualTurnOver) {
 
 		if(annualTurnOver == null) {
@@ -594,6 +617,7 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Cacheable(value = "Vat", key = "'findByMainProduct_' + #mainProduct")
 	public List<VatResponseDTO> findByMainProductContainingIgnoreCase(String mainProduct) {
 
 		if(mainProduct == null) {
@@ -622,6 +646,7 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Cacheable(value = "Vat", key = "'findByNatureOfBuisness_' + #natureOfBuisness")
 	public List<VatResponseDTO> findByNatureOfBuisnessContainingIgnoreCase(String natureOfBuisness) {
 
 		if(natureOfBuisness == null) {
@@ -650,6 +675,7 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Cacheable(value = "Vat", key = "'findByNumberOfBuisnessGreaterThanEqual_' + #numberOfBuisness")
 	public List<VatResponseDTO> findByNumberOfBuisnessGreaterThanEqual(int numberOfBuisness) {
 
 		try {
@@ -672,6 +698,7 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Cacheable(value = "Vat", key = "'findByNumberOfBuisnessLessThanEqual_' + #numberOfBuisness")
 	public List<VatResponseDTO> findByNumberOfBuisnessLessThanEqual(int numberOfBuisness) {
 		try {
 
@@ -693,6 +720,7 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Cacheable(value = "Vat", key = "'findByNumberOfEmployeeGreaterThanEqual_' + #numberOfEmployee")
 	public List<VatResponseDTO> findByNumberOfEmployeeGreaterThanEqual(int numberOfEmployee) {
 		try {
 
@@ -714,6 +742,7 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Cacheable(value = "Vat", key = "'findByNumberOfEmployeeLessThanEqual_' + #numberOfEmployee")
 	public List<VatResponseDTO> findByNumberOfEmployeeLessThanEqual(int numberOfEmployee) {
 		try {
 
@@ -735,6 +764,7 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Cacheable(value = "Vat", key = "'findByDocument_' + #documents")
 	public List<VatResponseDTO> findByDocuments(String documents) {
 
 		if(documents == null) {
@@ -763,6 +793,12 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Vat", allEntries = true),
+			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "VatPayment", allEntries = true),
+			
+	})
 	public boolean deleteVat(String id, String userId) {
 
 		if (id == null || userId == null) {

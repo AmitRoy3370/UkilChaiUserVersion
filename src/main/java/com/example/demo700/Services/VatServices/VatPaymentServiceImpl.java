@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -43,6 +46,12 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	private MongoTemplate mongoTemplate;
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Vat", allEntries = true),
+			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "VatPayment", allEntries = true),
+			
+	})
 	public VatPayment addPayment(VatPayment payment, String userId) {
 
 		if (payment == null || userId == null || !payment.getSenderUserId().equals(userId)) {
@@ -118,6 +127,12 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	}
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Vat", allEntries = true),
+			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "VatPayment", allEntries = true),
+			
+	})
 	public VatPayment updatePayment(VatPayment payment, String userId, String id) {
 
 		if (id == null || payment == null || userId == null || !payment.getSenderUserId().equals(userId)) {
@@ -239,6 +254,7 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = "VatPayment", key = "'findById_' + #id")
 	public VatPayment findById(String id) {
 		
 		if(id == null) {
@@ -268,6 +284,7 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = "VatPayment", key = "'findAll'")
 	public List<VatPayment> findAll() {
 
 		try {
@@ -290,6 +307,7 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = "VatPayment", key = "'findBySenderUserId_' + #senderUserId")
 	public List<VatPayment> findBySenderUserId(String senderUserId) {
 
 		if(senderUserId == null) {
@@ -318,6 +336,7 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = "VatPayment", key = "'findBySenderPhoneNumber_' + #senderPhoneNumber")
 	public List<VatPayment> findBySenderPhoneNumberContainingIgnoreCase(String senderPhoneNumber) {
 
 		if(senderPhoneNumber == null) {
@@ -346,6 +365,7 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = "VatPayment", key = "'findByReceiverPhoneNumber_' + #receiverPhoneNumber")
 	public List<VatPayment> findByReceiverPhoneNumberContainingIgnoreCase(String receiverPhoneNumber) {
 
 		if(receiverPhoneNumber == null) {
@@ -374,6 +394,7 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = "VatPayment", key = "'findByVatId_' + #vatId")
 	public List<VatPayment> findByVatId(String vatId) {
 
 		if(vatId == null) {
@@ -402,6 +423,7 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = "VatPayment", key = "'findByVatIdAndUserId_' + #vatId + '_' + #senderUserId")
 	public List<VatPayment> findByVatIdAndSenderUserId(String vatId, String senderUserId) {
 
 		if(vatId == null || senderUserId == null) {
@@ -430,6 +452,7 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = "VatPayment", key = "'findByAmountGTE_' + #amount")
 	public List<VatPayment> findByAmountGreaterThanEqual(double amount) {
 
 		try {
@@ -452,6 +475,7 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = "VatPayment", key = "'findByAmountLTE_' + #amount")
 	public List<VatPayment> findByAmountLessThanEqual(double amount) {
 
 		try {
@@ -474,6 +498,7 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = "VatPayment", key = "'findByTransactionIdPrefix_' + #transactionId")
 	public List<VatPayment> findByTransactionIdContainingIgnoreCase(String transactionId) {
 
 		if(transactionId == null) {
@@ -502,6 +527,7 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = "VatPayment", key = "'findByTransactionId_' + #transactionId")
 	public VatPayment findByTransactionId(String transactionId) {
 
 		if(transactionId == null) {
@@ -530,6 +556,7 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = "VatPayment", key = "'findBySendingTimeAfter_' + #sendingTime")
 	public List<VatPayment> findBySendingTimeAfter(Instant sendingTime) {
 
 		if(sendingTime == null) {
@@ -558,6 +585,7 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	}
 
 	@Override
+	@Cacheable(value = "VatPayment", key = "'findBySendingTimeBefore_' + #sendingTime")
 	public List<VatPayment> findBySendingTimeBefore(Instant sendingTime) {
 
 		if(sendingTime == null) {
@@ -586,6 +614,12 @@ public class VatPaymentServiceImpl implements VatPaymentService {
 	}
 
 	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "Vat", allEntries = true),
+			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "VatPayment", allEntries = true),
+			
+	})
 	public boolean deletePayment(String id, String userId) {
 
 		if (id == null || userId == null) {
