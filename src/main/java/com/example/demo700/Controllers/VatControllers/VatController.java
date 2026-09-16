@@ -325,7 +325,7 @@ public class VatController {
 
     // ==================== FIND BY USER ID ====================
     @GetMapping("/search/userId")
-    public ResponseEntity<Map<String, Object>> findByUserId(@RequestParam("userId") String userId) {
+    public ResponseEntity<Map<String, Object>> findByUserId(@RequestParam String userId) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -365,7 +365,7 @@ public class VatController {
 
     // ==================== FIND BY ADDRESS ====================
     @GetMapping("/search/adress")
-    public ResponseEntity<Map<String, Object>> findByAdress(@RequestParam("adress") String adress) {
+    public ResponseEntity<Map<String, Object>> findByAdress(@RequestParam String adress) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -403,7 +403,7 @@ public class VatController {
 
     // ==================== FIND BY TIN NO ====================
     @GetMapping("/search/tinNo")
-    public ResponseEntity<Map<String, Object>> findByTinNo(@RequestParam("tinNo") String tinNo) {
+    public ResponseEntity<Map<String, Object>> findByTinNo(@RequestParam String tinNo) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -442,7 +442,7 @@ public class VatController {
     // ==================== FIND BY BUSINESS NAME ====================
     @GetMapping("/search/buisnessName")
     public ResponseEntity<Map<String, Object>> findByBuisnessName(
-            @RequestParam("buisnessName") String buisnessName) {
+            @RequestParam String buisnessName) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -481,7 +481,7 @@ public class VatController {
     // ==================== FIND BY TRADE LICENSE NO ====================
     @GetMapping("/search/tradeLicenseNo")
     public ResponseEntity<Map<String, Object>> findByTradeLicenseNo(
-            @RequestParam("tradeLicenseNo") String tradeLicenseNo) {
+            @RequestParam String tradeLicenseNo) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -520,7 +520,7 @@ public class VatController {
     // ==================== FIND BY ANNUAL TURNOVER ====================
     @GetMapping("/search/annualTurnOver")
     public ResponseEntity<Map<String, Object>> findByAnnualTurnOver(
-            @RequestParam("annualTurnOver") String annualTurnOver) {
+            @RequestParam String annualTurnOver) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -559,7 +559,7 @@ public class VatController {
     // ==================== FIND BY MAIN PRODUCT ====================
     @GetMapping("/search/mainProduct")
     public ResponseEntity<Map<String, Object>> findByMainProduct(
-            @RequestParam("mainProduct") String mainProduct) {
+            @RequestParam String mainProduct) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -598,7 +598,7 @@ public class VatController {
     // ==================== FIND BY NATURE OF BUSINESS ====================
     @GetMapping("/search/natureOfBuisness")
     public ResponseEntity<Map<String, Object>> findByNatureOfBuisness(
-            @RequestParam("natureOfBuisness") String natureOfBuisness) {
+            @RequestParam String natureOfBuisness) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -638,7 +638,7 @@ public class VatController {
     // ==================== FIND BY NUMBER OF BUSINESS >= ====================
     @GetMapping("/search/numberOfBuisness/greaterThanEqual")
     public ResponseEntity<Map<String, Object>> findByNumberOfBuisnessGreaterThanEqual(
-            @RequestParam("numberOfBuisness") int numberOfBuisness) {
+            @RequestParam int numberOfBuisness) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -666,7 +666,7 @@ public class VatController {
     // ==================== FIND BY NUMBER OF BUSINESS <= ====================
     @GetMapping("/search/numberOfBuisness/lessThanEqual")
     public ResponseEntity<Map<String, Object>> findByNumberOfBuisnessLessThanEqual(
-            @RequestParam("numberOfBuisness") int numberOfBuisness) {
+            @RequestParam int numberOfBuisness) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -694,7 +694,7 @@ public class VatController {
     // ==================== FIND BY NUMBER OF EMPLOYEE >= ====================
     @GetMapping("/search/numberOfEmployee/greaterThanEqual")
     public ResponseEntity<Map<String, Object>> findByNumberOfEmployeeGreaterThanEqual(
-            @RequestParam("numberOfEmployee") int numberOfEmployee) {
+            @RequestParam int numberOfEmployee) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -722,7 +722,7 @@ public class VatController {
     // ==================== FIND BY NUMBER OF EMPLOYEE <= ====================
     @GetMapping("/search/numberOfEmployee/lessThanEqual")
     public ResponseEntity<Map<String, Object>> findByNumberOfEmployeeLessThanEqual(
-            @RequestParam("numberOfEmployee") int numberOfEmployee) {
+            @RequestParam int numberOfEmployee) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -749,7 +749,7 @@ public class VatController {
 
     // ==================== FIND BY DOCUMENTS ====================
     @GetMapping("/search/documents")
-    public ResponseEntity<Map<String, Object>> findByDocuments(@RequestParam("documents") String documents) {
+    public ResponseEntity<Map<String, Object>> findByDocuments(@RequestParam String documents) {
 
         Map<String, Object> response = new HashMap<>();
 
