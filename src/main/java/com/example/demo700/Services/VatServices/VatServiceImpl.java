@@ -447,33 +447,49 @@ public class VatServiceImpl implements VatService {
 	}
 
 	@Override
-	@Cacheable(value = "Vat", key = "'findByUserId_' + #userId")
-	public List<VatResponseDTO> findByUserId(String userId) {
+@Cacheable(value = "Vat", key = "'findByUserId_' + #userId")
+public List<VatResponseDTO> findByUserId(String userId) {
 
-		if(userId == null) {
+    System.out.println("═══════════════════════════════════════");
+    System.out.println("🔍 findByUserId called with userId: [" + userId + "]");
 
-			throw new NullPointerException("False request...");
+    if (userId == null) {
+        System.out.println("❌ userId is null");
+        throw new NullPointerException("False request...");
+    }
 
-		}
+    try {
+        List<Vat> vat = vatRepository.findByUserId(userId);
+        System.out.println("✅ Repository returned: " + (vat == null ? "null" : vat.size() + " documents"));
 
-		try {
+        if (vat != null && !vat.isEmpty()) {
+            for (Vat v : vat) {
+                System.out.println("   → Vat _id=" + v.getId()
+                        + ", userId=" + v.getUserId()
+                        + ", tinNo=" + v.getTinNo());
+            }
+        }
 
-			List<Vat> vat = vatRepository.findByUserId(userId);
+        if (vat == null || vat.isEmpty()) {
+            System.out.println("⚠️ Empty result — throwing NullPointerException");
+            throw new NullPointerException();
+        }
 
-			if (vat == null || vat.isEmpty()) {
+        System.out.println("🔨 Calling getVatResponse...");
+        List<VatResponseDTO> result = getVatResponse(vat);
+        System.out.println("✅ getVatResponse returned " + result.size() + " DTOs");
+        System.out.println("═══════════════════════════════════════");
+        return result;
 
-				throw new NullPointerException();
-
-			}
-
-			return getVatResponse(vat);
-
-		} catch (Exception e) {
-
-			throw new NoSuchElementException("No such vat find at here...");
-
-		}
-	}
+    } catch (Exception e) {
+        System.err.println("❌❌❌ EXCEPTION in findByUserId ❌❌❌");
+        System.err.println("Exception class: " + e.getClass().getName());
+        System.err.println("Exception message: " + e.getMessage());
+        e.printStackTrace();  // ← THE MOST IMPORTANT LINE
+        System.out.println("═══════════════════════════════════════");
+        throw new NoSuchElementException("No such vat find at here...");
+    }
+}
 
 	@Override
 	@Cacheable(value = "Vat", key = "'findByAdress_' + #adress")
