@@ -70,7 +70,7 @@ public class VatServiceImpl implements VatService {
 			@CacheEvict(value = "Vat", allEntries = true),
 			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
 			@CacheEvict(value = "VatPayment", allEntries = true),
-			
+
 	})
 	public Vat addVat(Vat vat, String userId, MultipartFile[] documents) {
 
@@ -194,7 +194,7 @@ public class VatServiceImpl implements VatService {
 			@CacheEvict(value = "Vat", allEntries = true),
 			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
 			@CacheEvict(value = "VatPayment", allEntries = true),
-			
+
 	})
 	public Vat updateVat(String id, Vat vat, String userId, MultipartFile[] documents) {
 
@@ -234,7 +234,7 @@ public class VatServiceImpl implements VatService {
 
 			}
 
-			if (!_vat.getUserId().equals(id)) {
+			if (!_vat.getUserId().equals(userId)) {
 
 				throw new Exception();
 
@@ -445,13 +445,13 @@ public class VatServiceImpl implements VatService {
 	@Override
 	@Cacheable(value = "Vat", key = "'findByUserId_' + #userId")
 	public List<VatResponseDTO> findByUserId(String userId) {
-		
+
 		if(userId == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
 
 			List<Vat> vat = vatRepository.findByUserId(userId);
@@ -476,11 +476,11 @@ public class VatServiceImpl implements VatService {
 	public List<VatResponseDTO> findByAdressContainingIgnoreCase(String adress) {
 
 		if(adress == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
 
 			List<Vat> vat = vatRepository.findByAdressContainingIgnoreCase(adress);
@@ -505,11 +505,11 @@ public class VatServiceImpl implements VatService {
 	public List<VatResponseDTO> findByTinNoContainingIgnoreCase(String tinNo) {
 
 		if(tinNo == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
 
 			List<Vat> vat = vatRepository.findByTinNoContainingIgnoreCase(tinNo);
@@ -534,11 +534,11 @@ public class VatServiceImpl implements VatService {
 	public List<VatResponseDTO> findByBuisnessNameContainingIgnoreCase(String buisnessName) {
 
 		if(buisnessName == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
 
 			List<Vat> vat = vatRepository.findByBuisnessNameContainingIgnoreCase(buisnessName);
@@ -563,11 +563,11 @@ public class VatServiceImpl implements VatService {
 	public List<VatResponseDTO> findByTradeLicenseNoContainingIgnoreCase(String tradeLicenseNo) {
 
 		if(tradeLicenseNo == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
 
 			List<Vat> vat = vatRepository.findByTradeLicenseNoContainingIgnoreCase(tradeLicenseNo);
@@ -592,11 +592,11 @@ public class VatServiceImpl implements VatService {
 	public List<VatResponseDTO> findByAnnualTurnOverContainingIgnoreCase(String annualTurnOver) {
 
 		if(annualTurnOver == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
 
 			List<Vat> vat = vatRepository.findByAnnualTurnOverContainingIgnoreCase(annualTurnOver);
@@ -621,11 +621,11 @@ public class VatServiceImpl implements VatService {
 	public List<VatResponseDTO> findByMainProductContainingIgnoreCase(String mainProduct) {
 
 		if(mainProduct == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
 
 			List<Vat> vat = vatRepository.findByMainProductContainingIgnoreCase(mainProduct);
@@ -650,11 +650,11 @@ public class VatServiceImpl implements VatService {
 	public List<VatResponseDTO> findByNatureOfBuisnessContainingIgnoreCase(String natureOfBuisness) {
 
 		if(natureOfBuisness == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
 
 			List<Vat> vat = vatRepository.findByNatureOfBuisnessContainingIgnoreCase(natureOfBuisness);
@@ -768,11 +768,11 @@ public class VatServiceImpl implements VatService {
 	public List<VatResponseDTO> findByDocuments(String documents) {
 
 		if(documents == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
 
 			List<Vat> vat = vatRepository.findByDocuments(documents);
@@ -797,7 +797,7 @@ public class VatServiceImpl implements VatService {
 			@CacheEvict(value = "Vat", allEntries = true),
 			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
 			@CacheEvict(value = "VatPayment", allEntries = true),
-			
+
 	})
 	public boolean deleteVat(String id, String userId) {
 
