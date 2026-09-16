@@ -877,7 +877,7 @@ public List<VatResponseDTO> findByUserId(String userId) {
 
 			}
 
-			if (!_vat.getUserId().equals(id)) {
+			if (!_vat.getUserId().equals(userId)) {
 
 				throw new Exception();
 
