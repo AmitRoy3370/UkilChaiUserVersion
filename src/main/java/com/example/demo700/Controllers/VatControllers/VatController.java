@@ -336,6 +336,8 @@ public class VatController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
+            System.out.println("sending user id :- " + userId);
+
             List<VatResponseDTO> vats = vatService.findByUserId(userId.trim());
 
             response.put("status", "success");
