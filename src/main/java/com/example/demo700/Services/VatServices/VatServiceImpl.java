@@ -381,8 +381,8 @@ public class VatServiceImpl implements VatService {
 		update.set("annualTurnOver", vat.getAnnualTurnOver());
 		update.set("mainProduct", vat.getMainProduct());
 		update.set("natureOfBuisness", vat.getNatureOfBuisness());
-		update.set("numberOfBuisness", vat.getNatureOfBuisness());
-		update.set("numberOfEmployee", vat.getNumberOfBuisness());
+		update.set("numberOfBuisness", vat.getNumberOfBuisness());
+		update.set("numberOfEmployee", vat.getNumberOfEmployee());
 		update.set("documents", vat.getDocuments());
 
 		mongoTemplate.updateFirst(query, update, Vat.class);
