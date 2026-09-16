@@ -236,9 +236,13 @@ public class VatServiceImpl implements VatService {
 
 			if (!_vat.getUserId().equals(userId)) {
 
-				throw new Exception();
+				throw new ArithmeticException();
 
 			}
+
+		} catch(ArithmeticException e) {
+
+		    throw new ArithmeticException("You can update your profile only, no the other's....");
 
 		} catch (Exception e) {
 
