@@ -886,6 +886,8 @@ public class VatServiceImpl implements VatService {
 
 		List<Vat> list = new ArrayList<>();
 
+		list.add(vat);
+
 		return getVatResponse(list).get(0);
 
 	}
