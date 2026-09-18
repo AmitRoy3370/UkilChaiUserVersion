@@ -199,6 +199,8 @@ public class TrademarkRegistrationProcessServiceImpl implements TrademarkRegistr
 		Advocate advocate = null;
 
 		boolean isAdvocate = false;
+		
+		boolean isAdmin = false;
 
 		try {
 
@@ -232,6 +234,10 @@ public class TrademarkRegistrationProcessServiceImpl implements TrademarkRegistr
 
 				}
 
+			} else {
+				
+				isAdmin = true;
+				
 			}
 
 		} catch (Exception e) {
@@ -260,7 +266,7 @@ public class TrademarkRegistrationProcessServiceImpl implements TrademarkRegistr
 
 		try {
 
-			if (isAdvocate) {
+			if (!isAdmin && isAdvocate) {
 
 				if (!process.getUserId().equals(registrationProcess.getUserId())) {
 

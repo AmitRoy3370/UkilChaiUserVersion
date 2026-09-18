@@ -195,6 +195,8 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 		Advocate advocate = null;
 
 		boolean isAdvocate = false;
+		
+		boolean isAdmin = false;
 
 		try {
 
@@ -228,6 +230,10 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 
 				}
 
+			} else {
+				
+				isAdmin = true;
+				
 			}
 
 		} catch (Exception e) {
@@ -308,7 +314,7 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 
 		try {
 
-			if (isAdvocate) {
+			if (!isAdmin && isAdvocate) {
 
 				if (!process.getUserId().equals(registrationProcess.getAdvocateId())) {
 

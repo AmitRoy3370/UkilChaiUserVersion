@@ -208,6 +208,8 @@ public class TradeLicenseRegistrationProcessServiceImpl implements TradeLicenseR
 
 		boolean isAdvocate = false;
 
+		boolean isAdmin = false;
+		
 		Advocate advocate = null;
 
 		try {
@@ -240,6 +242,8 @@ public class TradeLicenseRegistrationProcessServiceImpl implements TradeLicenseR
 
 			}
 
+			isAdmin = admin.getUserId().equals(userId);
+			
 			if (!admin.getUserId().equals(user.getId())) {
 
 				if (isAdvocate) {
@@ -311,7 +315,7 @@ public class TradeLicenseRegistrationProcessServiceImpl implements TradeLicenseR
 
 			}
 
-			if (isAdvocate) {
+			if (!isAdmin && isAdvocate) {
 
 				if (!registrationProcess.getAdvocateId().equals(process.getAdvocateId())) {
 

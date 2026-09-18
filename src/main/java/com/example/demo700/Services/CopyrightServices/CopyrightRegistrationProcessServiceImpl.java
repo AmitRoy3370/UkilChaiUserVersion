@@ -210,6 +210,8 @@ public class CopyrightRegistrationProcessServiceImpl implements CopyrightRegistr
 		Advocate advocate = null;
 
 		boolean isAdvocate = false;
+		
+		boolean isAdmin = false;
 
 		try {
 
@@ -243,8 +245,10 @@ public class CopyrightRegistrationProcessServiceImpl implements CopyrightRegistr
 
 				}
 
-			}
+			} 
 
+			isAdmin = userId.equals(admin.getUserId());
+			
 			if (isAdvocate) {
 
 			} else {
@@ -340,7 +344,7 @@ public class CopyrightRegistrationProcessServiceImpl implements CopyrightRegistr
 
 		try {
 
-			if (isAdvocate) {
+			if (!isAdmin && isAdvocate) {
 
 				if (!registrationProcess.getUserId().equals(process.getUserId())) {
 

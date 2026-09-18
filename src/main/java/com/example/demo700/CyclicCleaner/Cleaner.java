@@ -36,6 +36,9 @@ import com.example.demo700.Model.NotificationModel.Notification;
 import com.example.demo700.Model.PaymentModels.PaymentDetails;
 import com.example.demo700.Model.QNAModels.AnswerQuestion;
 import com.example.demo700.Model.QNAModels.AskQuestion;
+import com.example.demo700.Model.RJSCModels.RJSC;
+import com.example.demo700.Model.RJSCModels.RJSCPayment;
+import com.example.demo700.Model.RJSCModels.RJSCRegistrationProcess;
 import com.example.demo700.Model.TinModels.Tin;
 import com.example.demo700.Model.TinModels.TinRegistrationProcess;
 import com.example.demo700.Model.TradeLicenseModels.TradeLicense;
@@ -90,6 +93,9 @@ import com.example.demo700.Repositories.NotificationRepository.NotificationRepos
 import com.example.demo700.Repositories.PaymentRepositories.PaymentDetailsRepository;
 import com.example.demo700.Repositories.QNARepositories.AnswerRepository;
 import com.example.demo700.Repositories.QNARepositories.QuestionRepository;
+import com.example.demo700.Repositories.RJSCRepositories.RJSCPaymentRepository;
+import com.example.demo700.Repositories.RJSCRepositories.RJSCRegistrationProcessRepository;
+import com.example.demo700.Repositories.RJSCRepositories.RJSCRepository;
 import com.example.demo700.Repositories.TinRepositories.TinRegistrationRepository;
 import com.example.demo700.Repositories.TinRepositories.TinRepository;
 import com.example.demo700.Repositories.TradeLicenseRepository.TradeLicensePaymentRepository;
@@ -295,6 +301,15 @@ public class Cleaner {
 	@Autowired
 	private VatPaymentRepository vatPaymentRepository;
 
+	@Autowired
+	private RJSCRepository rjscRepository;
+
+	@Autowired
+	private RJSCRegistrationProcessRepository rjscRegistrationProcessRepository;
+
+	@Autowired
+	private RJSCPaymentRepository rjscPaymentRepository;
+
 	public void removeUser(String userId) {
 
 		try {
@@ -314,6 +329,48 @@ public class Cleaner {
 			if (count != userRepository.count()) {
 
 				redisService.clearAllCaches();
+
+				try {
+
+					List<RJSC> list = rjscRepository.findByUserId(userId);
+
+					for (RJSC i : list) {
+
+						removeRJSC(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<RJSCRegistrationProcess> list = rjscRegistrationProcessRepository.findByUserId(userId);
+
+					for (RJSCRegistrationProcess i : list) {
+
+						removeRJSCRegistrationProcess(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					List<RJSCPayment> list = rjscPaymentRepository.findBySenderUserId(userId);
+
+					for (RJSCPayment i : list) {
+
+						removeRJSCPayment(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
 
 				try {
 
@@ -950,6 +1007,20 @@ public class Cleaner {
 
 				if (count != advocateRepository.count()) {
 
+					try {
+
+						List<RJSCRegistrationProcess> list = rjscRegistrationProcessRepository.findByAdvocateId(advocate.getId());
+
+						for (RJSCRegistrationProcess i : list) {
+
+							removeRJSCRegistrationProcess(i.getId());
+
+						}
+
+					} catch (Exception e) {
+
+					}
+					
 					try {
 
 						List<VatRegistrationProcess> list = vatRegistrationProcessRepository
@@ -3186,6 +3257,134 @@ public class Cleaner {
 			vatPaymentRepository.deleteById(id);
 
 			if (count != vatPaymentRepository.count()) {
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeRJSC(String id) {
+
+		try {
+
+			RJSC rjsc = rjscRepository.findById(id).get();
+
+			if (rjsc == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = rjscRepository.count();
+
+			rjscRepository.deleteById(id);
+
+			if (count != rjscRepository.count()) {
+
+				try {
+
+					List<RJSCPayment> list = rjscPaymentRepository.findByRJSCId(id);
+
+					for (RJSCPayment i : list) {
+
+						removeRJSCPayment(i.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					RJSCRegistrationProcess process = rjscRegistrationProcessRepository.findByRjscId(id);
+
+					if (process == null) {
+
+						throw new Exception();
+
+					}
+
+					removeRJSCRegistrationProcess(process.getId());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					for (String i : rjsc.getDocuments()) {
+
+						try {
+
+							imageService.delete(i);
+
+						} catch (Exception e) {
+
+						}
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeRJSCRegistrationProcess(String id) {
+
+		try {
+
+			RJSCRegistrationProcess process = rjscRegistrationProcessRepository.findById(id).get();
+
+			if (process == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = rjscRegistrationProcessRepository.count();
+
+			rjscRegistrationProcessRepository.deleteById(id);
+
+			if (count != rjscRegistrationProcessRepository.count()) {
+
+				removeRJSC(process.getRjscId());
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeRJSCPayment(String id) {
+
+		try {
+
+			RJSCPayment payment = rjscPaymentRepository.findById(id).get();
+
+			if (payment == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = rjscPaymentRepository.count();
+
+			rjscPaymentRepository.deleteById(id);
+
+			if (count != rjscPaymentRepository.count()) {
 
 			}
 

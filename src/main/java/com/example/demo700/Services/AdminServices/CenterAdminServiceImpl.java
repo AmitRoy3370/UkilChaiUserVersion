@@ -490,7 +490,10 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 			@CacheEvict(value = "CopyrightRegistrationProcess", allEntries = true),
 			@CacheEvict(value = "CopyrightPayment", allEntries = true), @CacheEvict(value = "Vat", allEntries = true),
 			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
-			@CacheEvict(value = "VatPayment", allEntries = true), })
+			@CacheEvict(value = "VatPayment", allEntries = true),
+			@CacheEvict(value = "RJSC", allEntries = true),
+			@CacheEvict(value = "RJSCRegistrationProcess", allEntries = true),
+			@CacheEvict(value = "RJSCPayment", allEntries = true),})
 	public boolean removeCentralAdmin(String centerAdminId, String userId) {
 
 		if (centerAdminId == null || userId == null) {
