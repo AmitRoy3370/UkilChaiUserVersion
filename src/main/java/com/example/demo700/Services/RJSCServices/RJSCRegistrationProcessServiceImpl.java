@@ -24,6 +24,7 @@ import com.example.demo700.Repositories.RJSCRepositories.RJSCRegistrationProcess
 import com.example.demo700.Repositories.RJSCRepositories.RJSCRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 
+@Service
 public class RJSCRegistrationProcessServiceImpl implements RJSCRegistrationProcessService {
 
 	@Autowired
