@@ -24,7 +24,7 @@ public class ImageService {
 
 	@Autowired
 	private GridFsTemplate gridFsTemplate;
-	
+
 	private static final String cacheValue = "Image";
 
 	// UPLOAD
@@ -35,7 +35,10 @@ public class ImageService {
 		meta.put("type", file.getContentType());
 		meta.put("size", file.getSize());
 
-		ObjectId id = gridFsTemplate.store(file.getInputStream(), file.getOriginalFilename(), file.getContentType(),
+		ObjectId id = gridFsTemplate.store(
+                                     file.getInputStream(),
+                                      file.getOriginalFilename(),
+                                     file.getContentType(),
 				meta);
 
 		return id.toHexString();
@@ -49,7 +52,7 @@ public class ImageService {
 	    return new ObjectId(id);
 	}
 
-	
+
 	// GET FILE
 	//@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public GridFSFile getFile(String id) {
@@ -69,14 +72,14 @@ public class ImageService {
 	public void delete(String id) {
 		gridFsTemplate.delete(new org.springframework.data.mongodb.core.query.Query(
 				org.springframework.data.mongodb.core.query.Criteria.where("_id").is(parseObjectId(id))));
-		
+
 		try {
 	        Path filePath = Paths.get("Attachments").resolve(id);
 	        Files.deleteIfExists(filePath);
 	    } catch (IOException e) {
 	        System.out.println("file delete error :- " + e);
 	    }
-		
+
 	}
 
 	//@Cacheable(value = cacheValue, key = "'attachmentExists_' + #id")
@@ -90,7 +93,7 @@ public class ImageService {
 	    }
 	}
 
-	
+
 	// UPDATE = delete + new upload
 	//@CacheEvict(value = cacheValue, allEntries = true)
 	public String update(String oldId, MultipartFile newFile) throws IOException {

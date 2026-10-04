@@ -15,7 +15,9 @@ import com.example.demo700.DTOFiles.JwtResponse;
 import com.example.demo700.DTOFiles.LoginRequest;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.UserModels.User;
+import com.example.demo700.Model.UserModels.UserContactInfo;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
+import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
 import com.example.demo700.Security.JwtUtil;
 import com.example.demo700.Services.RedisService;
@@ -25,6 +27,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	private UserContactInfoRepository contactRepository;
 
 	@Autowired
 	private CenterAdminRepository centerAdminRepository;
@@ -454,6 +459,112 @@ public class UserServiceImpl implements UserService {
 
 		}
 
+	}
+
+	@Override
+	public JwtResponse logInWithEmail(String userName, String email) {
+		
+		if(userName == null || email == null) {
+			
+			throw new NullPointerException("False request...");
+			
+		}
+		
+		User user = null;
+		
+		try {
+			
+			user = userRepository.findByNameIgnoreCase(userName);
+			
+			if(user == null) {
+				
+				throw new Exception();
+				
+			}
+			
+		} catch(Exception e) {
+			
+			throw new NoSuchElementException("No such user find at here...");
+			
+		}
+		
+		try {
+			
+			UserContactInfo contactInfo = contactRepository.findByEmail(email);
+			
+			if(contactInfo == null) {
+				
+				throw new Exception();
+				
+			}
+			
+			if(!contactInfo.getUserId().equals(user.getId())) {
+				
+				throw new Exception();
+				
+			}
+			
+		} catch(Exception e) {
+			
+			throw new NoSuchElementException("No such user with that email found at here...");
+			
+		}
+		
+		String token = jwtUtil.generateToken(user.getName());
+		return new JwtResponse(token, user.getId());
+	}
+
+	@Override
+	public JwtResponse longInWithPhone(String userName, String phone) {
+		
+		if(userName == null || phone == null) {
+			
+			throw new NullPointerException("False request...");
+			
+		}
+		
+		User user = null;
+		
+		try {
+			
+			user = userRepository.findByNameIgnoreCase(userName);
+			
+			if(user == null) {
+				
+				throw new Exception();
+				
+			}
+			
+		} catch(Exception e) {
+			
+			throw new NoSuchElementException("No such user find at here...");
+			
+		}
+		
+		try {
+			
+			UserContactInfo contactInfo = contactRepository.findByPhone(phone);
+			
+			if(contactInfo == null) {
+				
+				throw new Exception();
+				
+			}
+			
+			if(!contactInfo.getUserId().equals(user.getId())) {
+				
+				throw new Exception();
+				
+			}
+			
+		} catch(Exception e) {
+			
+			throw new NoSuchElementException("No such user with that email found at here...");
+			
+		}
+		
+		String token = jwtUtil.generateToken(user.getName());
+		return new JwtResponse(token, user.getId());
 	}
 
 }

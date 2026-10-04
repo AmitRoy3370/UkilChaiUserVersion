@@ -44,7 +44,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
 						// ✅ Public APIs
-						.requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+						.requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/login/phone", "/api/auth/login/email").permitAll()
 						.requestMatchers(HttpMethod.GET, "/**").permitAll()
 
 						// 🔐 Everything else needs JWT

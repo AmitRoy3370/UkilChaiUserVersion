@@ -18,6 +18,8 @@ public interface UserService {
 	public List<User> findByFullNamePartial(String fullNamePartial);
 	public List<User> findByProfileImageId(String profileImageId);
 	public JwtResponse LogIn(LoginRequest loginRequest);
+	public JwtResponse logInWithEmail(String userName, String email);
+	public JwtResponse longInWithPhone(String userName, String phone);
 	public User searchUser(String userId);
 
 }

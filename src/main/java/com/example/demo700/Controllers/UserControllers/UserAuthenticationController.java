@@ -80,4 +80,50 @@ public class UserAuthenticationController {
 
 	}
 
+	@PostMapping("/login/email")
+	public ResponseEntity<?> logInWithEmail(@RequestParam String userName, @RequestParam String email) {
+
+		try {
+
+			JwtResponse jwtResponse = userService.logInWithEmail(userName, email);
+
+			if (jwtResponse == null) {
+
+				return ResponseEntity.status(500).body("failed to log in...");
+
+			}
+
+			return ResponseEntity.status(200).body(jwtResponse);
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(400).body(e.getMessage());
+
+		}
+
+	}
+	
+	@PostMapping("/login/phone")
+	public ResponseEntity<?> logInWithPhone(@RequestParam String userName, @RequestParam String phone) {
+
+		try {
+
+			JwtResponse jwtResponse = userService.longInWithPhone(userName, phone);
+
+			if (jwtResponse == null) {
+
+				return ResponseEntity.status(500).body("failed to log in...");
+
+			}
+
+			return ResponseEntity.status(200).body(jwtResponse);
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(400).body(e.getMessage());
+
+		}
+
+	}
+	
 }
