@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserRepository userRepository;
-	
+
 	@Autowired
 	private UserContactInfoRepository contactRepository;
 
@@ -462,107 +462,134 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public JwtResponse logInWithEmail(String userName, String email) {
-		
-		if(userName == null || email == null) {
-			
+	public JwtResponse logInWithEmail(String password, String email) {
+
+		if (password == null || email == null) {
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
-		User user = null;
-		
+
+		String userId = null;
+
 		try {
-			
-			user = userRepository.findByNameIgnoreCase(userName);
-			
-			if(user == null) {
-				
-				throw new Exception();
-				
-			}
-			
-		} catch(Exception e) {
-			
-			throw new NoSuchElementException("No such user find at here...");
-			
-		}
-		
-		try {
-			
+
 			UserContactInfo contactInfo = contactRepository.findByEmail(email);
-			
-			if(contactInfo == null) {
-				
+
+			if (contactInfo == null) {
+
 				throw new Exception();
-				
+
 			}
-			
-			if(!contactInfo.getUserId().equals(user.getId())) {
-				
-				throw new Exception();
-				
-			}
-			
-		} catch(Exception e) {
-			
+
+			userId = contactInfo.getUserId();
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException("No such user with that email found at here...");
-			
+
 		}
-		
+
+		User user = null;
+
+		try {
+
+			user = userRepository.findById(userId).get();
+
+			if (user == null) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such user find at here...");
+
+		}
+
+		try {
+
+			if (!passwordEncoder.matches(password, user.getPassword())) {
+
+				System.out.println("Exception thrown from here...");
+
+				throw new RuntimeException("Invalid credentials");
+			}
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException(e.getMessage());
+
+		}
+
 		String token = jwtUtil.generateToken(user.getName());
 		return new JwtResponse(token, user.getId());
 	}
 
 	@Override
-	public JwtResponse longInWithPhone(String userName, String phone) {
-		
-		if(userName == null || phone == null) {
-			
+	public JwtResponse longInWithPhone(String password, String phone) {
+
+
+		if (password == null || phone == null) {
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
-		User user = null;
-		
+
+		String userId = null;
+
 		try {
-			
-			user = userRepository.findByNameIgnoreCase(userName);
-			
-			if(user == null) {
-				
-				throw new Exception();
-				
-			}
-			
-		} catch(Exception e) {
-			
-			throw new NoSuchElementException("No such user find at here...");
-			
-		}
-		
-		try {
-			
+
 			UserContactInfo contactInfo = contactRepository.findByPhone(phone);
-			
-			if(contactInfo == null) {
-				
+
+			if (contactInfo == null) {
+
 				throw new Exception();
-				
+
 			}
-			
-			if(!contactInfo.getUserId().equals(user.getId())) {
-				
-				throw new Exception();
-				
-			}
-			
-		} catch(Exception e) {
-			
+
+			userId = contactInfo.getUserId();
+
+		} catch (Exception e) {
+
 			throw new NoSuchElementException("No such user with that email found at here...");
-			
+
 		}
-		
+
+		User user = null;
+
+		try {
+
+			user = userRepository.findById(userId).get();
+
+			if (user == null) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such user find at here...");
+
+		}
+
+		try {
+
+			if (!passwordEncoder.matches(password, user.getPassword())) {
+
+				System.out.println("Exception thrown from here...");
+
+				throw new RuntimeException("Invalid credentials");
+			}
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException(e.getMessage());
+
+		}
+
 		String token = jwtUtil.generateToken(user.getName());
 		return new JwtResponse(token, user.getId());
 	}

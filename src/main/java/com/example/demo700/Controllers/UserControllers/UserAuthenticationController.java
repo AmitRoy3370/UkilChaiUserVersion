@@ -81,11 +81,11 @@ public class UserAuthenticationController {
 	}
 
 	@PostMapping("/login/email")
-	public ResponseEntity<?> logInWithEmail(@RequestParam String userName, @RequestParam String email) {
+	public ResponseEntity<?> logInWithEmail(@RequestParam String password, @RequestParam String email) {
 
 		try {
 
-			JwtResponse jwtResponse = userService.logInWithEmail(userName, email);
+			JwtResponse jwtResponse = userService.logInWithEmail(password, email);
 
 			if (jwtResponse == null) {
 
@@ -104,11 +104,11 @@ public class UserAuthenticationController {
 	}
 	
 	@PostMapping("/login/phone")
-	public ResponseEntity<?> logInWithPhone(@RequestParam String userName, @RequestParam String phone) {
+	public ResponseEntity<?> logInWithPhone(@RequestParam String password, @RequestParam String phone) {
 
 		try {
 
-			JwtResponse jwtResponse = userService.longInWithPhone(userName, phone);
+			JwtResponse jwtResponse = userService.longInWithPhone(password, phone);
 
 			if (jwtResponse == null) {
 
