@@ -31,7 +31,7 @@ public class ReadableChatController {
 	}
 
 	// ================= UPDATE =================
-	@PutMapping("/update/{id}/{userId}")
+	@PutMapping("/update/readability/{id}/{userId}")
 	public ResponseEntity<?> updateReadableChat(@RequestBody ReadableChat readableChat, @PathVariable String userId,
 			@PathVariable String id) {
 
