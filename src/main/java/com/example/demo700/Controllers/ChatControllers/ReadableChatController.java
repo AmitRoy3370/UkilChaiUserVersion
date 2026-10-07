@@ -14,110 +14,107 @@ import com.example.demo700.Services.ChatServices.ReadableChatService;
 @RequestMapping("/api/readable-chat")
 public class ReadableChatController {
 
-    @Autowired
-    private ReadableChatService readableChatService;
+	@Autowired
+	private ReadableChatService readableChatService;
 
-    // ================= ADD =================
-    @PostMapping("/add/{userId}")
-    public ResponseEntity<?> addReadableChat(
-            @RequestBody ReadableChat readableChat,
-            @PathVariable String userId) {
+	// ================= ADD =================
+	@PostMapping("/add/{userId}")
+	public ResponseEntity<?> addReadableChat(@RequestBody ReadableChat readableChat, @PathVariable String userId) {
 
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(readableChatService.addReadability(readableChat, userId));
+		try {
+			return ResponseEntity.status(HttpStatus.CREATED)
+					.body(readableChatService.addReadability(readableChat, userId));
 
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 
-    // ================= UPDATE =================
-    @PutMapping("/update/{id}/{userId}")
-    public ResponseEntity<?> updateReadableChat(
-            @RequestBody ReadableChat readableChat,
-            @PathVariable String userId,
-            @PathVariable String id) {
+	// ================= UPDATE =================
+	@PutMapping("/update/{id}/{userId}")
+	public ResponseEntity<?> updateReadableChat(@RequestBody ReadableChat readableChat, @PathVariable String userId,
+			@PathVariable String id) {
 
-        try {
-            return ResponseEntity.ok(
-                    readableChatService.updateReadability(readableChat, userId, id));
+		try {
+			return ResponseEntity.ok(readableChatService.updateReadability(readableChat, userId, id));
 
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 
-    // ================= FIND BY ID =================
-    @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable String id) {
+	@PutMapping("/update/{chatId}/{userId}")
+	public ResponseEntity<?> markChatAsRead(@RequestBody ReadableChat readableChat, @PathVariable String userId,
+			@PathVariable String chatId) {
 
-        try {
-            return ResponseEntity.ok(readableChatService.findById(id));
+		try {
+			return ResponseEntity.ok(readableChatService.markChatAsRead(readableChat, chatId, userId));
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(e.getMessage());
-        }
-    }
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 
-    // ================= SEE ALL =================
-    @GetMapping("/all")
-    public ResponseEntity<?> seeAll() {
+	// ================= FIND BY ID =================
+	@GetMapping("/{id}")
+	public ResponseEntity<?> findById(@PathVariable String id) {
 
-        try {
-            List<ReadableChat> list = readableChatService.seeAll();
-            return ResponseEntity.ok(list);
+		try {
+			return ResponseEntity.ok(readableChatService.findById(id));
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(e.getMessage());
-        }
-    }
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
+	}
 
-    // ================= FIND BY CHAT ID =================
-    @GetMapping("/chat/{chatId}")
-    public ResponseEntity<?> findByChatId(@PathVariable String chatId) {
+	// ================= SEE ALL =================
+	@GetMapping("/all")
+	public ResponseEntity<?> seeAll() {
 
-        try {
-            return ResponseEntity.ok(
-                    readableChatService.findByChatId(chatId));
+		try {
+			List<ReadableChat> list = readableChatService.seeAll();
+			return ResponseEntity.ok(list);
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(e.getMessage());
-        }
-    }
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
+	}
 
-    // ================= FIND BY READ STATUS =================
-    @GetMapping("/status")
-    public ResponseEntity<?> findByIsRead(@RequestParam boolean isRead) {
+	// ================= FIND BY CHAT ID =================
+	@GetMapping("/chat/{chatId}")
+	public ResponseEntity<?> findByChatId(@PathVariable String chatId) {
 
-        try {
-            return ResponseEntity.ok(
-                    readableChatService.findByIsRead(isRead));
+		try {
+			return ResponseEntity.ok(readableChatService.findByChatId(chatId));
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(e.getMessage());
-        }
-    }
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
+	}
 
-    // ================= DELETE =================
-    @DeleteMapping("/{id}/{userId}")
-    public ResponseEntity<?> deleteReadableChat(
-            @PathVariable String id,
-            @PathVariable String userId) {
+	// ================= FIND BY READ STATUS =================
+	@GetMapping("/status")
+	public ResponseEntity<?> findByIsRead(@RequestParam boolean isRead) {
 
-        try {
-            boolean removed =
-                    readableChatService.removeReadability(id, userId);
+		try {
+			return ResponseEntity.ok(readableChatService.findByIsRead(isRead));
 
-            return ResponseEntity.ok(removed);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
+	}
 
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+	// ================= DELETE =================
+	@DeleteMapping("/{id}/{userId}")
+	public ResponseEntity<?> deleteReadableChat(@PathVariable String id, @PathVariable String userId) {
+
+		try {
+			boolean removed = readableChatService.removeReadability(id, userId);
+
+			return ResponseEntity.ok(removed);
+
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 }
-

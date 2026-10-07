@@ -10,6 +10,8 @@ public interface ReadableChatService {
 
 	public ReadableChat updateReadability(ReadableChat readableChat, String userId, String id);
 
+	public ReadableChat markChatAsRead(ReadableChat readableChat, String chatId, String userId);
+	
 	public ReadableChat findById(String id);
 
 	public List<ReadableChat> seeAll();

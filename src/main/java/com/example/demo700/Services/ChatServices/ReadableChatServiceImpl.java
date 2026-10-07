@@ -38,9 +38,11 @@ public class ReadableChatServiceImpl implements ReadableChatService {
 	private Cleaner cleaner;
 
 	private static final String cacheValue = "ReadableChat";
-	
+
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Message", allEntries = true) })
+
 	public ReadableChat addReadability(ReadableChat readableChat, String userId) {
 
 		if (readableChat == null || userId == null) {
@@ -125,7 +127,8 @@ public class ReadableChatServiceImpl implements ReadableChatService {
 	}
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Message", allEntries = true) })
 	public ReadableChat updateReadability(ReadableChat readableChat, String userId, String id) {
 
 		if (readableChat == null || userId == null || id == null) {
@@ -238,6 +241,84 @@ public class ReadableChatServiceImpl implements ReadableChatService {
 	}
 
 	@Override
+	@CacheEvict(value = cacheValue, allEntries = true)
+	public ReadableChat markChatAsRead(ReadableChat readableChat, String chatId, String userId) {
+
+		if (readableChat == null || userId == null || chatId == null || !readableChat.getChatId().equals(chatId)) {
+
+			throw new NullPointerException("False request...");
+
+		}
+
+		User user = null;
+
+		try {
+
+			user = userRepository.findById(userId).get();
+
+			if (user == null) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such user find at here...");
+
+		}
+
+		ChatMessage message = null;
+
+		try {
+
+			message = chatMessageRepository.findById(chatId).get();
+
+			if (message == null) {
+
+				throw new Exception();
+
+			}
+
+			if (!message.getReceiver().equals(user.getId())) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such message find at here...");
+
+		}
+
+		ReadableChat existingReadChat = null;
+
+		try {
+
+			existingReadChat = readableChatRepository.findByChatId(chatId);
+
+			if (existingReadChat == null) {
+
+				throw new Exception();
+
+			}
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("");
+
+		}
+
+		readableChat.setId(existingReadChat.getId());
+
+		readableChat = readableChatRepository.save(readableChat);
+
+		return readableChat;
+
+	}
+
+	@Override
 	@Cacheable(value = cacheValue, key = "'findById_' + #id")
 	public ReadableChat findById(String id) {
 
@@ -345,10 +426,8 @@ public class ReadableChatServiceImpl implements ReadableChatService {
 	}
 
 	@Override
-	@Caching(evict = {
-			@CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "Message", allEntries = true)
-	})
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Message", allEntries = true) })
 	public boolean removeReadability(String id, String userId) {
 
 		if (id == null || userId == null) {

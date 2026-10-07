@@ -3,6 +3,8 @@ package com.example.demo700.DTOFiles;
 import java.io.Serializable;
 import java.time.Instant;
 
+import com.example.demo700.Model.ChatModels.ReadableChat;
+
 public class ChatResponse implements Serializable {
 
 	/**
@@ -251,6 +253,10 @@ public class ChatResponse implements Serializable {
 
 	public void setSenderFullName(String senderFullName) {
 		this.senderFullName = senderFullName;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 	@Override

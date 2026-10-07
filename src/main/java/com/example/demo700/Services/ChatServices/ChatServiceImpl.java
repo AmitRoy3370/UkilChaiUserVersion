@@ -18,6 +18,7 @@ import java.util.HashSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
@@ -65,7 +66,9 @@ public class ChatServiceImpl implements ChatService {
 	private static final String cacheValue = "Message";
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "ReadableChat", allEntries = true) })
+
 	public ChatMessage saveMessage(ChatMessage message) {
 
 		if (message == null) {
@@ -200,7 +203,9 @@ public class ChatServiceImpl implements ChatService {
 
 	@SuppressWarnings("unused")
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "ReadableChat", allEntries = true) })
+
 	public ChatMessage editChatMessage(String sender, String chatId, String newContent) {
 
 		if (sender == null || chatId == null || newContent == null) {
