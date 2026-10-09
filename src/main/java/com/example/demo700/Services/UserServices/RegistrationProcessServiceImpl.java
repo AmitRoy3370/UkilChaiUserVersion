@@ -232,7 +232,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 			}
 
-			info = companyRepository.findById(id).get();
+			info = companyRepository.findById(regProcess.getCompanyId()).get();
 
 		} catch (Exception e) {
 
