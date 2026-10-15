@@ -121,7 +121,23 @@ public class CaseController {
 	@GetMapping("/attachment/view/{attachmentId}")
 	public ResponseEntity<?> viewAttachment(@PathVariable String attachmentId) {
 		try {
+			/*
+			 * GridFSFile file = imageService.getFile(attachmentId);
+			 *
+			 * if (file == null) { return
+			 * ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found"); }
+			 *
+			 * InputStream stream = imageService.getStream(file);
+			 *
+			 * return
+			 * ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().
+			 * get("type").toString())) .header(HttpHeaders.CONTENT_DISPOSITION,
+			 * "inline; filename=\"" + file.getFilename() + "\"") .body(new
+			 * InputStreamResource(stream));
+			 */
+
 			return serveAttachment(attachmentId, "inline");
+
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to load file");
 		}
@@ -133,11 +149,26 @@ public class CaseController {
 	public ResponseEntity<?> downloadAttachment(@PathVariable String attachmentId) {
 
 		try {
+			/*
+			 * GridFSFile file = imageService.getFile(attachmentId);
+			 *
+			 * if (file == null) { return
+			 * ResponseEntity.status(HttpStatus.NOT_FOUND).body("Image not found"); }
+			 *
+			 * InputStream stream = imageService.getStream(file);
+			 *
+			 * return
+			 * ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().
+			 * get("type").toString())) .header(HttpHeaders.CONTENT_DISPOSITION,
+			 * "attachment; filename=\"" + file.getFilename() + "\"") .body(new
+			 * InputStreamResource(stream));
+			 */
 			return serveAttachment(attachmentId, "attachment");
 
 		} catch (IOException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
 		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to download image");
 		}
 
@@ -243,14 +274,13 @@ public class CaseController {
 		}
 	}
 
-	// =================================================================
-	// ================== PAGINATED ENDPOINTS ==========================
-	// =================================================================
+	// ==================================================================
+	// ============ PAGINATED ENDPOINTS (NEWLY ADDED) ===================
+	// ==================================================================
 
-	// ================= SEARCH PAGINATED =================
-	// GET /api/case/search/paginated?name=xyz&page=0&size=10&sort=issuedTime,desc
-	@GetMapping("/search/paginated")
-	public ResponseEntity<?> searchPaginated(@RequestParam("name") String name, Pageable pageable) {
+	// ================= PAGINATED SEARCH BY NAME CONTAINING =================
+	@GetMapping("/search/paginated/{name}")
+	public ResponseEntity<?> searchPaginated(@PathVariable String name, Pageable pageable) {
 		try {
 			return success(caseService.findByCaseNameContainingIgnoreCase(name, pageable));
 		} catch (Exception e) {
@@ -258,8 +288,7 @@ public class CaseController {
 		}
 	}
 
-	// ================= BY USER PAGINATED =================
-	// GET /api/case/user/paginated/{userId}?page=0&size=10
+	// ================= PAGINATED BY USER =================
 	@GetMapping("/user/paginated/{userId}")
 	public ResponseEntity<?> byUserPaginated(@PathVariable String userId, Pageable pageable) {
 		try {
@@ -269,8 +298,7 @@ public class CaseController {
 		}
 	}
 
-	// ================= BY TYPE PAGINATED =================
-	// GET /api/case/type/paginated/{type}?page=0&size=10
+	// ================= PAGINATED BY TYPE =================
 	@GetMapping("/type/paginated/{type}")
 	public ResponseEntity<?> byTypePaginated(@PathVariable String type, Pageable pageable) {
 		try {
@@ -280,8 +308,7 @@ public class CaseController {
 		}
 	}
 
-	// ================= BY ADVOCATE PAGINATED =================
-	// GET /api/case/advocate/paginated/{advocateId}?page=0&size=10
+	// ================= PAGINATED BY ADVOCATE =================
 	@GetMapping("/advocate/paginated/{advocateId}")
 	public ResponseEntity<?> byAdvocatePaginated(@PathVariable String advocateId, Pageable pageable) {
 		try {
@@ -291,10 +318,9 @@ public class CaseController {
 		}
 	}
 
-	// ================= AFTER DATE PAGINATED =================
-	// GET /api/case/after/paginated?time=2024-01-01T00:00:00Z&page=0&size=10
+	// ================= PAGINATED AFTER DATE =================
 	@GetMapping("/after/paginated")
-	public ResponseEntity<?> afterPaginated(@RequestParam("time") String time, Pageable pageable) {
+	public ResponseEntity<?> afterPaginated(@RequestParam String time, Pageable pageable) {
 		try {
 			return success(caseService.findByIssuedTimeAfter(Instant.parse(time), pageable));
 		} catch (Exception e) {
@@ -302,10 +328,9 @@ public class CaseController {
 		}
 	}
 
-	// ================= BEFORE DATE PAGINATED =================
-	// GET /api/case/before/paginated?time=2024-01-01T00:00:00Z&page=0&size=10
+	// ================= PAGINATED BEFORE DATE =================
 	@GetMapping("/before/paginated")
-	public ResponseEntity<?> beforePaginated(@RequestParam("time") String time, Pageable pageable) {
+	public ResponseEntity<?> beforePaginated(@RequestParam String time, Pageable pageable) {
 		try {
 			return success(caseService.findByIssuedTimeBefore(Instant.parse(time), pageable));
 		} catch (Exception e) {
@@ -313,8 +338,7 @@ public class CaseController {
 		}
 	}
 
-	// ================= FIND ALL PAGINATED =================
-	// GET /api/case/all/paginated?page=0&size=10&sort=issuedTime,desc
+	// ================= PAGINATED FIND ALL =================
 	@GetMapping("/all/paginated")
 	public ResponseEntity<?> allPaginated(Pageable pageable) {
 		try {
@@ -324,9 +348,9 @@ public class CaseController {
 		}
 	}
 
-	// =================================================================
-	// ================== ATTACHMENT SERVE HELPER ======================
-	// =================================================================
+	// ==================================================================
+	// ==================== ATTACHMENT SERVING ==========================
+	// ==================================================================
 
 	private ResponseEntity<?> serveAttachment(String attachmentId, String dispositionType) {
 		try {
@@ -365,7 +389,7 @@ public class CaseController {
 				Files.copy(dbStream, filePath, StandardCopyOption.REPLACE_EXISTING);
 			}
 
-			// এবার নতুন তৈরি হওয়া লোকাল ক্যাশ ফাইল থেকে রেসপন্স রিটার্ন করা
+			// এবার নতুন তৈরি হওয়া লোকাল ক্যাশ ফাইল থেকে রেসপন্স রিটার্ন করা
 			InputStream cachedStream = new FileInputStream(localFile);
 
 			return ResponseEntity.ok().contentType(MediaType.parseMediaType(mimeType))
