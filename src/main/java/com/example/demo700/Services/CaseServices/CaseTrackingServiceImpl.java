@@ -365,55 +365,96 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 		return caseTracking;
 	}
 
-	@Override
-	@Async // 🟢 This runs in a separate thread, so APIs won't block!
-	@Scheduled(cron = "0 0 0 * * *") // Runs at exactly 12:00 AM
-	public void processScheduledNotifications() {
+@Override
+@Async
+@Scheduled(cron = "0 0 0 * * *", zone = "Asia/Dhaka")
+public void processScheduledNotifications() {
 
-		// 🟢 FIX: Truncate current time to the EXACT start of the day (00:00:00.000)
-		Instant presentDate = Instant.now().truncatedTo(ChronoUnit.DAYS);
+	Instant today = Instant.now().truncatedTo(ChronoUnit.DAYS);
 
-		List<CaseTracking> list = caseTrackingRepository.findByTrackingTimeAfter(presentDate);
+	// Fetch all trackings whose time is today or in the future (safety range)
+	List<CaseTracking> list = caseTrackingRepository.findByTrackingTimeAfter(today.minus(3, ChronoUnit.DAYS));
 
-		List<String> caseIds = list.stream().map(CaseTracking::getCaseId).collect(Collectors.toList());
+	if (list == null || list.isEmpty()) {
+		return;
+	}
 
-		Map<String, Case> caseMap = caseIds.isEmpty() ? new HashMap<>()
-				: caseRepository.findAllById(caseIds).stream()
-						.collect(Collectors.toMap(Case::getId, Function.identity()));
+	for (CaseTracking tracking : list) {
 
-		for (CaseTracking tracking : list) {
+		if (tracking == null || tracking.getTrackingTime() == null || !tracking.isVisibility()) {
+			continue;
+		}
 
-			Instant trackingTime = tracking.getTrackingTime().truncatedTo(ChronoUnit.DAYS); // 🟢 FIX: Truncate tracking
-																							// time
-			Instant previousDayTime = tracking.getTrackingTime().minus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS); // 🟢
-																															// FIX
-			Instant previousSecondDayTime = tracking.getTrackingTime().minus(2, ChronoUnit.DAYS)
-					.truncatedTo(ChronoUnit.DAYS); // 🟢 FIX
+		Instant trackingDay = tracking.getTrackingTime().truncatedTo(ChronoUnit.DAYS);
+		Instant oneDayBefore = trackingDay.minus(1, ChronoUnit.DAYS);
+		Instant twoDaysBefore = trackingDay.minus(2, ChronoUnit.DAYS);
 
-			// 🟢 FIX: Now equals will compare only the Date, ignoring milliseconds
-			if (presentDate.equals(trackingTime) || presentDate.equals(previousDayTime)
-					|| presentDate.equals(previousSecondDayTime)) {
-
-				List<String> destinations = new ArrayList<>();
-				destinations.add("CaseRelatedPages");
-				destinations.add("CaseDetailsPage");
-
-				Map<String, String> map = new HashMap<>();
-				Case _case = caseMap.get(tracking.getCaseId());
-
-				map.put("userId", _case.getUserId());
-				map.put("caseId", _case.getId());
-				map.put("caseName", _case.getCaseName());
-				map.put("advocateId", _case.getAdvocateId());
-				map.put("issuedTime", _case.getIssuedTime().toString());
-
-				String message = "Hi, your case " + _case.getCaseName() + "'s " + tracking.getCaseStage()
-						+ " stage will organized at " + tracking.getTrackingTime();
-
-				notificationService.sendNotification(_case.getUserId(), message, destinations, map);
-			}
+		// Send only when today == tracking day, 1 day before, or 2 days before
+		if (today.equals(trackingDay) || today.equals(oneDayBefore) || today.equals(twoDaysBefore)) {
+			sendTrackingAlert(tracking);
 		}
 	}
+}
+
+private void sendTrackingAlert(CaseTracking tracking) {
+
+	if (tracking == null || !tracking.isVisibility()) {
+		return;
+	}
+
+	Case _case = caseRepository.findById(tracking.getCaseId()).orElse(null);
+
+	if (_case == null) {
+		return;
+	}
+
+	User caseUser = userRepository.findById(_case.getUserId()).orElse(null);
+
+	if (caseUser == null) {
+		return;
+	}
+
+	// Advocate info
+	String advocateName = null;
+	String advocateUserId = null;
+
+	try {
+		Advocate advocate = advocateRepository.findById(_case.getAdvocateId()).orElse(null);
+		if (advocate != null) {
+			advocateUserId = advocate.getUserId();
+			User advUser = userRepository.findById(advocate.getUserId()).orElse(null);
+			if (advUser != null) {
+				advocateName = advUser.getFullName() == null ? advUser.getName() : advUser.getFullName();
+			}
+		}
+	} catch (Exception e) {
+	}
+
+	List<String> destinations = new ArrayList<>();
+	destinations.add("CaseRelatedPages");
+	destinations.add("CaseDetailsPage");
+
+	Map<String, String> map = new HashMap<>();
+	map.put("userId", _case.getUserId());
+	map.put("caseId", _case.getId());
+	map.put("caseName", _case.getCaseName());
+	map.put("advocateId", _case.getAdvocateId());
+	map.put("issuedTime", _case.getIssuedTime() != null ? _case.getIssuedTime().toString() : "");
+	map.put("caseLawyer", advocateName);
+	map.put("advocateUserId", advocateUserId);
+	map.put("userName", caseUser.getFullName());
+
+	String message = "Hi " + caseUser.getName() + ", your case " + _case.getCaseName() + "'s "
+			+ tracking.getCaseStage() + " stage will be organized at " + tracking.getTrackingTime();
+
+	// 📩 Notification
+	notificationService.sendNotification(caseUser.getId(), message, destinations, map);
+
+	// 💬 Chat — from advocate user to case user
+	if (advocateUserId != null) {
+		chatService.saveMessage(new ChatMessage(advocateUserId, caseUser.getId(), message));
+	}
+}
 
 	@Override
 	@CacheEvict(value = cacheValue, allEntries = true)
