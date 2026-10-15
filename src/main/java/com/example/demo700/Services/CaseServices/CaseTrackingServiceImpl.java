@@ -34,6 +34,8 @@ import com.example.demo700.Repositories.UserRepositories.UserRepository;
 import com.example.demo700.Services.ChatServices.ChatService;
 import com.example.demo700.Services.NotificationServices.NotificationService;
 import org.springframework.scheduling.annotation.Async; // 🟢 Import this
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 @Service
 public class CaseTrackingServiceImpl implements CaseTrackingService {
@@ -366,33 +368,55 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 	}
 
 @Override
-@Async
 @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Dhaka")
 public void processScheduledNotifications() {
 
-	Instant today = Instant.now().truncatedTo(ChronoUnit.DAYS);
+	try {
 
-	// Fetch all trackings whose time is today or in the future (safety range)
-	List<CaseTracking> list = caseTrackingRepository.findByTrackingTimeAfter(today.minus(3, ChronoUnit.DAYS));
+		ZoneId zone = ZoneId.of("Asia/Dhaka");
 
-	if (list == null || list.isEmpty()) {
-		return;
-	}
+		// "Today" as a Dhaka-local midnight Instant (not UTC)
+		Instant today = LocalDate.now(zone).atStartOfDay(zone).toInstant();
 
-	for (CaseTracking tracking : list) {
+		// Fetch all trackings whose time is within the last 3 days (safety range)
+		List<CaseTracking> list = caseTrackingRepository
+				.findByTrackingTimeAfter(today.minus(3, ChronoUnit.DAYS));
 
-		if (tracking == null || tracking.getTrackingTime() == null || !tracking.isVisibility()) {
-			continue;
+		if (list == null || list.isEmpty()) {
+			return;
 		}
 
-		Instant trackingDay = tracking.getTrackingTime().truncatedTo(ChronoUnit.DAYS);
-		Instant oneDayBefore = trackingDay.minus(1, ChronoUnit.DAYS);
-		Instant twoDaysBefore = trackingDay.minus(2, ChronoUnit.DAYS);
+		for (CaseTracking tracking : list) {
 
-		// Send only when today == tracking day, 1 day before, or 2 days before
-		if (today.equals(trackingDay) || today.equals(oneDayBefore) || today.equals(twoDaysBefore)) {
-			sendTrackingAlert(tracking);
+			try {
+
+				if (tracking == null || tracking.getTrackingTime() == null || !tracking.isVisibility()) {
+					continue;
+				}
+
+				// Normalize tracking time to Dhaka-local midnight
+				Instant trackingDay = tracking.getTrackingTime()
+						.atZone(zone)
+						.toLocalDate()
+						.atStartOfDay(zone)
+						.toInstant();
+
+				Instant oneDayBefore = trackingDay.minus(1, ChronoUnit.DAYS);
+				Instant twoDaysBefore = trackingDay.minus(2, ChronoUnit.DAYS);
+
+				// Send only when today == tracking day, 1 day before, or 2 days before
+				if (today.equals(trackingDay) || today.equals(oneDayBefore) || today.equals(twoDaysBefore)) {
+					sendTrackingAlert(tracking);
+				}
+
+			} catch (Exception inner) {
+				// One bad record must not kill the whole batch
+				inner.printStackTrace();
+			}
 		}
+
+	} catch (Exception e) {
+		e.printStackTrace();
 	}
 }
 
