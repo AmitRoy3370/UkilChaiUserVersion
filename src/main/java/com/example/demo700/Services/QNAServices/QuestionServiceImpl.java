@@ -17,11 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
 import com.example.demo700.DTOFiles.AnswerResponse;
+import com.example.demo700.DTOFiles.QuestionListResponseDTO;
 import com.example.demo700.DTOFiles.QuestionResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
@@ -540,6 +544,329 @@ public class QuestionServiceImpl implements QuestionService {
 		}
 
 		return responses;
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findAllPaginated_' + #pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+	public QuestionListResponseDTO seeAll(Pageable pageable) {
+
+		Page<AskQuestion> questions = questionRepository.findAll(pageable);
+
+		if (questions.isEmpty() || !questions.hasContent()) {
+
+			throw new NoSuchElementException("No such qna find at here...");
+
+		}
+
+		List<QuestionResponse> list = getQuestionResponseFromQuestionList(questions.getContent());
+
+		String nextPage = null;
+
+		if (questions.hasNext()) {
+
+			nextPage = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", questions.getNumber() + 1).replaceQueryParam("size", questions.getSize())
+					.toString();
+
+		}
+
+		String previousPage = null;
+
+		if (questions.hasPrevious()) {
+
+			previousPage = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", questions.getNumber() - 1).replaceQueryParam("size", questions.getSize())
+					.toString();
+
+		}
+
+		QuestionListResponseDTO responseDTO = new QuestionListResponseDTO(list, questions.getNumber(),
+				questions.getSize(), questions.getTotalElements(), nextPage, previousPage);
+
+		return responseDTO;
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserIdPaginated_' + #userId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+	public QuestionListResponseDTO findByUserId(String userId, Pageable pageable) {
+
+		if(userId == null) {
+			
+			throw new NullPointerException("False request...");
+			
+		}
+		
+		Page<AskQuestion> questions = questionRepository.findByUserId(userId, pageable);
+
+		if (questions.isEmpty() || !questions.hasContent()) {
+
+			throw new NoSuchElementException("No such qna find at here...");
+
+		}
+
+		List<QuestionResponse> list = getQuestionResponseFromQuestionList(questions.getContent());
+
+		String nextPage = null;
+
+		if (questions.hasNext()) {
+
+			nextPage = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", questions.getNumber() + 1).replaceQueryParam("size", questions.getSize())
+					.toString();
+
+		}
+
+		String previousPage = null;
+
+		if (questions.hasPrevious()) {
+
+			previousPage = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", questions.getNumber() - 1).replaceQueryParam("size", questions.getSize())
+					.toString();
+
+		}
+
+		QuestionListResponseDTO responseDTO = new QuestionListResponseDTO(list, questions.getNumber(),
+				questions.getSize(), questions.getTotalElements(), nextPage, previousPage);
+
+		return responseDTO;
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByKeywordPaginated_' + #keyWord + '_' + #pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+	public QuestionListResponseDTO findByMessageContainingIgnoreCase(String keyWord, Pageable pageable) {
+
+		if(keyWord == null) {
+			
+			throw new NullPointerException("False request...");
+			
+		}
+		
+		Page<AskQuestion> questions = questionRepository.findByMessageContainingIgnoreCase(keyWord, pageable);
+
+		if (questions.isEmpty() || !questions.hasContent()) {
+
+			throw new NoSuchElementException("No such qna find at here...");
+
+		}
+
+		List<QuestionResponse> list = getQuestionResponseFromQuestionList(questions.getContent());
+
+		String nextPage = null;
+
+		if (questions.hasNext()) {
+
+			nextPage = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", questions.getNumber() + 1).replaceQueryParam("size", questions.getSize())
+					.toString();
+
+		}
+
+		String previousPage = null;
+
+		if (questions.hasPrevious()) {
+
+			previousPage = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", questions.getNumber() - 1).replaceQueryParam("size", questions.getSize())
+					.toString();
+
+		}
+
+		QuestionListResponseDTO responseDTO = new QuestionListResponseDTO(list, questions.getNumber(),
+				questions.getSize(), questions.getTotalElements(), nextPage, previousPage);
+
+		return responseDTO;
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByPostTimeAfterPaginated_' + #time + '_' + #pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+	public QuestionListResponseDTO findByPostTimeAfter(Instant time, Pageable pageable) {
+
+		if(time == null) {
+			
+			throw new NullPointerException("False request...");
+			
+		}
+		
+		Page<AskQuestion> questions = questionRepository.findByPostTimeAfter(time, pageable);
+
+		if (questions.isEmpty() || !questions.hasContent()) {
+
+			throw new NoSuchElementException("No such qna find at here...");
+
+		}
+
+		List<QuestionResponse> list = getQuestionResponseFromQuestionList(questions.getContent());
+
+		String nextPage = null;
+
+		if (questions.hasNext()) {
+
+			nextPage = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", questions.getNumber() + 1).replaceQueryParam("size", questions.getSize())
+					.toString();
+
+		}
+
+		String previousPage = null;
+
+		if (questions.hasPrevious()) {
+
+			previousPage = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", questions.getNumber() - 1).replaceQueryParam("size", questions.getSize())
+					.toString();
+
+		}
+
+		QuestionListResponseDTO responseDTO = new QuestionListResponseDTO(list, questions.getNumber(),
+				questions.getSize(), questions.getTotalElements(), nextPage, previousPage);
+
+		return responseDTO;
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByPostTimeBeforePaginated_' + #time + '_' + #pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+	public QuestionListResponseDTO findByPostTimeBefore(Instant time, Pageable pageable) {
+
+		if(time == null) {
+			
+			throw new NullPointerException("False request...");
+			
+		}
+		
+		Page<AskQuestion> questions = questionRepository.findByPostTimeBefore(time, pageable);
+
+		if (questions.isEmpty() || !questions.hasContent()) {
+
+			throw new NoSuchElementException("No such qna find at here...");
+
+		}
+
+		List<QuestionResponse> list = getQuestionResponseFromQuestionList(questions.getContent());
+
+		String nextPage = null;
+
+		if (questions.hasNext()) {
+
+			nextPage = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", questions.getNumber() + 1).replaceQueryParam("size", questions.getSize())
+					.toString();
+
+		}
+
+		String previousPage = null;
+
+		if (questions.hasPrevious()) {
+
+			previousPage = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", questions.getNumber() - 1).replaceQueryParam("size", questions.getSize())
+					.toString();
+
+		}
+
+		QuestionListResponseDTO responseDTO = new QuestionListResponseDTO(list, questions.getNumber(),
+				questions.getSize(), questions.getTotalElements(), nextPage, previousPage);
+
+		return responseDTO;
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByPostTimeBetweenPaginated_' + #start + #end + '_' + #pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+	public QuestionListResponseDTO findByPostTimeBetween(Instant start, Instant end, Pageable pageable) {
+
+		if(start == null || end == null) {
+			
+			throw new NullPointerException("False request...");
+			
+		}
+		
+		Page<AskQuestion> questions = questionRepository.findByPostTimeBetween(start, end, pageable);
+
+		if (questions.isEmpty() || !questions.hasContent()) {
+
+			throw new NoSuchElementException("No such qna find at here...");
+
+		}
+
+		List<QuestionResponse> list = getQuestionResponseFromQuestionList(questions.getContent());
+
+		String nextPage = null;
+
+		if (questions.hasNext()) {
+
+			nextPage = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", questions.getNumber() + 1).replaceQueryParam("size", questions.getSize())
+					.toString();
+
+		}
+
+		String previousPage = null;
+
+		if (questions.hasPrevious()) {
+
+			previousPage = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", questions.getNumber() - 1).replaceQueryParam("size", questions.getSize())
+					.toString();
+
+		}
+
+		QuestionListResponseDTO responseDTO = new QuestionListResponseDTO(list, questions.getNumber(),
+				questions.getSize(), questions.getTotalElements(), nextPage, previousPage);
+
+		return responseDTO;
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByQuestionTypePaginated_' + #questionType + '_' + #pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+	public QuestionListResponseDTO findByQuestionType(AdvocateSpeciality questionType, Pageable pageable) {
+
+		if(questionType == null) {
+			
+			throw new NullPointerException("False request...");
+			
+		}
+		
+		Page<AskQuestion> questions = questionRepository.findByQuestionType(questionType, pageable);
+
+		if (questions.isEmpty() || !questions.hasContent()) {
+
+			throw new NoSuchElementException("No such qna find at here...");
+
+		}
+
+		List<QuestionResponse> list = getQuestionResponseFromQuestionList(questions.getContent());
+
+		String nextPage = null;
+
+		if (questions.hasNext()) {
+
+			nextPage = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", questions.getNumber() + 1).replaceQueryParam("size", questions.getSize())
+					.toString();
+
+		}
+
+		String previousPage = null;
+
+		if (questions.hasPrevious()) {
+
+			previousPage = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", questions.getNumber() - 1).replaceQueryParam("size", questions.getSize())
+					.toString();
+
+		}
+
+		QuestionListResponseDTO responseDTO = new QuestionListResponseDTO(list, questions.getNumber(),
+				questions.getSize(), questions.getTotalElements(), nextPage, previousPage);
+
+		return responseDTO;
 
 	}
 

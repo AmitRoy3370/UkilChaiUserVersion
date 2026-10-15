@@ -17,12 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.bson.types.ObjectId;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.CaseListResponseDTO;
 import com.example.demo700.DTOFiles.CaseResponse;
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
@@ -59,7 +62,7 @@ public class CaseServiceImpl implements CaseService {
 
 	@Autowired
 	private ImageService fileUpload;
-	
+
 	private static final String cacheValue = "Case";
 
 	@Override
@@ -442,22 +445,18 @@ public class CaseServiceImpl implements CaseService {
 	}
 
 	@Override
-	@Caching(evict = {
-			@CacheEvict(value = cacheValue, allEntries = true),
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
 			@CacheEvict(value = "AdvocateRating", allEntries = true),
 			@CacheEvict(value = "ClientFeedback", allEntries = true),
 			@CacheEvict(value = "PostReaction", allEntries = true),
 			@CacheEvict(value = "AppealHearing", allEntries = true),
-			@CacheEvict(value = "CaseAppeal", allEntries = true),
-			@CacheEvict(value = "CaseClose", allEntries = true),
+			@CacheEvict(value = "CaseAppeal", allEntries = true), @CacheEvict(value = "CaseClose", allEntries = true),
 			@CacheEvict(value = "CaseJudgement", allEntries = true),
-			//@CacheEvict(value = "Case", allEntries = true),
+			// @CacheEvict(value = "Case", allEntries = true),
 			@CacheEvict(value = "CaseTracking", allEntries = true),
-			@CacheEvict(value = "DocumentDraft", allEntries = true),
-			@CacheEvict(value = "Hearing", allEntries = true),
+			@CacheEvict(value = "DocumentDraft", allEntries = true), @CacheEvict(value = "Hearing", allEntries = true),
 			@CacheEvict(value = "ReadStatus", allEntries = true),
-			@CacheEvict(value = "PaymentDetails", allEntries = true)
-	})
+			@CacheEvict(value = "PaymentDetails", allEntries = true) })
 	public boolean removeCase(String caseId, String userId) {
 
 		if (caseId == null || userId == null) {
@@ -623,7 +622,7 @@ public class CaseServiceImpl implements CaseService {
 				response.setUserName(userMap.get(_case.getUserId()).getName());
 				response.setUserFullName(userMap.get(_case.getUserId()).getFullName());
 				response.setAdvocateName(userMap.get(advocateMap.get(_case.getAdvocateId())).getName());
-                response.setAdvocateFullName(userMap.get(advocateMap.get(_case.getAdvocateId())).getFullName());
+				response.setAdvocateFullName(userMap.get(advocateMap.get(_case.getAdvocateId())).getFullName());
 				responses.add(response);
 
 			} catch (Exception e) {
@@ -634,6 +633,378 @@ public class CaseServiceImpl implements CaseService {
 
 		return responses;
 
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseNameByPaginated_' + #caseName + '_' + #pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+	public CaseListResponseDTO findByCaseNameContainingIgnoreCase(String caseName, Pageable pageable) {
+
+		if (caseName == null) {
+
+			throw new NullPointerException("False request....");
+
+		}
+
+		try {
+
+			Page<Case> acceptedCase = caseRepository.findByCaseNameContainingIgnoreCase(caseName, pageable);
+
+			if (acceptedCase == null || !acceptedCase.hasContent()) {
+
+				throw new Exception();
+
+			}
+
+			List<CaseResponse> response = getCaseResponseFromCaseList((acceptedCase.getContent()));
+
+			String nextUrl = null;
+
+			if (acceptedCase.hasNext()) {
+
+				nextUrl = ServletUriComponentsBuilder.fromCurrentRequest()
+						.replaceQueryParam("page", acceptedCase.getNumber() + 1)
+						.replaceQueryParam("size", acceptedCase.getSize()).toString();
+
+			}
+
+			String previousUrl = null;
+
+			if (acceptedCase.hasPrevious()) {
+
+				previousUrl = ServletUriComponentsBuilder.fromCurrentRequest()
+						.replaceQueryParam("page", acceptedCase.getNumber() - 1)
+						.replaceQueryParam("size", acceptedCase.getSize()).toString();
+
+			}
+
+			CaseListResponseDTO dtoResponses = new CaseListResponseDTO(response, acceptedCase.getNumber(),
+					acceptedCase.getSize(), acceptedCase.getTotalElements(), nextUrl, previousUrl);
+
+			return dtoResponses;
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such case find at here...");
+
+		}
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByUserIdByPaginated_' + #userId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+	public CaseListResponseDTO findByUserId(String userId, Pageable pageable) {
+
+		if (userId == null) {
+
+			throw new NullPointerException("False request....");
+
+		}
+
+		try {
+
+			Page<Case> acceptedCase = caseRepository.findByUserId(userId, pageable);
+
+			if (acceptedCase == null || !acceptedCase.hasContent()) {
+
+				throw new Exception();
+
+			}
+
+			List<CaseResponse> response = getCaseResponseFromCaseList((acceptedCase.getContent()));
+
+			String nextUrl = null;
+
+			if (acceptedCase.hasNext()) {
+
+				nextUrl = ServletUriComponentsBuilder.fromCurrentRequest()
+						.replaceQueryParam("page", acceptedCase.getNumber() + 1)
+						.replaceQueryParam("size", acceptedCase.getSize()).toString();
+
+			}
+
+			String previousUrl = null;
+
+			if (acceptedCase.hasPrevious()) {
+
+				previousUrl = ServletUriComponentsBuilder.fromCurrentRequest()
+						.replaceQueryParam("page", acceptedCase.getNumber() - 1)
+						.replaceQueryParam("size", acceptedCase.getSize()).toString();
+
+			}
+
+			CaseListResponseDTO dtoResponses = new CaseListResponseDTO(response, acceptedCase.getNumber(),
+					acceptedCase.getSize(), acceptedCase.getTotalElements(), nextUrl, previousUrl);
+
+			return dtoResponses;
+
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such case find at here...");
+
+		}
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByCaseTypeByPaginated_' + #caseType + '_' + #pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+	public CaseListResponseDTO findByCaseType(AdvocateSpeciality caseType, Pageable pageable) {
+
+		if (caseType == null) {
+
+			throw new NullPointerException("False request....");
+
+		}
+
+		try {
+
+			Page<Case> acceptedCase = caseRepository.findByCaseType(caseType, pageable);
+
+			if (acceptedCase == null || !acceptedCase.hasContent()) {
+
+				throw new Exception();
+
+			}
+
+			List<CaseResponse> response = getCaseResponseFromCaseList((acceptedCase.getContent()));
+
+			String nextUrl = null;
+
+			if (acceptedCase.hasNext()) {
+
+				nextUrl = ServletUriComponentsBuilder.fromCurrentRequest()
+						.replaceQueryParam("page", acceptedCase.getNumber() + 1)
+						.replaceQueryParam("size", acceptedCase.getSize()).toString();
+
+			}
+
+			String previousUrl = null;
+
+			if (acceptedCase.hasPrevious()) {
+
+				previousUrl = ServletUriComponentsBuilder.fromCurrentRequest()
+						.replaceQueryParam("page", acceptedCase.getNumber() - 1)
+						.replaceQueryParam("size", acceptedCase.getSize()).toString();
+
+			}
+
+			CaseListResponseDTO dtoResponses = new CaseListResponseDTO(response, acceptedCase.getNumber(),
+					acceptedCase.getSize(), acceptedCase.getTotalElements(), nextUrl, previousUrl);
+
+			return dtoResponses;
+			
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such case find at here...");
+
+		}
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByAdvocateIdByPaginated_' + #advocateId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+	public CaseListResponseDTO findByAdvocateId(String advocateId, Pageable pageable) {
+
+		if (advocateId == null) {
+
+			throw new NullPointerException("False request....");
+
+		}
+
+		try {
+
+			Page<Case> acceptedCase = caseRepository.findByAdvocateId(advocateId, pageable);
+
+			if (acceptedCase == null || !acceptedCase.hasContent()) {
+
+				throw new Exception();
+
+			}
+
+			List<CaseResponse> response = getCaseResponseFromCaseList((acceptedCase.getContent()));
+
+			String nextUrl = null;
+
+			if (acceptedCase.hasNext()) {
+
+				nextUrl = ServletUriComponentsBuilder.fromCurrentRequest()
+						.replaceQueryParam("page", acceptedCase.getNumber() + 1)
+						.replaceQueryParam("size", acceptedCase.getSize()).toString();
+
+			}
+
+			String previousUrl = null;
+
+			if (acceptedCase.hasPrevious()) {
+
+				previousUrl = ServletUriComponentsBuilder.fromCurrentRequest()
+						.replaceQueryParam("page", acceptedCase.getNumber() - 1)
+						.replaceQueryParam("size", acceptedCase.getSize()).toString();
+
+			}
+
+			CaseListResponseDTO dtoResponses = new CaseListResponseDTO(response, acceptedCase.getNumber(),
+					acceptedCase.getSize(), acceptedCase.getTotalElements(), nextUrl, previousUrl);
+
+			return dtoResponses;
+			
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such case find at here...");
+
+		}
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByIssuedTimeAfterByPaginated_' + #issuedTime + '_' + #pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+	public CaseListResponseDTO findByIssuedTimeAfter(Instant issuedTime, Pageable pageable) {
+
+		if (issuedTime == null) {
+
+			throw new NullPointerException("False request....");
+
+		}
+
+		try {
+
+			Page<Case> acceptedCase = caseRepository.findByIssuedTimeAfter(issuedTime, pageable);
+
+			if (acceptedCase == null || !acceptedCase.hasContent()) {
+
+				throw new Exception();
+
+			}
+
+			List<CaseResponse> response = getCaseResponseFromCaseList((acceptedCase.getContent()));
+
+			String nextUrl = null;
+
+			if (acceptedCase.hasNext()) {
+
+				nextUrl = ServletUriComponentsBuilder.fromCurrentRequest()
+						.replaceQueryParam("page", acceptedCase.getNumber() + 1)
+						.replaceQueryParam("size", acceptedCase.getSize()).toString();
+
+			}
+
+			String previousUrl = null;
+
+			if (acceptedCase.hasPrevious()) {
+
+				previousUrl = ServletUriComponentsBuilder.fromCurrentRequest()
+						.replaceQueryParam("page", acceptedCase.getNumber() - 1)
+						.replaceQueryParam("size", acceptedCase.getSize()).toString();
+
+			}
+
+			CaseListResponseDTO dtoResponses = new CaseListResponseDTO(response, acceptedCase.getNumber(),
+					acceptedCase.getSize(), acceptedCase.getTotalElements(), nextUrl, previousUrl);
+
+			return dtoResponses;
+			
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such case find at here...");
+
+		}
+
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findByIssuedTimeBeforeByPaginated_' + #issuedTime + '_' + #pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+	public CaseListResponseDTO findByIssuedTimeBefore(Instant issuedTime, Pageable pageable) {
+
+		if (issuedTime == null) {
+
+			throw new NullPointerException("False request....");
+
+		}
+
+		try {
+
+			Page<Case> acceptedCase = caseRepository.findByIssuedTimeBefore(issuedTime, pageable);
+
+			if (acceptedCase == null || !acceptedCase.hasContent()) {
+
+				throw new Exception();
+
+			}
+
+			List<CaseResponse> response = getCaseResponseFromCaseList((acceptedCase.getContent()));
+
+			String nextUrl = null;
+
+			if (acceptedCase.hasNext()) {
+
+				nextUrl = ServletUriComponentsBuilder.fromCurrentRequest()
+						.replaceQueryParam("page", acceptedCase.getNumber() + 1)
+						.replaceQueryParam("size", acceptedCase.getSize()).toString();
+
+			}
+
+			String previousUrl = null;
+
+			if (acceptedCase.hasPrevious()) {
+
+				previousUrl = ServletUriComponentsBuilder.fromCurrentRequest()
+						.replaceQueryParam("page", acceptedCase.getNumber() - 1)
+						.replaceQueryParam("size", acceptedCase.getSize()).toString();
+
+			}
+
+			CaseListResponseDTO dtoResponses = new CaseListResponseDTO(response, acceptedCase.getNumber(),
+					acceptedCase.getSize(), acceptedCase.getTotalElements(), nextUrl, previousUrl);
+
+			return dtoResponses;
+			
+		} catch (Exception e) {
+
+			throw new NoSuchElementException("No such case find at here...");
+
+		}
+	}
+
+	@Override
+	@Cacheable(value = cacheValue, key = "'findAllByPaginated_' + #pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+	public CaseListResponseDTO findAllCase(Pageable pageable) {
+
+		Page<Case> list = caseRepository.findAll(pageable);
+
+		if (list.isEmpty() || !list.hasContent()) {
+
+			throw new NoSuchElementException("No such case find at here...");
+
+		}
+
+		List<CaseResponse> response = getCaseResponseFromCaseList(list.getContent());
+	
+
+		String nextUrl = null;
+
+		if (list.hasNext()) {
+
+			nextUrl = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", list.getNumber() + 1)
+					.replaceQueryParam("size", list.getSize()).toString();
+
+		}
+
+		String previousUrl = null;
+
+		if (list.hasPrevious()) {
+
+			previousUrl = ServletUriComponentsBuilder.fromCurrentRequest()
+					.replaceQueryParam("page", list.getNumber() - 1)
+					.replaceQueryParam("size", list.getSize()).toString();
+
+		}
+
+		CaseListResponseDTO dtoResponses = new CaseListResponseDTO(response, list.getNumber(),
+				list.getSize(), list.getTotalElements(), nextUrl, previousUrl);
+
+		return dtoResponses;
+		
+		
 	}
 
 }

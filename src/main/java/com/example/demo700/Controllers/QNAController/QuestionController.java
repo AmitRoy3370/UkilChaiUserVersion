@@ -13,6 +13,7 @@ import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -114,21 +115,6 @@ public class QuestionController {
 
 			return serveAttachment(attachmentId, "attachment");
 
-			/*
-			 * GridFSFile file = imageService.getFile(attachmentId);
-			 * 
-			 * if (file == null) { return
-			 * ResponseEntity.status(HttpStatus.NOT_FOUND).body("Image not found"); }
-			 * 
-			 * InputStream stream = imageService.getStream(file);
-			 * 
-			 * return
-			 * ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().
-			 * get("type").toString())) .header(HttpHeaders.CONTENT_DISPOSITION,
-			 * "attachment; filename=\"" + file.getFilename() + "\"") .body(new
-			 * InputStreamResource(stream));
-			 */
-
 		} catch (Exception e) {
 
 			return ResponseEntity.status(400).body(e.getMessage());
@@ -144,21 +130,6 @@ public class QuestionController {
 		try {
 
 			return serveAttachment(attachmentId, "inline");
-
-			/*
-			 * GridFSFile file = imageService.getFile(attachmentId);
-			 * 
-			 * if (file == null) { return
-			 * ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found"); }
-			 * 
-			 * InputStream stream = imageService.getStream(file);
-			 * 
-			 * return
-			 * ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getMetadata().
-			 * get("type").toString())) .header(HttpHeaders.CONTENT_DISPOSITION,
-			 * "inline; filename=\"" + file.getFilename() + "\"") .body(new
-			 * InputStreamResource(stream));
-			 */
 
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to load file");
@@ -290,6 +261,117 @@ public class QuestionController {
 		}
 	}
 
+	// =================================================================
+	// ================== PAGINATED ENDPOINTS ==========================
+	// =================================================================
+
+	/*
+	 * ------------------------------------------------- GET ALL QUESTIONS
+	 * PAGINATED -------------------------------------------------
+	 */
+	// GET /api/questions/all/paginated?page=0&size=10&sort=postTime,desc
+	@GetMapping("/all/paginated")
+	public ResponseEntity<?> getAllPaginated(Pageable pageable) {
+		try {
+			return ResponseEntity.ok(questionService.seeAll(pageable));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+
+	/*
+	 * ------------------------------------------------- FIND BY USER PAGINATED
+	 * -------------------------------------------------
+	 */
+	// GET /api/questions/user/paginated/{userId}?page=0&size=10
+	@GetMapping("/user/paginated/{userId}")
+	public ResponseEntity<?> findByUserPaginated(@PathVariable String userId, Pageable pageable) {
+		try {
+			return ResponseEntity.ok(questionService.findByUserId(userId, pageable));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+
+	/*
+	 * ------------------------------------------------- FIND BY MESSAGE KEYWORD
+	 * PAGINATED -------------------------------------------------
+	 */
+	// GET /api/questions/search/paginated?keyword=xyz&page=0&size=10
+	@GetMapping("/search/paginated")
+	public ResponseEntity<?> searchPaginated(@RequestParam("keyword") String keyword, Pageable pageable) {
+		try {
+			return ResponseEntity.ok(questionService.findByMessageContainingIgnoreCase(keyword, pageable));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+
+	/*
+	 * ------------------------------------------------- FIND BY QUESTION TYPE
+	 * PAGINATED -------------------------------------------------
+	 */
+	// GET /api/questions/type/paginated/{type}?page=0&size=10
+	@GetMapping("/type/paginated/{type}")
+	public ResponseEntity<?> findByTypePaginated(@PathVariable AdvocateSpeciality type, Pageable pageable) {
+		try {
+			return ResponseEntity.ok(questionService.findByQuestionType(type, pageable));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+
+	/*
+	 * ------------------------------------------------- FIND BY TIME RANGE PAGINATED
+	 * -------------------------------------------------
+	 */
+	// GET /api/questions/between/paginated?start=...&end=...&page=0&size=10
+	@GetMapping("/between/paginated")
+	public ResponseEntity<?> findBetweenPaginated(@RequestParam Instant start, @RequestParam Instant end,
+			Pageable pageable) {
+		try {
+			return ResponseEntity.ok(questionService.findByPostTimeBetween(start, end, pageable));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+
+	// GET /api/questions/after/paginated?time=...&page=0&size=10
+	@GetMapping("/after/paginated")
+	public ResponseEntity<?> findAfterPaginated(@RequestParam Instant time, Pageable pageable) {
+
+		try {
+
+			return ResponseEntity.status(200).body(questionService.findByPostTimeAfter(time, pageable));
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(400).body(e.getMessage());
+
+		}
+
+	}
+
+	// GET /api/questions/before/paginated?time=...&page=0&size=10
+	@GetMapping("/before/paginated")
+	public ResponseEntity<?> findBeforePaginated(@RequestParam Instant time, Pageable pageable) {
+
+		try {
+
+			return ResponseEntity.status(200).body(questionService.findByPostTimeBefore(time, pageable));
+
+		} catch (Exception e) {
+
+			return ResponseEntity.status(400).body(e.getMessage());
+
+		}
+
+	}
+
+	// =================================================================
+	// ================== ATTACHMENT SERVE HELPER ======================
+	// =================================================================
+
 	private ResponseEntity<?> serveAttachment(String attachmentId, String dispositionType) {
 		try {
 			Path filePath = rootPath.resolve(attachmentId);
@@ -327,7 +409,7 @@ public class QuestionController {
 				Files.copy(dbStream, filePath, StandardCopyOption.REPLACE_EXISTING);
 			}
 
-			// এবার নতুন তৈরি হওয়া লোকাল ক্যাশ ফাইল থেকে রেসপন্স রিটার্ন করা
+			// এবার নতুন তৈরি হওয়া লোকাল ক্যাশ ফাইল থেকে রেসপন্স রিটার্ন করা
 			InputStream cachedStream = new FileInputStream(localFile);
 
 			return ResponseEntity.ok().contentType(MediaType.parseMediaType(mimeType))

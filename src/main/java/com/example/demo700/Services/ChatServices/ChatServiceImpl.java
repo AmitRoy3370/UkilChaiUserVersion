@@ -78,9 +78,9 @@ public class ChatServiceImpl implements ChatService {
 		}
 
 		User sender = null;
-		
+
 		User receiver = null;
-		
+
 		try {
 
 			sender = userRepository.findById(message.getSender()).get();
@@ -125,7 +125,7 @@ public class ChatServiceImpl implements ChatService {
 		destinations.add("ChatScreen");
 
 		Map<String, String> map = new HashMap<>();
-		
+
 		map.put("currentUser", message.getReceiver());
 		map.put("otherUser", message.getSender());
 		map.put("myName", receiver.getFullName() == null ? receiver.getName() : receiver.getFullName());
@@ -223,7 +223,7 @@ public class ChatServiceImpl implements ChatService {
 
 		// Update message
 		message.setContent(newContent);
-		message.setTimeStamp(Instant.now()); // update timestamp for last edit
+		//message.setTimeStamp(Instant.now()); // update timestamp for last edit
 
 		ChatMessage updated = chatMessageRepository.save(message);
 
