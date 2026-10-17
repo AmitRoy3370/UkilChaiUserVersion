@@ -12,8 +12,11 @@ import com.example.demo700.Model.AdminModels.Admin;
 import com.example.demo700.Model.AdminModels.AdminJoinRequest;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
+import com.example.demo700.Model.AdvocateModels.AdvocateAdditionalInfo;
+import com.example.demo700.Model.AdvocateModels.AdvocateDocuments;
 import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
 import com.example.demo700.Model.AdvocateModels.AdvocatePost;
+import com.example.demo700.Model.AdvocateModels.AdvocateWorkingExperience;
 import com.example.demo700.Model.CaseModels.AppealCase;
 import com.example.demo700.Model.CaseModels.AppealHearings;
 import com.example.demo700.Model.CaseModels.Case;
@@ -69,8 +72,11 @@ import com.example.demo700.Model.VatModels.VatRegistrationProcess;
 import com.example.demo700.Repositories.AdminRepositories.AdminJoinRequestRepository;
 import com.example.demo700.Repositories.AdminRepositories.AdminRepository;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
+import com.example.demo700.Repositories.AdvocateRepositories.AdvocateAdditionalDocumentsRepository;
+import com.example.demo700.Repositories.AdvocateRepositories.AdvocateDocumentsRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateJoinRequestRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
+import com.example.demo700.Repositories.AdvocateRepositories.AdvocateWorkingExperienceRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.PostRepository;
 import com.example.demo700.Repositories.CaseRepositories.AppealHearingRepository;
 import com.example.demo700.Repositories.CaseRepositories.CaseAppealRepository;
@@ -165,6 +171,15 @@ public class Cleaner {
 
 	@Autowired
 	private PostRepository advocatePostRepository;
+
+	@Autowired
+	private AdvocateWorkingExperienceRepository advocateWorkingExperienceRepository;
+
+	@Autowired
+	private AdvocateDocumentsRepository advocateDocumentsRepository;
+
+	@Autowired
+	private AdvocateAdditionalDocumentsRepository advocateAdditionalInfoRepository;
 
 	@Autowired
 	private QuestionRepository questionRepository;
@@ -1009,7 +1024,58 @@ public class Cleaner {
 
 					try {
 
-						List<RJSCRegistrationProcess> list = rjscRegistrationProcessRepository.findByAdvocateId(advocate.getId());
+						AdvocateWorkingExperience experience = advocateWorkingExperienceRepository
+								.findByAdvocateId(advocate.getId());
+
+						if (experience == null) {
+
+							throw new Exception();
+
+						}
+
+						removeAdvocateWorkingExperience(experience.getId());
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
+						AdvocateDocuments documents = advocateDocumentsRepository.findByAdvocateId(advocate.getId());
+
+						if (documents == null) {
+
+							throw new Exception();
+
+						}
+
+						removeAdvocateDocuments(documents.getId());
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
+						AdvocateAdditionalInfo info = advocateAdditionalInfoRepository
+								.findByAdvocateId(advocate.getId());
+
+						if (info == null) {
+
+							throw new Exception();
+
+						}
+
+						removeAdvocateAdditionalInfo(info.getId());
+
+					} catch (Exception e) {
+
+					}
+
+					try {
+
+						List<RJSCRegistrationProcess> list = rjscRegistrationProcessRepository
+								.findByAdvocateId(advocate.getId());
 
 						for (RJSCRegistrationProcess i : list) {
 
@@ -1020,7 +1086,7 @@ public class Cleaner {
 					} catch (Exception e) {
 
 					}
-					
+
 					try {
 
 						List<VatRegistrationProcess> list = vatRegistrationProcessRepository
@@ -3385,6 +3451,97 @@ public class Cleaner {
 			rjscPaymentRepository.deleteById(id);
 
 			if (count != rjscPaymentRepository.count()) {
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeAdvocateWorkingExperience(String id) {
+
+		try {
+
+			AdvocateWorkingExperience advocateWorkingExperience = advocateWorkingExperienceRepository.findById(id)
+					.get();
+
+			if (advocateWorkingExperience != null) {
+
+				long count = advocateWorkingExperienceRepository.count();
+
+				advocateWorkingExperienceRepository.deleteById(id);
+
+				if (count != advocateWorkingExperienceRepository.count()) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeAdvocateDocuments(String id) {
+
+		try {
+
+			AdvocateDocuments documents = advocateDocumentsRepository.findById(id).get();
+
+			if (documents == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = advocateDocumentsRepository.count();
+
+			advocateDocumentsRepository.deleteById(id);
+
+			if (count != advocateDocumentsRepository.count()) {
+
+				List<String> list = documents.getAttachments();
+
+				for (String i : list) {
+
+					try {
+
+						imageService.delete(i);
+
+					} catch (Exception e) {
+
+					}
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeAdvocateAdditionalInfo(String id) {
+
+		try {
+
+			AdvocateAdditionalInfo info = advocateAdditionalInfoRepository.findById(id).get();
+
+			if (info == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = advocateAdditionalInfoRepository.count();
+
+			advocateAdditionalInfoRepository.deleteById(id);
+
+			if (count != advocateAdditionalInfoRepository.count()) {
 
 			}
 

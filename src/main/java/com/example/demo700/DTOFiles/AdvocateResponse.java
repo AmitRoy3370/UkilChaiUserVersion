@@ -6,6 +6,9 @@ import java.util.Set;
 
 import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.ENums.Gender;
+import com.example.demo700.Model.AdvocateModels.AdvocateAdditionalInfo;
+import com.example.demo700.Model.AdvocateModels.AdvocateDocuments;
+import com.example.demo700.Model.AdvocateModels.AdvocateWorkingExperience;
 
 public class AdvocateResponse implements Serializable {
 
@@ -39,6 +42,12 @@ public class AdvocateResponse implements Serializable {
 	private String locationName;
 
 	private double lattitude, longitude;
+	
+	private AdvocateWorkingExperience workingExperience;
+	
+	private AdvocateDocuments advocateDocuments;
+	
+	private AdvocateAdditionalInfo additionalInfo;
 
 	public AdvocateResponse(String id, String contactInfoId, String locationId, String userGenderId, String district,
 			String userId, String name, String fullName, String profileImageId,
@@ -67,6 +76,40 @@ public class AdvocateResponse implements Serializable {
 		this.locationName = locationName;
 		this.lattitude = lattitude;
 		this.longitude = longitude;
+	}
+
+	public AdvocateResponse(String id, String contactInfoId, String locationId, String userGenderId, String district,
+			Gender gender, String userId, String name, String fullName, String profileImageId,
+			Set<AdvocateSpeciality> advocateSpeciality, int experience, String licenseKey, String cvHexKey,
+			double rating, String[] degrees, String[] workingExperiences, String email, String phone,
+			String locationName, double lattitude, double longitude, AdvocateWorkingExperience workingExperience,
+			AdvocateDocuments advocateDocuments, AdvocateAdditionalInfo additionalInfo) {
+		super();
+		this.id = id;
+		this.contactInfoId = contactInfoId;
+		this.locationId = locationId;
+		this.userGenderId = userGenderId;
+		this.district = district;
+		this.gender = gender;
+		this.userId = userId;
+		this.name = name;
+		this.fullName = fullName;
+		this.profileImageId = profileImageId;
+		this.advocateSpeciality = advocateSpeciality;
+		this.experience = experience;
+		this.licenseKey = licenseKey;
+		this.cvHexKey = cvHexKey;
+		this.rating = rating;
+		this.degrees = degrees;
+		this.workingExperiences = workingExperiences;
+		this.email = email;
+		this.phone = phone;
+		this.locationName = locationName;
+		this.lattitude = lattitude;
+		this.longitude = longitude;
+		this.workingExperience = workingExperience;
+		this.advocateDocuments = advocateDocuments;
+		this.additionalInfo = additionalInfo;
 	}
 
 	public AdvocateResponse(String id, String contactInfoId, String locationId, String userGenderId, String district,
@@ -355,6 +398,34 @@ public class AdvocateResponse implements Serializable {
 		this.gender = gender;
 	}
 
+	public AdvocateWorkingExperience getWorkingExperience() {
+		return workingExperience;
+	}
+
+	public void setWorkingExperience(AdvocateWorkingExperience workingExperience) {
+		this.workingExperience = workingExperience;
+	}
+
+	public AdvocateDocuments getAdvocateDocuments() {
+		return advocateDocuments;
+	}
+
+	public void setAdvocateDocuments(AdvocateDocuments advocateDocuments) {
+		this.advocateDocuments = advocateDocuments;
+	}
+
+	public AdvocateAdditionalInfo getAdditionalInfo() {
+		return additionalInfo;
+	}
+
+	public void setAdditionalInfo(AdvocateAdditionalInfo additionalInfo) {
+		this.additionalInfo = additionalInfo;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
 	@Override
 	public String toString() {
 		return "AdvocateResponse [id=" + id + ", contactInfoId=" + contactInfoId + ", locationId=" + locationId
@@ -364,7 +435,8 @@ public class AdvocateResponse implements Serializable {
 				+ licenseKey + ", cvHexKey=" + cvHexKey + ", rating=" + rating + ", degrees=" + Arrays.toString(degrees)
 				+ ", workingExperiences=" + Arrays.toString(workingExperiences) + ", email=" + email + ", phone="
 				+ phone + ", locationName=" + locationName + ", lattitude=" + lattitude + ", longitude=" + longitude
-				+ "]";
+				+ ", workingExperience=" + workingExperience + ", advocateDocuments=" + advocateDocuments
+				+ ", additionalInfo=" + additionalInfo + "]";
 	}
 
 }

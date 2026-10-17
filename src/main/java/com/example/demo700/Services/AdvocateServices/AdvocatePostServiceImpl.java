@@ -65,9 +65,8 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	private static final String cacheValue = "AdvocatePost";
 
 	@Override
-	@Caching(evict = {
-			@CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "PostReaction", allEntries = true)})
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "PostReaction", allEntries = true) })
 	public AdvocatePost uploadPost(AdvocatePost advocatePost, String userId, MultipartFile file) {
 
 		if (advocatePost == null || userId == null) {
@@ -235,7 +234,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	@Cacheable(value = cacheValue, key = "'postTitle_' + #postTitle")
 	public List<PostResponse> findByPostTitle(String postTitle) {
 
-		if(postTitle == null) {
+		if (postTitle == null) {
 
 			throw new NullPointerException("False request....");
 
@@ -245,7 +244,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 			List<AdvocatePost> list = advocatePostRepository.findByPostTitleContainingIgnoreCase(postTitle);
 
-			if(list.isEmpty()) {
+			if (list.isEmpty()) {
 
 				throw new Exception();
 
@@ -253,7 +252,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 			return getPostResponseFromPostList(list);
 
-		} catch(Exception e) {
+		} catch (Exception e) {
 
 			throw new NoSuchElementException("No such post find at here...");
 
@@ -277,9 +276,8 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 
 	@Override
-	@Caching(evict = {
-			@CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "PostReaction", allEntries = true)})
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "PostReaction", allEntries = true) })
 	public AdvocatePost updateAdvocatePost(String postId, String userId, AdvocatePost advocatePost,
 			MultipartFile file) {
 
@@ -371,28 +369,21 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 	}
 
 	@Override
-	@Caching(evict = {
-			@CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "Admin", allEntries = true),
-			@CacheEvict(value = "Advocate", allEntries = true),
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Admin", allEntries = true), @CacheEvict(value = "Advocate", allEntries = true),
 			@CacheEvict(value = "AdvocateRating", allEntries = true),
 			@CacheEvict(value = "AdvocatePost", allEntries = true),
 			@CacheEvict(value = "ClientFeedback", allEntries = true),
 			@CacheEvict(value = "PostReaction", allEntries = true),
 			@CacheEvict(value = "AppealHearing", allEntries = true),
-			@CacheEvict(value = "CaseAppeal", allEntries = true),
-			@CacheEvict(value = "CaseClose", allEntries = true),
-			@CacheEvict(value = "CaseJudgement", allEntries = true),
-			@CacheEvict(value = "Case", allEntries = true),
+			@CacheEvict(value = "CaseAppeal", allEntries = true), @CacheEvict(value = "CaseClose", allEntries = true),
+			@CacheEvict(value = "CaseJudgement", allEntries = true), @CacheEvict(value = "Case", allEntries = true),
 			@CacheEvict(value = "CaseTracking", allEntries = true),
-			@CacheEvict(value = "DocumentDraft", allEntries = true),
-			@CacheEvict(value = "Hearing", allEntries = true),
-			@CacheEvict(value = "ReadStatus", allEntries = true),
-			@CacheEvict(value = "Answer", allEntries = true),
+			@CacheEvict(value = "DocumentDraft", allEntries = true), @CacheEvict(value = "Hearing", allEntries = true),
+			@CacheEvict(value = "ReadStatus", allEntries = true), @CacheEvict(value = "Answer", allEntries = true),
 			@CacheEvict(value = "Question", allEntries = true),
 			@CacheEvict(value = "PaymentDetails", allEntries = true),
-			@CacheEvict(value = "PostReaction", allEntries = true)
-	})
+			@CacheEvict(value = "PostReaction", allEntries = true) })
 	public boolean deleteAdvocatePost(String postId, String userId) {
 
 		if (postId == null || userId == null) {
@@ -401,9 +392,11 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 		}
 
+		AdvocatePost post = null;
+
 		try {
 
-			AdvocatePost post = advocatePostRepository.findById(postId).get();
+			post = advocatePostRepository.findById(postId).get();
 
 			if (post == null) {
 
@@ -433,11 +426,15 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 				if (centerAdmin != null) {
 
-					long count = advocatePostRepository.count();
+					if (centerAdmin.getAdvocates().contains(post.getAdvocateId())) {
 
-					cleaner.removePost(postId);
+						long count = advocatePostRepository.count();
 
-					return count != advocatePostRepository.count();
+						cleaner.removePost(postId);
+
+						return count != advocatePostRepository.count();
+
+					}
 
 				}
 
@@ -453,7 +450,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 
 			}
 
-			AdvocatePost post = advocatePostRepository.findById(postId).get();
+			post = advocatePostRepository.findById(postId).get();
 
 			if (post == null) {
 
@@ -589,7 +586,7 @@ public class AdvocatePostServiceImpl implements AdvocatePostService {
 				response.setId(post.getId());
 				response.setAdvocateId(post.getAdvocateId());
 				response.setPostType(post.getPostType());
-                                response.setPostTitle(post.getPostTitle());
+				response.setPostTitle(post.getPostTitle());
 
 				try {
 

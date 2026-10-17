@@ -24,13 +24,19 @@ import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.ENums.Gender;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
+import com.example.demo700.Model.AdvocateModels.AdvocateAdditionalInfo;
+import com.example.demo700.Model.AdvocateModels.AdvocateDocuments;
+import com.example.demo700.Model.AdvocateModels.AdvocateWorkingExperience;
 import com.example.demo700.Model.UserModels.AdvocateRating;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Model.UserModels.UserContactInfo;
 import com.example.demo700.Model.UserModels.UserGender;
 import com.example.demo700.Model.UserModels.UserLocation;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
+import com.example.demo700.Repositories.AdvocateRepositories.AdvocateAdditionalDocumentsRepository;
+import com.example.demo700.Repositories.AdvocateRepositories.AdvocateDocumentsRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
+import com.example.demo700.Repositories.AdvocateRepositories.AdvocateWorkingExperienceRepository;
 import com.example.demo700.Repositories.UserRepositories.AdvocateRatingRepository;
 import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
 import com.example.demo700.Repositories.UserRepositories.UserGenderRepository;
@@ -46,6 +52,15 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 	@Autowired
 	private AdvocateRepositories advocateRepository;
+
+	@Autowired
+	private AdvocateWorkingExperienceRepository workingExperienceRepository;
+
+	@Autowired
+	private AdvocateDocumentsRepository documentsRepository;
+
+	@Autowired
+	private AdvocateAdditionalDocumentsRepository infoRepository;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -569,10 +584,12 @@ public class AdvocateServiceImpl implements AdvocateService {
 			@CacheEvict(value = "CopyrightRegistrationProcess", allEntries = true),
 			@CacheEvict(value = "CopyrightPayment", allEntries = true), @CacheEvict(value = "Vat", allEntries = true),
 			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
-			@CacheEvict(value = "VatPayment", allEntries = true),
-			@CacheEvict(value = "RJSC", allEntries = true),
+			@CacheEvict(value = "VatPayment", allEntries = true), @CacheEvict(value = "RJSC", allEntries = true),
 			@CacheEvict(value = "RJSCRegistrationProcess", allEntries = true),
-			@CacheEvict(value = "RJSCPayment", allEntries = true),})
+			@CacheEvict(value = "RJSCPayment", allEntries = true),
+			@CacheEvict(value = "AdvocateWorkingExperience", allEntries = true),
+			@CacheEvict(value = "AdvocateAdditionalInfo", allEntries = true),
+			@CacheEvict(value = "AdvocateDocuments", allEntries = true) })
 
 	public boolean deleteAdvocate(String userId, String advocateId) {
 
@@ -622,9 +639,15 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 						return count != advocateRepository.count();
 
+					} else {
+
 					}
 
 				}
+
+			} catch (ArithmeticException e) {
+
+				throw new ArithmeticException("You can remove only your advocate....");
 
 			} catch (Exception e) {
 
@@ -784,6 +807,48 @@ public class AdvocateServiceImpl implements AdvocateService {
 				.supplyAsync(() -> genderRepository.findByUserIdIn(allUserId).stream()
 						.collect(Collectors.toMap(UserGender::getUserId, Function.identity())), executor);
 
+		CompletableFuture<Map<String, AdvocateWorkingExperience>> experienceMapFuture = allAdvocateId
+				.thenApplyAsync(advocatesId -> {
+
+					if (advocatesId.isEmpty()) {
+
+						return new HashMap<>();
+
+					}
+
+					return workingExperienceRepository.findByAdvocateIdIn(advocatesId).stream().filter(Objects::nonNull)
+							.collect(Collectors.toMap(AdvocateWorkingExperience::getAdvocateId, Function.identity()));
+
+				}, executor);
+
+		CompletableFuture<Map<String, AdvocateDocuments>> documentsMapFuture = allAdvocateId
+				.thenApplyAsync(advocatesId -> {
+
+					if (advocatesId.isEmpty()) {
+
+						return new HashMap<>();
+
+					}
+
+					return documentsRepository.findByAdvocateIdIn(advocatesId).stream().filter(Objects::nonNull)
+							.collect(Collectors.toMap(AdvocateDocuments::getAdvocateId, Function.identity()));
+
+				}, executor);
+
+		CompletableFuture<Map<String, AdvocateAdditionalInfo>> infoMapFuture = allAdvocateId
+				.thenApplyAsync(advocatesId -> {
+
+					if (advocatesId.isEmpty()) {
+
+						return new HashMap<>();
+
+					}
+
+					return infoRepository.findByAdvocateIdIn(advocatesId).stream().filter(Objects::nonNull)
+							.collect(Collectors.toMap(AdvocateAdditionalInfo::getAdvocateId, Function.identity()));
+
+				}, executor);
+
 		CompletableFuture<Map<String, List<AdvocateRating>>> advocateRatingMapFuture = allAdvocateId
 				.thenApplyAsync(allId -> {
 
@@ -822,13 +887,16 @@ public class AdvocateServiceImpl implements AdvocateService {
 				executor);
 
 		CompletableFuture.allOf(nameFuture, contactInfoFuture, locationFuture, allAdvocateId, advocateRatingMapFuture,
-				genderMapFuture).join();
+				genderMapFuture, experienceMapFuture, documentsMapFuture, infoMapFuture).join();
 
 		Map<String, User> userMap = nameFuture.join();
 		Map<String, UserContactInfo> contactMap = contactInfoFuture.join();
 		Map<String, UserLocation> locationMap = locationFuture.join();
 		Map<String, UserGender> genderMap = genderMapFuture.join();
 		Map<String, List<AdvocateRating>> advocateRatingMap = advocateRatingMapFuture.join();
+		Map<String, AdvocateWorkingExperience> experienceMap = experienceMapFuture.join();
+		Map<String, AdvocateDocuments> documentMap = documentsMapFuture.join();
+		Map<String, AdvocateAdditionalInfo> infoMap = infoMapFuture.join();
 
 		for (Advocate advocate : advocates) {
 
@@ -845,6 +913,36 @@ public class AdvocateServiceImpl implements AdvocateService {
 				response.setLicenseKey(advocate.getLicenseKey());
 				response.setUserId(advocate.getUserId());
 				response.setDistrict(advocate.getDistrict());
+
+			} catch (Exception e) {
+
+			}
+
+			try {
+
+				AdvocateWorkingExperience experience = experienceMap.get(advocate.getId());
+
+				response.setWorkingExperience(experience);
+
+			} catch (Exception e) {
+
+			}
+
+			try {
+
+				AdvocateDocuments documents = documentMap.get(advocate.getId());
+
+				response.setAdvocateDocuments(documents);
+
+			} catch (Exception e) {
+
+			}
+
+			try {
+
+				AdvocateAdditionalInfo info = infoMap.get(advocate.getId());
+
+				response.setAdditionalInfo(info);
 
 			} catch (Exception e) {
 

@@ -367,118 +367,114 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 		return caseTracking;
 	}
 
-@Override
-@Scheduled(cron = "0 0 0 * * *", zone = "Asia/Dhaka")
-public void processScheduledNotifications() {
+	@Override
+	@Scheduled(cron = "0 0 0 * * *", zone = "Asia/Dhaka")
+	public void processScheduledNotifications() {
 
-	try {
+		try {
 
-		ZoneId zone = ZoneId.of("Asia/Dhaka");
+			ZoneId zone = ZoneId.of("Asia/Dhaka");
 
-		// "Today" as a Dhaka-local midnight Instant (not UTC)
-		Instant today = LocalDate.now(zone).atStartOfDay(zone).toInstant();
+			// "Today" as a Dhaka-local midnight Instant (not UTC)
+			Instant today = LocalDate.now(zone).atStartOfDay(zone).toInstant();
 
-		// Fetch all trackings whose time is within the last 3 days (safety range)
-		List<CaseTracking> list = caseTrackingRepository
-				.findByTrackingTimeAfter(today.minus(3, ChronoUnit.DAYS));
+			// Fetch all trackings whose time is within the last 3 days (safety range)
+			List<CaseTracking> list = caseTrackingRepository.findByTrackingTimeAfter(today.minus(3, ChronoUnit.DAYS));
 
-		if (list == null || list.isEmpty()) {
+			if (list == null || list.isEmpty()) {
+				return;
+			}
+
+			for (CaseTracking tracking : list) {
+
+				try {
+
+					if (tracking == null || tracking.getTrackingTime() == null || !tracking.isVisibility()) {
+						continue;
+					}
+
+					// Normalize tracking time to Dhaka-local midnight
+					Instant trackingDay = tracking.getTrackingTime().atZone(zone).toLocalDate().atStartOfDay(zone)
+							.toInstant();
+
+					Instant oneDayBefore = trackingDay.minus(1, ChronoUnit.DAYS);
+					Instant twoDaysBefore = trackingDay.minus(2, ChronoUnit.DAYS);
+
+					// Send only when today == tracking day, 1 day before, or 2 days before
+					if (today.equals(trackingDay) || today.equals(oneDayBefore) || today.equals(twoDaysBefore)) {
+						sendTrackingAlert(tracking);
+					}
+
+				} catch (Exception inner) {
+					// One bad record must not kill the whole batch
+					inner.printStackTrace();
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void sendTrackingAlert(CaseTracking tracking) {
+
+		if (tracking == null || !tracking.isVisibility()) {
 			return;
 		}
 
-		for (CaseTracking tracking : list) {
+		Case _case = caseRepository.findById(tracking.getCaseId()).orElse(null);
 
-			try {
-
-				if (tracking == null || tracking.getTrackingTime() == null || !tracking.isVisibility()) {
-					continue;
-				}
-
-				// Normalize tracking time to Dhaka-local midnight
-				Instant trackingDay = tracking.getTrackingTime()
-						.atZone(zone)
-						.toLocalDate()
-						.atStartOfDay(zone)
-						.toInstant();
-
-				Instant oneDayBefore = trackingDay.minus(1, ChronoUnit.DAYS);
-				Instant twoDaysBefore = trackingDay.minus(2, ChronoUnit.DAYS);
-
-				// Send only when today == tracking day, 1 day before, or 2 days before
-				if (today.equals(trackingDay) || today.equals(oneDayBefore) || today.equals(twoDaysBefore)) {
-					sendTrackingAlert(tracking);
-				}
-
-			} catch (Exception inner) {
-				// One bad record must not kill the whole batch
-				inner.printStackTrace();
-			}
+		if (_case == null) {
+			return;
 		}
 
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
-}
+		User caseUser = userRepository.findById(_case.getUserId()).orElse(null);
 
-private void sendTrackingAlert(CaseTracking tracking) {
-
-	if (tracking == null || !tracking.isVisibility()) {
-		return;
-	}
-
-	Case _case = caseRepository.findById(tracking.getCaseId()).orElse(null);
-
-	if (_case == null) {
-		return;
-	}
-
-	User caseUser = userRepository.findById(_case.getUserId()).orElse(null);
-
-	if (caseUser == null) {
-		return;
-	}
-
-	// Advocate info
-	String advocateName = null;
-	String advocateUserId = null;
-
-	try {
-		Advocate advocate = advocateRepository.findById(_case.getAdvocateId()).orElse(null);
-		if (advocate != null) {
-			advocateUserId = advocate.getUserId();
-			User advUser = userRepository.findById(advocate.getUserId()).orElse(null);
-			if (advUser != null) {
-				advocateName = advUser.getFullName() == null ? advUser.getName() : advUser.getFullName();
-			}
+		if (caseUser == null) {
+			return;
 		}
-	} catch (Exception e) {
+
+		// Advocate info
+		String advocateName = null;
+		String advocateUserId = null;
+
+		try {
+			Advocate advocate = advocateRepository.findById(_case.getAdvocateId()).orElse(null);
+			if (advocate != null) {
+				advocateUserId = advocate.getUserId();
+				User advUser = userRepository.findById(advocate.getUserId()).orElse(null);
+				if (advUser != null) {
+					advocateName = advUser.getFullName() == null ? advUser.getName() : advUser.getFullName();
+				}
+			}
+		} catch (Exception e) {
+		}
+
+		List<String> destinations = new ArrayList<>();
+		destinations.add("CaseRelatedPages");
+		destinations.add("CaseDetailsPage");
+
+		Map<String, String> map = new HashMap<>();
+		map.put("userId", _case.getUserId());
+		map.put("caseId", _case.getId());
+		map.put("caseName", _case.getCaseName());
+		map.put("advocateId", _case.getAdvocateId());
+		map.put("issuedTime", _case.getIssuedTime() != null ? _case.getIssuedTime().toString() : "");
+		map.put("caseLawyer", advocateName);
+		map.put("advocateUserId", advocateUserId);
+		map.put("userName", caseUser.getFullName());
+
+		String message = "Hi " + caseUser.getName() + ", your case " + _case.getCaseName() + "'s "
+				+ tracking.getCaseStage() + " stage will be organized at " + tracking.getTrackingTime();
+
+		// 📩 Notification
+		notificationService.sendNotification(caseUser.getId(), message, destinations, map);
+
+		// 💬 Chat — from advocate user to case user
+		if (advocateUserId != null) {
+			chatService.saveMessage(new ChatMessage(advocateUserId, caseUser.getId(), message));
+		}
 	}
-
-	List<String> destinations = new ArrayList<>();
-	destinations.add("CaseRelatedPages");
-	destinations.add("CaseDetailsPage");
-
-	Map<String, String> map = new HashMap<>();
-	map.put("userId", _case.getUserId());
-	map.put("caseId", _case.getId());
-	map.put("caseName", _case.getCaseName());
-	map.put("advocateId", _case.getAdvocateId());
-	map.put("issuedTime", _case.getIssuedTime() != null ? _case.getIssuedTime().toString() : "");
-	map.put("caseLawyer", advocateName);
-	map.put("advocateUserId", advocateUserId);
-	map.put("userName", caseUser.getFullName());
-
-	String message = "Hi " + caseUser.getName() + ", your case " + _case.getCaseName() + "'s "
-			+ tracking.getCaseStage() + " stage will be organized at " + tracking.getTrackingTime();
-
-	// 📩 Notification
-	notificationService.sendNotification(caseUser.getId(), message, destinations, map);
-
-	// 💬 Chat — from advocate user to case user
-	if (advocateUserId != null) {
-		chatService.saveMessage(new ChatMessage(advocateUserId, caseUser.getId(), message));
-	}
-}
 
 	@Override
 	@CacheEvict(value = cacheValue, allEntries = true)

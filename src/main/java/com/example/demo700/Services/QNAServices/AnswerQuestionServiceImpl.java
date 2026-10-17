@@ -62,7 +62,7 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 
 	@Autowired
 	private Cleaner cleaner;
-	
+
 	private static final String cacheValue = "Answer";
 
 	@Override
@@ -484,11 +484,15 @@ public class AnswerQuestionServiceImpl implements AnswerQuestionService {
 
 				if (centerAdmin != null) {
 
-					long count = answerRepository.count();
+					if (centerAdmin.getAdvocates().contains(answer.getAdvocateId())) {
 
-					cleaner.removeAnswer(answerId);
+						long count = answerRepository.count();
 
-					return count != answerRepository.count();
+						cleaner.removeAnswer(answerId);
+
+						return count != answerRepository.count();
+
+					}
 
 				}
 

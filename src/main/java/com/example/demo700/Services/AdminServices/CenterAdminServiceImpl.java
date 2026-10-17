@@ -493,7 +493,10 @@ public class CenterAdminServiceImpl implements CenterAdminService {
 			@CacheEvict(value = "VatPayment", allEntries = true),
 			@CacheEvict(value = "RJSC", allEntries = true),
 			@CacheEvict(value = "RJSCRegistrationProcess", allEntries = true),
-			@CacheEvict(value = "RJSCPayment", allEntries = true),})
+			@CacheEvict(value = "RJSCPayment", allEntries = true),
+			@CacheEvict(value = "AdvocateWorkingExperience", allEntries = true),
+			@CacheEvict(value = "AdvocateAdditionalInfo", allEntries = true),
+			@CacheEvict(value = "AdvocateDocuments", allEntries = true)})
 	public boolean removeCentralAdmin(String centerAdminId, String userId) {
 
 		if (centerAdminId == null || userId == null) {

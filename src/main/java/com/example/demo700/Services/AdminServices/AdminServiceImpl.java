@@ -45,10 +45,10 @@ public class AdminServiceImpl implements AdminService {
 	@Autowired
 	private Cleaner cleaner;
 
-	private static final String cacheValue="Admin";
+	private static final String cacheValue = "Admin";
 
 	@Override
-	@CacheEvict(value=cacheValue, allEntries = true)
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public Admin addAdmin(Admin admin, String userId) {
 
 		if (admin == null || userId == null) {
@@ -127,7 +127,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	@Cacheable(value=cacheValue, key="'seeAll'")
+	@Cacheable(value = cacheValue, key = "'seeAll'")
 	public List<AdminDTO> seeAll() {
 
 		List<Admin> list = adminRepository.findAll();
@@ -142,7 +142,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	@Cacheable(value=cacheValue, key="#userId")
+	@Cacheable(value = cacheValue, key = "#userId")
 	public AdminDTO findByUserId(String userId) {
 
 		if (userId == null) {
@@ -172,7 +172,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	@Cacheable(value=cacheValue, key="#advocateSpeciality")
+	@Cacheable(value = cacheValue, key = "#advocateSpeciality")
 	public List<AdminDTO> findByAdvocateSpecialityContainingIgnoreCase(String advocateSpeciality) {
 
 		if (advocateSpeciality == null) {
@@ -202,7 +202,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	@Cacheable(value=cacheValue, key="'SeeAllFromList_' + #list")
+	@Cacheable(value = cacheValue, key = "'SeeAllFromList_' + #list")
 	public List<AdminDTO> seeAll(List<String> list) {
 
 		List<Admin> admins = adminRepository.findAllById(list);
@@ -212,7 +212,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	@CacheEvict(value=cacheValue, allEntries = true)
+	@CacheEvict(value = cacheValue, allEntries = true)
 	public Admin updateAdmin(Admin admin, String userId, String adminId) {
 
 		if (admin == null || userId == null || adminId == null) {
@@ -301,11 +301,8 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	@Caching(evict = {
-			@CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "Advocate", allEntries = true),
-			@CacheEvict(value = "CenterAdmin", allEntries = true)
-	})
+	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "Advocate", allEntries = true), @CacheEvict(value = "CenterAdmin", allEntries = true) })
 	public boolean deleteAdmin(String adminId, String userId) {
 
 		if (adminId == null || userId == null) {
@@ -330,14 +327,30 @@ public class AdminServiceImpl implements AdminService {
 
 				if (centerAdmin != null) {
 
-					long count = adminRepository.count();
+					if (centerAdmin.getAdmins().contains(admin.getId())) {
 
-					cleaner.removeAdmin(adminId);
+						long count = adminRepository.count();
 
-					return adminRepository.count() != count;
+						cleaner.removeAdmin(adminId);
+
+						return adminRepository.count() != count;
+
+					} else {
+						
+						if (!admin.getUserId().equals(userId)) {
+
+							throw new ArithmeticException();
+
+						}
+						
+					}
 
 				}
 
+			} catch(ArithmeticException e) {
+				
+				throw new ArithmeticException("You can remove your admin only...");
+				
 			} catch (Exception e) {
 
 			}
@@ -416,7 +429,7 @@ public class AdminServiceImpl implements AdminService {
 
 					adminDTO.setProfileImageId(userMap.get(admin.getUserId()).getProfileImageId());
 
-				} catch(Exception e) {
+				} catch (Exception e) {
 
 				}
 
