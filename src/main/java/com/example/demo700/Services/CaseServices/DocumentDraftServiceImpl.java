@@ -2,8 +2,16 @@ package com.example.demo700.Services.CaseServices;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -15,9 +23,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.bson.types.ObjectId;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.DocumentDraftResponse;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.CaseModels.DocumentDraft;
+import com.example.demo700.Model.CaseModels.Hearing;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
@@ -52,7 +62,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 	private Cleaner cleaner;
 
 	private static final String cacheValue = "DocumentDraft";
-	
+
 	@Override
 	@CacheEvict(value = cacheValue, allEntries = true)
 	public DocumentDraft addDocumentDraft(DocumentDraft documentDraft, String userId, MultipartFile files[]) {
@@ -388,7 +398,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByAdvocateId_' + #advocateId")
-	public List<DocumentDraft> findByAdvocateId(String advocateId) {
+	public List<DocumentDraftResponse> findByAdvocateId(String advocateId) {
 
 		if (advocateId == null) {
 
@@ -406,7 +416,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 			}
 
-			return drafts;
+			return getDocumentDraftResponse(drafts);
 
 		} catch (Exception e) {
 
@@ -418,7 +428,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCaseId_' + #caseId")
-	public DocumentDraft findByCaseId(String caseId) {
+	public DocumentDraftResponse findByCaseId(String caseId) {
 
 		if (caseId == null) {
 
@@ -436,7 +446,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 			}
 
-			return draft;
+			return getDocumentDraftResponse(draft);
 
 		} catch (Exception e) {
 
@@ -448,7 +458,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByIssuedDateAfter_' + #issuedDate")
-	public List<DocumentDraft> findByIssuedDateAfter(Instant issuedDate) {
+	public List<DocumentDraftResponse> findByIssuedDateAfter(Instant issuedDate) {
 
 		if (issuedDate == null) {
 
@@ -466,7 +476,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 			}
 
-			return drafts;
+			return getDocumentDraftResponse(drafts);
 
 		} catch (Exception e) {
 
@@ -478,7 +488,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByIssuedDateBefore_' + #issuedDate")
-	public List<DocumentDraft> findByIssuedDateBefore(Instant issuedDate) {
+	public List<DocumentDraftResponse> findByIssuedDateBefore(Instant issuedDate) {
 
 		if (issuedDate == null) {
 
@@ -496,7 +506,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 			}
 
-			return drafts;
+			return getDocumentDraftResponse(drafts);
 
 		} catch (Exception e) {
 
@@ -508,7 +518,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findAll'")
-	public List<DocumentDraft> seeAll() {
+	public List<DocumentDraftResponse> seeAll() {
 
 		try {
 
@@ -520,7 +530,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 			}
 
-			return drafts;
+			return getDocumentDraftResponse(drafts);
 
 		} catch (Exception e) {
 
@@ -532,7 +542,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findById_' + #id")
-	public DocumentDraft findById(String id) {
+	public DocumentDraftResponse findById(String id) {
 
 		if (id == null) {
 
@@ -550,7 +560,7 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 
 			}
 
-			return draft;
+			return getDocumentDraftResponse(draft);
 
 		} catch (Exception e) {
 
@@ -561,22 +571,17 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 	}
 
 	@Override
-	@Caching(evict = {
-			@CacheEvict(value = "AdvocateRating", allEntries = true),
+	@Caching(evict = { @CacheEvict(value = "AdvocateRating", allEntries = true),
 			@CacheEvict(value = cacheValue, allEntries = true),
 			@CacheEvict(value = "ClientFeedback", allEntries = true),
 			@CacheEvict(value = "PostReaction", allEntries = true),
 			@CacheEvict(value = "AppealHearing", allEntries = true),
-			@CacheEvict(value = "CaseAppeal", allEntries = true),
-			@CacheEvict(value = "CaseClose", allEntries = true),
-			@CacheEvict(value = "CaseJudgement", allEntries = true),
-			@CacheEvict(value = "Case", allEntries = true),
+			@CacheEvict(value = "CaseAppeal", allEntries = true), @CacheEvict(value = "CaseClose", allEntries = true),
+			@CacheEvict(value = "CaseJudgement", allEntries = true), @CacheEvict(value = "Case", allEntries = true),
 			@CacheEvict(value = "CaseTracking", allEntries = true),
-			//@CacheEvict(value = "DocumentDraft", allEntries = true),
-			@CacheEvict(value = "Hearing", allEntries = true),
-			@CacheEvict(value = "ReadStatus", allEntries = true),
-			@CacheEvict(value = "PaymentDetails", allEntries = true)
-			})
+			// @CacheEvict(value = "DocumentDraft", allEntries = true),
+			@CacheEvict(value = "Hearing", allEntries = true), @CacheEvict(value = "ReadStatus", allEntries = true),
+			@CacheEvict(value = "PaymentDetails", allEntries = true) })
 	public boolean removeDocumentDraft(String id, String userId) {
 
 		if (id == null || userId == null) {
@@ -654,6 +659,78 @@ public class DocumentDraftServiceImpl implements DocumentDraftService {
 		cleaner.removeDocumentDraft(id);
 
 		return count != documentDraftRepository.count();
+	}
+
+	private ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+
+	private DocumentDraftResponse getDocumentDraftResponse(DocumentDraft documentDraft) {
+
+		List<DocumentDraft> list = new ArrayList<>();
+
+		list.add(documentDraft);
+
+		return getDocumentDraftResponse(list).get(0);
+
+	}
+
+	private List<DocumentDraftResponse> getDocumentDraftResponse(List<DocumentDraft> list) {
+
+		List<DocumentDraftResponse> responses = new ArrayList<>();
+
+		CompletableFuture<List<String>> caseIdFuture = CompletableFuture.supplyAsync(() -> list.stream().distinct()
+				.filter(Objects::nonNull).map(DocumentDraft::getCaseId).collect(Collectors.toList()), executor);
+
+		CompletableFuture<Map<String, Case>> caseMapFuture = caseIdFuture.thenApplyAsync(casesId -> {
+
+			if (casesId == null || casesId.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return caseRepository.findAllById(casesId).stream()
+					.collect(Collectors.toMap(Case::getId, Function.identity()));
+
+		}, executor);
+
+		CompletableFuture.allOf(caseIdFuture, caseMapFuture).join();
+
+		Map<String, Case> caseMap = caseMapFuture.join();
+
+		for (DocumentDraft draft : list) {
+
+			try {
+
+				DocumentDraftResponse response = new DocumentDraftResponse();
+
+				response.setId(draft.getId());
+				response.setAdvocateId(draft.getAdvocateId());
+				response.setAttachmentsId(draft.getAttachmentsId());
+				response.setCaseId(draft.getCaseId());
+				response.setIssuedDate(draft.getIssuedDate());
+
+				try {
+
+					response.setDocumentDraftedCase(caseMap.get(draft.getCaseId()));
+
+				} catch (Exception e) {
+
+					System.out.println(e.getMessage());
+
+				}
+
+				responses.add(response);
+
+			} catch (Exception e) {
+
+				System.out.println(e.getMessage());
+
+			}
+
+		}
+
+		return responses;
+
 	}
 
 }

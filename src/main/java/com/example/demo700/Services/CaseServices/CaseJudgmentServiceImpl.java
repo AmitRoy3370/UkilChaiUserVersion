@@ -1,8 +1,17 @@
 package com.example.demo700.Services.CaseServices;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -12,10 +21,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.CaseJudgementResponse;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.CaseModels.Case;
 import com.example.demo700.Model.CaseModels.CaseJudgment;
+import com.example.demo700.Model.CaseModels.DocumentDraft;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
@@ -361,7 +372,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCaseId_' + #caseId")
-	public CaseJudgment findByCaseId(String caseId) {
+	public CaseJudgementResponse findByCaseId(String caseId) {
 
 		try {
 
@@ -373,7 +384,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 
 			}
 
-			return caseJudgment;
+			return getCaseJudgementResponse(caseJudgment);
 
 		} catch (Exception e) {
 
@@ -384,7 +395,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByResult_' + #result")
-	public List<CaseJudgment> findByResultContainingIgnoreCase(String result) {
+	public List<CaseJudgementResponse> findByResultContainingIgnoreCase(String result) {
 
 		if (result == null) {
 
@@ -402,7 +413,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 
 			}
 
-			return list;
+			return getCaseJudgementResponse(list);
 
 		} catch (Exception e) {
 
@@ -413,7 +424,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByDateAfter_' + #date")
-	public List<CaseJudgment> findByDateAfter(Instant date) {
+	public List<CaseJudgementResponse> findByDateAfter(Instant date) {
 
 		if (date == null) {
 
@@ -431,7 +442,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 
 			}
 
-			return list;
+			return getCaseJudgementResponse(list);
 
 		} catch (Exception e) {
 
@@ -443,7 +454,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByDateBefore_' + #date")
-	public List<CaseJudgment> findByDateBefore(Instant date) {
+	public List<CaseJudgementResponse> findByDateBefore(Instant date) {
 
 		if (date == null) {
 
@@ -461,7 +472,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 
 			}
 
-			return list;
+			return getCaseJudgementResponse(list);
 
 		} catch (Exception e) {
 
@@ -473,7 +484,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findAll'")
-	public List<CaseJudgment> findAll() {
+	public List<CaseJudgementResponse> findAll() {
 
 		try {
 
@@ -485,7 +496,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 
 			}
 
-			return list;
+			return getCaseJudgementResponse(list);
 
 		} catch (Exception e) {
 
@@ -497,7 +508,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findById_' + #id")
-	public CaseJudgment findById(String id) {
+	public CaseJudgementResponse findById(String id) {
 
 		if (id == null) {
 
@@ -515,7 +526,7 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 
 			}
 
-			return caseJudgment;
+			return getCaseJudgementResponse(caseJudgment);
 
 		} catch (Exception e) {
 
@@ -622,4 +633,77 @@ public class CaseJudgmentServiceImpl implements CaseJudgmentService {
 		return count != caseJudgmentRepository.count();
 	}
 
+	private ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+	
+	private CaseJudgementResponse getCaseJudgementResponse(CaseJudgment judgement) {
+		
+		List<CaseJudgment> list = new ArrayList<>();
+		
+		list.add(judgement);
+		
+		return getCaseJudgementResponse(list).get(0);
+		
+	}
+	
+	private List<CaseJudgementResponse> getCaseJudgementResponse(List<CaseJudgment> list) {
+		
+		List<CaseJudgementResponse> responses = new ArrayList<>();
+		
+
+		CompletableFuture<List<String>> caseIdFuture = CompletableFuture.supplyAsync(() -> list.stream().distinct()
+				.filter(Objects::nonNull).map(CaseJudgment::getCaseId).collect(Collectors.toList()), executor);
+
+		CompletableFuture<Map<String, Case>> caseMapFuture = caseIdFuture.thenApplyAsync(casesId -> {
+
+			if (casesId == null || casesId.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return caseRepository.findAllById(casesId).stream()
+					.collect(Collectors.toMap(Case::getId, Function.identity()));
+
+		}, executor);
+
+		CompletableFuture.allOf(caseIdFuture, caseMapFuture).join();
+
+		Map<String, Case> caseMap = caseMapFuture.join();
+		
+		for(CaseJudgment judgment : list) {
+			
+			try {
+				
+				CaseJudgementResponse response = new CaseJudgementResponse();
+				
+				response.setId(judgment.getId());
+				response.setCaseId(judgment.getCaseId());
+				response.setDate(judgment.getDate());
+				response.setJudgmentAttachmentId(judgment.getJudgmentAttachmentId());
+				response.setResult(judgment.getResult());
+				
+				try {
+
+					response.setJudgementCase(caseMap.get(judgment.getCaseId()));
+
+				} catch (Exception e) {
+
+					System.out.println(e.getMessage());
+
+				}
+				
+				responses.add(response);
+				
+			} catch(Exception e) {
+				
+				System.out.println(e.getMessage());
+				
+			}
+			
+		}
+		
+		return responses;
+		
+	}
+	
 }

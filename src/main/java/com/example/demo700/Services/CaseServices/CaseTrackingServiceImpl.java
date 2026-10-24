@@ -7,6 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -18,11 +22,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.CaseTrackingResponse;
 import com.example.demo700.ENums.CasePayment;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.CaseModels.Case;
 import com.example.demo700.Model.CaseModels.CaseTracking;
+import com.example.demo700.Model.CaseModels.Hearing;
 import com.example.demo700.Model.ChatModels.ChatMessage;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
@@ -478,7 +484,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 	@Override
 	@CacheEvict(value = cacheValue, allEntries = true)
-	public List<CaseTracking> swapOrder(String caseTrackingId1, String caseTrackingId2) {
+	public List<CaseTrackingResponse> swapOrder(String caseTrackingId1, String caseTrackingId2) {
 
 		if (caseTrackingId1 == null || caseTrackingId2 == null) {
 
@@ -541,7 +547,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 			list.add(caseTracking1);
 			list.add(caseTracking2);
 
-			return list;
+			return getCaseTrackingResponse(list);
 
 		} catch (Exception e) {
 
@@ -553,7 +559,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findAll'")
-	public List<CaseTracking> findAll() {
+	public List<CaseTrackingResponse> findAll() {
 
 		try {
 
@@ -565,7 +571,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 			}
 
-			return list;
+			return getCaseTrackingResponse(list);
 
 		} catch (Exception e) {
 
@@ -577,7 +583,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByVisibility_' + #visibility")
-	public List<CaseTracking> findByVisibility(boolean visibility) {
+	public List<CaseTrackingResponse> findByVisibility(boolean visibility) {
 
 		try {
 
@@ -589,7 +595,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 			}
 
-			return list;
+			return getCaseTrackingResponse(list);
 
 		} catch (Exception e) {
 
@@ -601,7 +607,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCaseId_' + #caseId")
-	public List<CaseTracking> findByCaseId(String caseId) {
+	public List<CaseTrackingResponse> findByCaseId(String caseId) {
 
 		if (caseId == null) {
 
@@ -619,7 +625,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 			}
 
-			return list;
+			return getCaseTrackingResponse(list);
 
 		} catch (Exception e) {
 
@@ -631,7 +637,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCasePayment_' + #caseStage")
-	public List<CaseTracking> findByCaseStage(CasePayment caseStage) {
+	public List<CaseTrackingResponse> findByCaseStage(CasePayment caseStage) {
 
 		if (caseStage == null) {
 
@@ -649,7 +655,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 			}
 
-			return list;
+			return getCaseTrackingResponse(list);
 
 		} catch (Exception e) {
 
@@ -661,7 +667,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCaseIdAndStageNumber_' + #caseId + '_' + #stageNumber")
-	public CaseTracking findByCaseIdAndStageNumber(String caseId, int stageNumber) {
+	public CaseTrackingResponse findByCaseIdAndStageNumber(String caseId, int stageNumber) {
 
 		if (caseId == null) {
 
@@ -679,7 +685,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 			}
 
-			return caseTracking;
+			return getCaseTrackingResponse(caseTracking);
 
 		} catch (Exception e) {
 
@@ -691,7 +697,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCaseIdAndCaseStage_' + #caseId + '_' + #caseStage")
-	public CaseTracking findByCaseIdAndCaseStage(String caseId, CasePayment caseStage) {
+	public CaseTrackingResponse findByCaseIdAndCaseStage(String caseId, CasePayment caseStage) {
 
 		if (caseId == null || caseStage == null) {
 
@@ -709,7 +715,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 			}
 
-			return caseTracking;
+			return getCaseTrackingResponse(caseTracking);
 
 		} catch (Exception e) {
 
@@ -721,7 +727,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCaseIdAndStageNumberGreaterThan_' + #caseId + '_' + #stageNumber")
-	public List<CaseTracking> findByCaseIdAndStageNumberGreaterThan(String caseId, int stageNumber) {
+	public List<CaseTrackingResponse> findByCaseIdAndStageNumberGreaterThan(String caseId, int stageNumber) {
 
 		if (caseId == null) {
 
@@ -739,7 +745,7 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 
 			}
 
-			return list;
+			return getCaseTrackingResponse(list);
 
 		} catch (Exception e) {
 
@@ -854,6 +860,79 @@ public class CaseTrackingServiceImpl implements CaseTrackingService {
 		cleaner.removeCaseTracking(id);
 
 		return caseTrackingRepository.count() != count;
+
+	}
+
+	private ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+
+	private CaseTrackingResponse getCaseTrackingResponse(CaseTracking caseTracking) {
+
+		List<CaseTracking> list = new ArrayList<>();
+
+		list.add(caseTracking);
+
+		return getCaseTrackingResponse(list).get(0);
+
+	}
+
+	private List<CaseTrackingResponse> getCaseTrackingResponse(List<CaseTracking> list) {
+
+		List<CaseTrackingResponse> responses = new ArrayList<>();
+
+		CompletableFuture<List<String>> caseIdFuture = CompletableFuture.supplyAsync(() -> list.stream().distinct()
+				.filter(Objects::nonNull).map(CaseTracking::getCaseId).collect(Collectors.toList()), executor);
+
+		CompletableFuture<Map<String, Case>> caseMapFuture = caseIdFuture.thenApplyAsync(casesId -> {
+
+			if (casesId == null || casesId.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return caseRepository.findAllById(casesId).stream()
+					.collect(Collectors.toMap(Case::getId, Function.identity()));
+
+		}, executor);
+
+		CompletableFuture.allOf(caseIdFuture, caseMapFuture).join();
+
+		Map<String, Case> caseMap = caseMapFuture.join();
+
+		for (CaseTracking tracking : list) {
+
+			try {
+
+				CaseTrackingResponse response = new CaseTrackingResponse();
+
+				response.setId(tracking.getId());
+				response.setCaseId(tracking.getCaseId());
+				response.setCaseStage(tracking.getCaseStage());
+				response.setStageNumber(tracking.getStageNumber());
+				response.setTrackingTime(tracking.getTrackingTime());
+				response.setVisibility(tracking.isVisibility());
+
+				try {
+
+					response.setTrackingCase(caseMap.get(tracking.getCaseId()));
+
+				} catch (Exception e) {
+
+					System.out.println(e.getMessage());
+
+				}
+
+				responses.add(response);
+
+			} catch (Exception e) {
+
+				System.out.println(e.getMessage());
+
+			}
+
+		}
+
+		return responses;
 
 	}
 

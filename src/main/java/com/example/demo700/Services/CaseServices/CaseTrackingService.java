@@ -2,6 +2,7 @@ package com.example.demo700.Services.CaseServices;
 
 import java.util.List;
 
+import com.example.demo700.DTOFiles.CaseTrackingResponse;
 import com.example.demo700.ENums.CasePayment;
 import com.example.demo700.Model.CaseModels.CaseTracking;
 
@@ -11,21 +12,21 @@ public interface CaseTrackingService {
 
 	public CaseTracking updateCaseTracking(CaseTracking caseTracking, String userId, String id);
 
-	public List<CaseTracking> swapOrder(String caseTrackingId1, String caseTrackingId2);
+	public List<CaseTrackingResponse> swapOrder(String caseTrackingId1, String caseTrackingId2);
 	
-	public List<CaseTracking> findAll();
+	public List<CaseTrackingResponse> findAll();
 	
-	public List<CaseTracking> findByVisibility(boolean visibility);
+	public List<CaseTrackingResponse> findByVisibility(boolean visibility);
 
-	public List<CaseTracking> findByCaseId(String caseId);
+	public List<CaseTrackingResponse> findByCaseId(String caseId);
 
-	public List<CaseTracking> findByCaseStage(CasePayment caseStage);
+	public List<CaseTrackingResponse> findByCaseStage(CasePayment caseStage);
 
-	public CaseTracking findByCaseIdAndStageNumber(String caseId, int stageNumber);
+	public CaseTrackingResponse findByCaseIdAndStageNumber(String caseId, int stageNumber);
 
-	public CaseTracking findByCaseIdAndCaseStage(String caseId, CasePayment caseStage);
+	public CaseTrackingResponse findByCaseIdAndCaseStage(String caseId, CasePayment caseStage);
 
-	public List<CaseTracking> findByCaseIdAndStageNumberGreaterThan(String caseId, int stageNumber);
+	public List<CaseTrackingResponse> findByCaseIdAndStageNumberGreaterThan(String caseId, int stageNumber);
 
 	public void processScheduledNotifications();
 	

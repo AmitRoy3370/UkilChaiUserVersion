@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo700.DTOFiles.CaseTrackingResponse;
 import com.example.demo700.ENums.CasePayment;
 import com.example.demo700.Model.CaseModels.CaseTracking;
 import com.example.demo700.Services.CaseServices.CaseTrackingService;
@@ -57,7 +58,7 @@ public class CaseTrackingController {
 
 		try {
 
-			List<CaseTracking> list = caseTrackingService.swapOrder(caseTrackingId1, caseTrackingId2);
+			List<CaseTrackingResponse> list = caseTrackingService.swapOrder(caseTrackingId1, caseTrackingId2);
 
 			if (list.isEmpty()) {
 
@@ -81,7 +82,7 @@ public class CaseTrackingController {
 
 		try {
 
-			List<CaseTracking> list = caseTrackingService.findAll();
+			List<CaseTrackingResponse> list = caseTrackingService.findAll();
 			return ResponseEntity.ok(list);
 
 		} catch (Exception e) {
@@ -113,7 +114,7 @@ public class CaseTrackingController {
 
 		try {
 
-			List<CaseTracking> list = caseTrackingService.findByCaseId(caseId);
+			List<CaseTrackingResponse> list = caseTrackingService.findByCaseId(caseId);
 			return ResponseEntity.ok(list);
 
 		} catch (Exception e) {
@@ -129,7 +130,7 @@ public class CaseTrackingController {
 
 		try {
 
-			List<CaseTracking> list = caseTrackingService.findByCaseStage(caseStage);
+			List<CaseTrackingResponse> list = caseTrackingService.findByCaseStage(caseStage);
 			return ResponseEntity.ok(list);
 
 		} catch (Exception e) {
@@ -145,7 +146,7 @@ public class CaseTrackingController {
 
 		try {
 
-			CaseTracking tracking = caseTrackingService.findByCaseIdAndStageNumber(caseId, stageNumber);
+			CaseTrackingResponse tracking = caseTrackingService.findByCaseIdAndStageNumber(caseId, stageNumber);
 
 			return ResponseEntity.ok(tracking);
 
@@ -163,7 +164,7 @@ public class CaseTrackingController {
 
 		try {
 
-			CaseTracking tracking = caseTrackingService.findByCaseIdAndCaseStage(caseId, caseStage);
+			CaseTrackingResponse tracking = caseTrackingService.findByCaseIdAndCaseStage(caseId, caseStage);
 
 			return ResponseEntity.ok(tracking);
 
@@ -181,7 +182,7 @@ public class CaseTrackingController {
 
 		try {
 
-			List<CaseTracking> list = caseTrackingService.findByCaseIdAndStageNumberGreaterThan(caseId, stageNumber);
+			List<CaseTrackingResponse> list = caseTrackingService.findByCaseIdAndStageNumberGreaterThan(caseId, stageNumber);
 
 			if (list.isEmpty()) {
 

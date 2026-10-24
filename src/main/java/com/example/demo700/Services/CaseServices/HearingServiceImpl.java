@@ -2,9 +2,17 @@ package com.example.demo700.Services.CaseServices;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.HashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.bson.types.ObjectId;
 
 import com.example.demo700.CyclicCleaner.Cleaner;
+import com.example.demo700.DTOFiles.HearingResponse;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.CaseModels.Case;
 import com.example.demo700.Model.CaseModels.Hearing;
@@ -52,7 +61,7 @@ public class HearingServiceImpl implements HearingService {
 	private Cleaner cleaner;
 
 	private static final String cacheValue = "Hearing";
-	
+
 	@Override
 	@CacheEvict(value = cacheValue, allEntries = true)
 	public Hearing addHearing(Hearing hearing, String userId, MultipartFile files[]) {
@@ -438,7 +447,7 @@ public class HearingServiceImpl implements HearingService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'hearingNumber_' + #hearingNumber")
-	public List<Hearing> findByHearningNumber(int hearningNumber) {
+	public List<HearingResponse> findByHearningNumber(int hearningNumber) {
 
 		List<Hearing> list = hearingRepository.findByHearningNumber(hearningNumber);
 
@@ -448,12 +457,12 @@ public class HearingServiceImpl implements HearingService {
 
 		}
 
-		return list;
+		return getHearingResponse(list);
 	}
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCaseId_' + #caseId")
-	public List<Hearing> findByCaseId(String caseId) {
+	public List<HearingResponse> findByCaseId(String caseId) {
 
 		if (caseId == null) {
 
@@ -469,12 +478,12 @@ public class HearingServiceImpl implements HearingService {
 
 		}
 
-		return list;
+		return getHearingResponse(list);
 	}
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByIssuedDateAfter_' + #date")
-	public List<Hearing> findByIssuedDateAfter(Instant date) {
+	public List<HearingResponse> findByIssuedDateAfter(Instant date) {
 
 		if (date == null) {
 
@@ -490,12 +499,12 @@ public class HearingServiceImpl implements HearingService {
 
 		}
 
-		return list;
+		return getHearingResponse(list);
 	}
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByIssuedDateBefore_' + #date")
-	public List<Hearing> findByIssuedDateBefore(Instant date) {
+	public List<HearingResponse> findByIssuedDateBefore(Instant date) {
 
 		if (date == null) {
 
@@ -511,12 +520,12 @@ public class HearingServiceImpl implements HearingService {
 
 		}
 
-		return list;
+		return getHearingResponse(list);
 	}
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findAll'")
-	public List<Hearing> seeAll() {
+	public List<HearingResponse> seeAll() {
 
 		List<Hearing> list = hearingRepository.findAll();
 
@@ -526,12 +535,12 @@ public class HearingServiceImpl implements HearingService {
 
 		}
 
-		return list;
+		return getHearingResponse(list);
 	}
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findById_' + #id")
-	public Hearing findById(String id) {
+	public HearingResponse findById(String id) {
 
 		if (id == null) {
 
@@ -549,7 +558,7 @@ public class HearingServiceImpl implements HearingService {
 
 			}
 
-			return hearing;
+			return getHearingResponse(hearing);
 
 		} catch (Exception e) {
 
@@ -594,7 +603,7 @@ public class HearingServiceImpl implements HearingService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCaseIdAndHearingNumber_' + #caseId + '_' + #hearingNumber")
-	public Hearing findByCaseIdAndHearingNumber(String caseId, int hearingNumber) {
+	public HearingResponse findByCaseIdAndHearingNumber(String caseId, int hearingNumber) {
 
 		if (caseId == null || hearingNumber <= 0) {
 
@@ -612,7 +621,7 @@ public class HearingServiceImpl implements HearingService {
 
 			}
 
-			return hearing;
+			return getHearingResponse(hearing);
 
 		} catch (Exception e) {
 
@@ -624,7 +633,7 @@ public class HearingServiceImpl implements HearingService {
 
 	@Override
 	@Cacheable(value = cacheValue, key = "'findByCaseIdAndHearingNumberLessThanEqual_' + #caseId + '_' + #hearingNumber")
-	public List<Hearing> findByCaseIdAndHearingNumberLessThanEqual(String caseId, int hearingNumber) {
+	public List<HearingResponse> findByCaseIdAndHearingNumberLessThanEqual(String caseId, int hearingNumber) {
 
 		if (caseId == null || hearingNumber <= 0) {
 
@@ -640,7 +649,79 @@ public class HearingServiceImpl implements HearingService {
 
 		}
 
-		return list;
+		return getHearingResponse(list);
+	}
+
+	private ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+
+	private HearingResponse getHearingResponse(Hearing hearing) {
+
+		List<Hearing> list = new ArrayList<>();
+
+		list.add(hearing);
+
+		return getHearingResponse(list).get(0);
+
+	}
+
+	private List<HearingResponse> getHearingResponse(List<Hearing> list) {
+
+		List<HearingResponse> responses = new ArrayList<>();
+
+		CompletableFuture<List<String>> caseIdFuture = CompletableFuture.supplyAsync(() -> list.stream().distinct()
+				.filter(Objects::nonNull).map(Hearing::getCaseId).collect(Collectors.toList()), executor);
+
+		CompletableFuture<Map<String, Case>> caseMapFuture = caseIdFuture.thenApplyAsync(casesId -> {
+
+			if (casesId == null || casesId.isEmpty()) {
+
+				return new HashMap<>();
+
+			}
+
+			return caseRepository.findAllById(casesId).stream()
+					.collect(Collectors.toMap(Case::getId, Function.identity()));
+
+		}, executor);
+
+		CompletableFuture.allOf(caseIdFuture, caseMapFuture).join();
+
+		Map<String, Case> caseMap = caseMapFuture.join();
+
+		for (Hearing hearing : list) {
+
+			try {
+
+				HearingResponse response = new HearingResponse();
+
+				response.setId(hearing.getId());
+				response.setAttachmentsId(hearing.getAttachmentsId());
+				response.setCaseId(hearing.getCaseId());
+				response.setIssuedDate(hearing.getIssuedDate());
+				response.setHearningNumber(hearing.getHearningNumber());
+
+				try {
+
+					response.setHearingCase(caseMap.get(hearing.getCaseId()));
+
+				} catch (Exception e) {
+
+					System.out.println(e.getMessage());
+
+				}
+
+				responses.add(response);
+
+			} catch (Exception e) {
+
+				System.out.println(e.getMessage());
+
+			}
+
+		}
+
+		return responses;
+
 	}
 
 }
