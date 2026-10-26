@@ -151,7 +151,7 @@ public class AdvocateDocumentsServiceImpl implements AdvocateDocumentsService {
 	public AdvocateDocuments updateDocuments(String id, String userId, AdvocateDocuments documents,
 			MultipartFile[] files) {
 
-		if (id == null || userId == null || files == null || documents == null) {
+		if (id == null || userId == null || documents == null) {
 
 			throw new NullPointerException("False request...");
 
