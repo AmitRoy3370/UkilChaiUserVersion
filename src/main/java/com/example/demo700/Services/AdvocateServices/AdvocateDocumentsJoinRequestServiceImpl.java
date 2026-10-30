@@ -57,12 +57,11 @@ public class AdvocateDocumentsJoinRequestServiceImpl implements AdvocateDocument
 
 	private static final String cacheValue = "AdvocateDocumentsInJoinRequest";
 
-	
+
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "Advocate", allEntries = true)
-
-	})
+			@CacheEvict(value = "Advocate", allEntries = true),
+          @CacheEvict(value = "AdvocateJoinRequest", allEntries = true) })
 	public AdvocateDocumentsJoinRequest addDocuments(String advocateId, MultipartFile[] files) {
 
 		if (advocateId == null) {
@@ -151,9 +150,8 @@ public class AdvocateDocumentsJoinRequestServiceImpl implements AdvocateDocument
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "Advocate", allEntries = true)
-
-	})
+			@CacheEvict(value = "Advocate", allEntries = true),
+          @CacheEvict(value = "AdvocateJoinRequest", allEntries = true) })
 	public AdvocateDocumentsJoinRequest updateDocuments(String id, String userId,
 			AdvocateDocumentsJoinRequest documents, MultipartFile[] files) {
 

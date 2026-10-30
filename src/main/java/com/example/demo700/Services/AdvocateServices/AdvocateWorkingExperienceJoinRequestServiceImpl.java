@@ -53,7 +53,8 @@ public class AdvocateWorkingExperienceJoinRequestServiceImpl implements Advocate
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "Advocate", allEntries = true) })
+			@CacheEvict(value = "Advocate", allEntries = true),
+          @CacheEvict(value = "AdvocateJoinRequest", allEntries = true) })
 	public AdvocateWorkingExperienceJoinRequest addWorkingExperience(AdvocateWorkingExperienceJoinRequest experience,
 			String userId) {
 
@@ -131,7 +132,8 @@ public class AdvocateWorkingExperienceJoinRequestServiceImpl implements Advocate
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "Advocate", allEntries = true) })
+			@CacheEvict(value = "Advocate", allEntries = true),
+          @CacheEvict(value = "AdvocateJoinRequest", allEntries = true) })
 	public AdvocateWorkingExperienceJoinRequest updateWorkingExperience(AdvocateWorkingExperienceJoinRequest experience,
 			String userId, String id) {
 

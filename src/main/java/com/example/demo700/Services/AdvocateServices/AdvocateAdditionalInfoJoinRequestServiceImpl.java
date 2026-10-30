@@ -58,12 +58,11 @@ public class AdvocateAdditionalInfoJoinRequestServiceImpl implements AdvocateAdd
 
 	private static final String cacheValue = "AdvocateAdditionalInfoInJoinRequest";
 
-	
+
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "Advocate", allEntries = true)
-
-	})
+			@CacheEvict(value = "Advocate", allEntries = true),
+          @CacheEvict(value = "AdvocateJoinRequest", allEntries = true) })
 	public AdvocateAdditionalInfoJoinRequest addAdditional(AdvocateAdditionalInfoJoinRequest info, String userId) {
 
 		if (info == null || userId == null) {
@@ -230,9 +229,8 @@ public class AdvocateAdditionalInfoJoinRequestServiceImpl implements AdvocateAdd
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "Advocate", allEntries = true)
-
-	})
+			@CacheEvict(value = "Advocate", allEntries = true),
+          @CacheEvict(value = "AdvocateJoinRequest", allEntries = true) })
 	public AdvocateAdditionalInfoJoinRequest updateAdditional(AdvocateAdditionalInfoJoinRequest info, String userId,
 			String id) {
 
