@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.Set;
 
 import com.example.demo700.ENums.AdvocateSpeciality;
+import com.example.demo700.Model.AdvocateModels.AdvocateAdditionalInfoJoinRequest;
+import com.example.demo700.Model.AdvocateModels.AdvocateDocumentsJoinRequest;
+import com.example.demo700.Model.AdvocateModels.AdvocateWorkingExperienceJoinRequest;
 
 public class AdvocateJoinRequestDTO implements Serializable {
 
@@ -16,11 +19,11 @@ public class AdvocateJoinRequestDTO implements Serializable {
 	private String id, profileImageId;
 
 	private String userId, userName, fullName;
-	
+
 	private String userContactInfoId, phone, email;
-	
+
 	private String userLocationId, locationName;
-	
+
 	private double lattitude, logitude;
 
 	private Set<AdvocateSpeciality> advocateSpeciality;
@@ -34,6 +37,12 @@ public class AdvocateJoinRequestDTO implements Serializable {
 	private String degrees[];
 
 	private String workingExperiences[];
+
+	private AdvocateWorkingExperienceJoinRequest workingExperience;
+
+	private AdvocateDocumentsJoinRequest documents;
+
+	private AdvocateAdditionalInfoJoinRequest additionalInfo;
 
 	public AdvocateJoinRequestDTO(String id, String profileImageId, String userId, String userName,
 			Set<AdvocateSpeciality> advocateSpeciality, int experience, String licenseKey, String cvHexKey,
@@ -100,6 +109,37 @@ public class AdvocateJoinRequestDTO implements Serializable {
 		this.cvHexKey = cvHexKey;
 		this.degrees = degrees;
 		this.workingExperiences = workingExperiences;
+	}
+
+	public AdvocateJoinRequestDTO(String id, String profileImageId, String userId, String userName, String fullName,
+			String userContactInfoId, String phone, String email, String userLocationId, String locationName,
+			double lattitude, double logitude, Set<AdvocateSpeciality> advocateSpeciality, int experience,
+			String licenseKey, String district, String cvHexKey, String[] degrees, String[] workingExperiences,
+			AdvocateWorkingExperienceJoinRequest workingExperience, AdvocateDocumentsJoinRequest documents,
+			AdvocateAdditionalInfoJoinRequest additionalInfo) {
+		super();
+		this.id = id;
+		this.profileImageId = profileImageId;
+		this.userId = userId;
+		this.userName = userName;
+		this.fullName = fullName;
+		this.userContactInfoId = userContactInfoId;
+		this.phone = phone;
+		this.email = email;
+		this.userLocationId = userLocationId;
+		this.locationName = locationName;
+		this.lattitude = lattitude;
+		this.logitude = logitude;
+		this.advocateSpeciality = advocateSpeciality;
+		this.experience = experience;
+		this.licenseKey = licenseKey;
+		this.district = district;
+		this.cvHexKey = cvHexKey;
+		this.degrees = degrees;
+		this.workingExperiences = workingExperiences;
+		this.workingExperience = workingExperience;
+		this.documents = documents;
+		this.additionalInfo = additionalInfo;
 	}
 
 	public AdvocateJoinRequestDTO() {
@@ -258,6 +298,34 @@ public class AdvocateJoinRequestDTO implements Serializable {
 		this.fullName = fullName;
 	}
 
+	public AdvocateWorkingExperienceJoinRequest getWorkingExperience() {
+		return workingExperience;
+	}
+
+	public void setWorkingExperience(AdvocateWorkingExperienceJoinRequest workingExperience) {
+		this.workingExperience = workingExperience;
+	}
+
+	public AdvocateDocumentsJoinRequest getDocuments() {
+		return documents;
+	}
+
+	public void setDocuments(AdvocateDocumentsJoinRequest documents) {
+		this.documents = documents;
+	}
+
+	public AdvocateAdditionalInfoJoinRequest getAdditionalInfo() {
+		return additionalInfo;
+	}
+
+	public void setAdditionalInfo(AdvocateAdditionalInfoJoinRequest additionalInfo) {
+		this.additionalInfo = additionalInfo;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
 	@Override
 	public String toString() {
 		return "AdvocateJoinRequestDTO [id=" + id + ", profileImageId=" + profileImageId + ", userId=" + userId
@@ -266,7 +334,8 @@ public class AdvocateJoinRequestDTO implements Serializable {
 				+ locationName + ", lattitude=" + lattitude + ", logitude=" + logitude + ", advocateSpeciality="
 				+ advocateSpeciality + ", experience=" + experience + ", licenseKey=" + licenseKey + ", district="
 				+ district + ", cvHexKey=" + cvHexKey + ", degrees=" + Arrays.toString(degrees)
-				+ ", workingExperiences=" + Arrays.toString(workingExperiences) + "]";
+				+ ", workingExperiences=" + Arrays.toString(workingExperiences) + ", workingExperience="
+				+ workingExperience + ", documents=" + documents + ", additionalInfo=" + additionalInfo + "]";
 	}
 
 }

@@ -13,10 +13,13 @@ import com.example.demo700.Model.AdminModels.AdminJoinRequest;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
 import com.example.demo700.Model.AdvocateModels.AdvocateAdditionalInfo;
+import com.example.demo700.Model.AdvocateModels.AdvocateAdditionalInfoJoinRequest;
 import com.example.demo700.Model.AdvocateModels.AdvocateDocuments;
+import com.example.demo700.Model.AdvocateModels.AdvocateDocumentsJoinRequest;
 import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
 import com.example.demo700.Model.AdvocateModels.AdvocatePost;
 import com.example.demo700.Model.AdvocateModels.AdvocateWorkingExperience;
+import com.example.demo700.Model.AdvocateModels.AdvocateWorkingExperienceJoinRequest;
 import com.example.demo700.Model.CaseModels.AppealCase;
 import com.example.demo700.Model.CaseModels.AppealHearings;
 import com.example.demo700.Model.CaseModels.Case;
@@ -73,9 +76,12 @@ import com.example.demo700.Repositories.AdminRepositories.AdminJoinRequestReposi
 import com.example.demo700.Repositories.AdminRepositories.AdminRepository;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateAdditionalDocumentsRepository;
+import com.example.demo700.Repositories.AdvocateRepositories.AdvocateAdditionalInfoJoinRequestRepository;
+import com.example.demo700.Repositories.AdvocateRepositories.AdvocateDocumentsJoinRequestRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateDocumentsRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateJoinRequestRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
+import com.example.demo700.Repositories.AdvocateRepositories.AdvocateWorkingExperienceInJoinRequestRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateWorkingExperienceRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.PostRepository;
 import com.example.demo700.Repositories.CaseRepositories.AppealHearingRepository;
@@ -176,10 +182,19 @@ public class Cleaner {
 	private AdvocateWorkingExperienceRepository advocateWorkingExperienceRepository;
 
 	@Autowired
+	private AdvocateWorkingExperienceInJoinRequestRepository advocateWorkingExperienceInJoinRequestRepository;
+
+	@Autowired
 	private AdvocateDocumentsRepository advocateDocumentsRepository;
 
 	@Autowired
+	private AdvocateDocumentsJoinRequestRepository advocateDocumentsInJoinRequestRepository;
+
+	@Autowired
 	private AdvocateAdditionalDocumentsRepository advocateAdditionalInfoRepository;
+
+	@Autowired
+	private AdvocateAdditionalInfoJoinRequestRepository advocateAdditionalInfoInJoinRequestRepository;
 
 	@Autowired
 	private QuestionRepository questionRepository;
@@ -993,6 +1008,51 @@ public class Cleaner {
 			advocateJoinRequestRepository.deleteById(advocateJoinRequestId);
 
 			if (count != advocateJoinRequestRepository.count()) {
+
+				try {
+
+					AdvocateWorkingExperienceJoinRequest workingExperience = advocateWorkingExperienceInJoinRequestRepository
+							.findByAdvocateId(advocateJoinRequestId);
+
+					if (workingExperience != null) {
+
+						removeAdvocateWorkingExperienceJoinRequest(workingExperience.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					AdvocateAdditionalInfoJoinRequest workingExperience = advocateAdditionalInfoInJoinRequestRepository
+							.findByAdvocateId(advocateJoinRequestId);
+
+					if (workingExperience != null) {
+
+						removeAdvocateAdditionalInfoJoinRequest(workingExperience.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
+				
+				try {
+
+					AdvocateDocumentsJoinRequest workingExperience = advocateDocumentsInJoinRequestRepository
+							.findByAdvocateId(advocateJoinRequestId);
+
+					if (workingExperience != null) {
+
+						removeAdvocateDocumentsJoinRequest(workingExperience.getId());
+
+					}
+
+				} catch (Exception e) {
+
+				}
 
 				if (!request.getCvHexKey().isEmpty()) {
 
@@ -3542,6 +3602,99 @@ public class Cleaner {
 			advocateAdditionalInfoRepository.deleteById(id);
 
 			if (count != advocateAdditionalInfoRepository.count()) {
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeAdvocateWorkingExperienceJoinRequest(String id) {
+
+		try {
+
+			AdvocateWorkingExperienceJoinRequest advocateWorkingExperience = advocateWorkingExperienceInJoinRequestRepository
+					.findById(id).get();
+
+			if (advocateWorkingExperience != null) {
+
+				long count = advocateWorkingExperienceInJoinRequestRepository.count();
+
+				advocateWorkingExperienceInJoinRequestRepository.deleteById(id);
+
+				if (count != advocateWorkingExperienceInJoinRequestRepository.count()) {
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeAdvocateDocumentsJoinRequest(String id) {
+
+		try {
+
+			AdvocateDocumentsJoinRequest documents = advocateDocumentsInJoinRequestRepository.findById(id).get();
+
+			if (documents == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = advocateDocumentsInJoinRequestRepository.count();
+
+			advocateDocumentsInJoinRequestRepository.deleteById(id);
+
+			if (count != advocateDocumentsInJoinRequestRepository.count()) {
+
+				/*
+				 * List<String> list = documents.getAttachments();
+				 * 
+				 * for (String i : list) {
+				 * 
+				 * try {
+				 * 
+				 * imageService.delete(i);
+				 * 
+				 * } catch (Exception e) {
+				 * 
+				 * }
+				 * 
+				 * }
+				 */
+
+			}
+
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void removeAdvocateAdditionalInfoJoinRequest(String id) {
+
+		try {
+
+			AdvocateAdditionalInfoJoinRequest info = advocateAdditionalInfoInJoinRequestRepository.findById(id).get();
+
+			if (info == null) {
+
+				throw new Exception();
+
+			}
+
+			long count = advocateAdditionalInfoInJoinRequestRepository.count();
+
+			advocateAdditionalInfoInJoinRequestRepository.deleteById(id);
+
+			if (count != advocateAdditionalInfoInJoinRequestRepository.count()) {
 
 			}
 

@@ -27,14 +27,26 @@ import com.example.demo700.ENums.AdvocateSpeciality;
 import com.example.demo700.Model.AdminModels.Admin;
 import com.example.demo700.Model.AdminModels.CenterAdmin;
 import com.example.demo700.Model.AdvocateModels.Advocate;
+import com.example.demo700.Model.AdvocateModels.AdvocateAdditionalInfo;
+import com.example.demo700.Model.AdvocateModels.AdvocateAdditionalInfoJoinRequest;
+import com.example.demo700.Model.AdvocateModels.AdvocateDocuments;
+import com.example.demo700.Model.AdvocateModels.AdvocateDocumentsJoinRequest;
 import com.example.demo700.Model.AdvocateModels.AdvocateJoinRequest;
+import com.example.demo700.Model.AdvocateModels.AdvocateWorkingExperience;
+import com.example.demo700.Model.AdvocateModels.AdvocateWorkingExperienceJoinRequest;
 import com.example.demo700.Model.UserModels.User;
 import com.example.demo700.Model.UserModels.UserContactInfo;
 import com.example.demo700.Model.UserModels.UserLocation;
 import com.example.demo700.Repositories.AdminRepositories.AdminRepository;
 import com.example.demo700.Repositories.AdminRepositories.CenterAdminRepository;
+import com.example.demo700.Repositories.AdvocateRepositories.AdvocateAdditionalDocumentsRepository;
+import com.example.demo700.Repositories.AdvocateRepositories.AdvocateAdditionalInfoJoinRequestRepository;
+import com.example.demo700.Repositories.AdvocateRepositories.AdvocateDocumentsJoinRequestRepository;
+import com.example.demo700.Repositories.AdvocateRepositories.AdvocateDocumentsRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateJoinRequestRepository;
 import com.example.demo700.Repositories.AdvocateRepositories.AdvocateRepositories;
+import com.example.demo700.Repositories.AdvocateRepositories.AdvocateWorkingExperienceInJoinRequestRepository;
+import com.example.demo700.Repositories.AdvocateRepositories.AdvocateWorkingExperienceRepository;
 import com.example.demo700.Repositories.UserRepositories.UserContactInfoRepository;
 import com.example.demo700.Repositories.UserRepositories.UserLocationRepository;
 import com.example.demo700.Repositories.UserRepositories.UserRepository;
@@ -48,6 +60,24 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 	@Autowired
 	private AdvocateRepositories advocateRepository;
+
+	@Autowired
+	private AdvocateWorkingExperienceRepository workingExperienceRepository;
+
+	@Autowired
+	private AdvocateDocumentsRepository documentsRepository;
+
+	@Autowired
+	private AdvocateAdditionalDocumentsRepository additionalInfoRepository;
+
+	@Autowired
+	private AdvocateWorkingExperienceInJoinRequestRepository workingExperienceInJoinRequestRepository;
+
+	@Autowired
+	private AdvocateDocumentsJoinRequestRepository documentsInJoinRequestRepository;
+
+	@Autowired
+	private AdvocateAdditionalInfoJoinRequestRepository additionalInfoInJoinRequestRepository;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -696,6 +726,12 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
 			@CacheEvict(value = "Admin", allEntries = true), @CacheEvict(value = "Advocate", allEntries = true),
+			@CacheEvict(value = "AdvocateAdditionalInfoInJoinRequest", allEntries = true),
+			@CacheEvict(value = "AdvocateAdditionalInfo", allEntries = true),
+			@CacheEvict(value = "AdvocateWorkingExperienceInJoinRequest", allEntries = true),
+			@CacheEvict(value = "AdvocateWorkingExperience", allEntries = true),
+			@CacheEvict(value = "AdvocateDocumentsInJoinRequest", allEntries = true),
+			@CacheEvict(value = "AdvocateDocuments", allEntries = true),
 			@CacheEvict(value = "AdvocateRating", allEntries = true),
 			@CacheEvict(value = "AdvocatePost", allEntries = true),
 			@CacheEvict(value = "ClientFeedback", allEntries = true),
@@ -766,7 +802,7 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 		advocate.setDegrees(advocateJoinRequest.getDegrees());
 		advocate.setExperience(advocateJoinRequest.getExperience());
 		advocate.setLicenseKey(advocateJoinRequest.getLicenseKey());
-                advocate.setDistrict(advocateJoinRequest.getDistrict());
+		advocate.setDistrict(advocateJoinRequest.getDistrict());
 		advocate.setUserId(advocateJoinRequest.getUserId());
 		advocate.setWorkingExperiences(advocateJoinRequest.getWorkingExperiences());
 		advocate.setId(advocateJoinRequest.getId());
@@ -776,8 +812,6 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 			advocate = advocateRepository.save(advocate);
 
 			if (advocate != null) {
-
-				cleaner.removeAdvocateJoinRequest(advocateJoinRequestId);
 
 				System.out.println("advocate :- " + advocate.toString());
 
@@ -851,6 +885,114 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 				}
 
+				try {
+
+					AdvocateWorkingExperience workingExperience = new AdvocateWorkingExperience();
+
+					AdvocateWorkingExperienceJoinRequest workingExperienceInJoinRequest = workingExperienceInJoinRequestRepository
+							.findByAdvocateId(advocateJoinRequestId);
+
+					if (workingExperienceInJoinRequest != null) {
+
+						cleaner.removeAdvocateWorkingExperienceJoinRequest(workingExperienceInJoinRequest.getId());
+
+					}
+
+					workingExperience.setId(workingExperienceInJoinRequest.getId());
+					workingExperience.setAdvocateId(advocate.getId());
+					workingExperience.setBarAssociation(workingExperienceInJoinRequest.getBarAssociation());
+					workingExperience.setBarControllEnrolment(workingExperienceInJoinRequest.getBarControllEnrolment());
+					workingExperience.setCurrentChemberName(workingExperienceInJoinRequest.getCurrentChemberName());
+					workingExperience.setEnrollmentDate(workingExperienceInJoinRequest.getEnrollmentDate());
+					workingExperience.setPracticingCoat(workingExperienceInJoinRequest.getPracticingCoat());
+					workingExperience.setPrimaryPractice(workingExperienceInJoinRequest.getPrimaryPractice());
+					workingExperience
+							.setProfessionalExperience(workingExperienceInJoinRequest.getProfessionalExperience());
+					workingExperience.setYearOfLegalPractice(workingExperienceInJoinRequest.getYearOfLegalPractice());
+
+					workingExperience = workingExperienceRepository.save(workingExperience);
+
+					if (workingExperience != null) {
+
+						System.out.println(workingExperience.toString());
+
+					}
+
+				} catch (Exception e) {
+
+					System.out.println(e.getMessage());
+
+				}
+
+				try {
+
+					AdvocateDocuments advocateDocuments = new AdvocateDocuments();
+
+					AdvocateDocumentsJoinRequest advocateDocumentsInJoinRequest = documentsInJoinRequestRepository
+							.findByAdvocateId(advocateJoinRequestId);
+
+					if (advocateDocumentsInJoinRequest != null) {
+
+						advocateDocuments.setId(advocateDocumentsInJoinRequest.getId());
+						advocateDocuments.setAdvocateId(advocate.getId());
+						advocateDocuments.setAttachments(advocateDocumentsInJoinRequest.getAttachments());
+
+						advocateDocuments = documentsRepository.save(advocateDocuments);
+
+						if (advocateDocuments != null) {
+
+							cleaner.removeAdvocateDocumentsJoinRequest(advocateDocumentsInJoinRequest.getId());
+
+							System.out.println(advocateDocuments.toString());
+
+						}
+
+					}
+
+				} catch (Exception e) {
+
+					System.out.println(e.getMessage());
+
+				}
+
+				try {
+
+					AdvocateAdditionalInfo additionalInfo = new AdvocateAdditionalInfo();
+
+					AdvocateAdditionalInfoJoinRequest advocateAdditionalInfoInJoinRequest = additionalInfoInJoinRequestRepository
+							.findByAdvocateId(advocateJoinRequestId);
+
+					if (advocateAdditionalInfoInJoinRequest != null) {
+
+						additionalInfo.setId(advocateAdditionalInfoInJoinRequest.getId());
+						additionalInfo.setAdvocateId(advocate.getId());
+						additionalInfo.setCityOfUpozila(advocateAdditionalInfoInJoinRequest.getCityOfUpozila());
+						additionalInfo.setDateOfBirth(advocateAdditionalInfoInJoinRequest.getDateOfBirth());
+						additionalInfo.setNidNumber(advocateAdditionalInfoInJoinRequest.getNidNumber());
+						additionalInfo.setParmanentAdress(advocateAdditionalInfoInJoinRequest.getParmanentAdress());
+						additionalInfo.setWhatsAppNumber(advocateAdditionalInfoInJoinRequest.getWhatsAppNumber());
+
+						additionalInfo = additionalInfoRepository.save(additionalInfo);
+
+						if (additionalInfo != null) {
+
+							cleaner.removeAdvocateAdditionalInfoJoinRequest(
+									advocateAdditionalInfoInJoinRequest.getId());
+
+							System.out.println(additionalInfo.toString());
+
+						}
+
+					}
+
+				} catch (Exception e) {
+
+					System.out.println(e.getMessage());
+
+				}
+
+				cleaner.removeAdvocateJoinRequest(advocateJoinRequestId);
+
 			}
 
 			return advocate;
@@ -920,7 +1062,62 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 
 		}, executors);
 
-		CompletableFuture.allOf(allUserIdFuture, userNameFuture, contactInfoFuture, locationFuture).join();
+		CompletableFuture<List<String>> allJoinRequestIdFuture = CompletableFuture.supplyAsync(() -> list.stream()
+				.filter(Objects::nonNull).map(AdvocateJoinRequest::getId).collect(Collectors.toList()), executors);
+
+		CompletableFuture<Map<String, AdvocateWorkingExperienceJoinRequest>> workingExperienceFuture = allJoinRequestIdFuture
+				.thenApplyAsync(ids -> {
+
+					if (ids.isEmpty()) {
+
+						return new HashMap<>();
+
+					}
+
+					return workingExperienceInJoinRequestRepository.findByAdvocateIdIn(ids).stream()
+							.filter(Objects::nonNull).collect(Collectors
+									.toMap(AdvocateWorkingExperienceJoinRequest::getAdvocateId, Function.identity()));
+
+				}, executors);
+
+		CompletableFuture<Map<String, AdvocateDocumentsJoinRequest>> documentsFuture = allJoinRequestIdFuture
+				.thenApplyAsync(ids -> {
+
+					if (ids.isEmpty()) {
+
+						return new HashMap<>();
+
+					}
+
+					return documentsInJoinRequestRepository.findByAdvocateIdIn(ids).stream().filter(Objects::nonNull)
+							.collect(
+									Collectors.toMap(AdvocateDocumentsJoinRequest::getAdvocateId, Function.identity()));
+
+				}, executors);
+
+		CompletableFuture<Map<String, AdvocateAdditionalInfoJoinRequest>> additionalInfoFuture = allJoinRequestIdFuture
+				.thenApplyAsync(ids -> {
+
+					if (ids.isEmpty()) {
+
+						return new HashMap<>();
+
+					}
+
+					return additionalInfoInJoinRequestRepository.findByAdvocateIdIn(ids).stream()
+							.filter(Objects::nonNull).collect(Collectors
+									.toMap(AdvocateAdditionalInfoJoinRequest::getAdvocateId, Function.identity()));
+
+				}, executors);
+
+		CompletableFuture.allOf(additionalInfoFuture, documentsFuture, workingExperienceFuture, allJoinRequestIdFuture,
+				allUserIdFuture, userNameFuture, contactInfoFuture, locationFuture).join();
+
+		Map<String, AdvocateAdditionalInfoJoinRequest> additionalInfoMap = additionalInfoFuture.join();
+
+		Map<String, AdvocateDocumentsJoinRequest> documentsMap = documentsFuture.join();
+
+		Map<String, AdvocateWorkingExperienceJoinRequest> workingExperienceMap = workingExperienceFuture.join();
 
 		List<String> allUserId = allUserIdFuture.join();
 
@@ -951,6 +1148,36 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 				try {
 
 					response.setCvHexKey(request.getCvHexKey());
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					AdvocateWorkingExperienceJoinRequest workingExperience = workingExperienceMap.get(request.getId());
+
+					response.setWorkingExperience(workingExperience);
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					AdvocateAdditionalInfoJoinRequest additionalInfo = additionalInfoMap.get(request.getId());
+
+					response.setAdditionalInfo(additionalInfo);
+
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					AdvocateDocumentsJoinRequest documents = documentsMap.get(request.getId());
+
+					response.setDocuments(documents);
 
 				} catch (Exception e) {
 
