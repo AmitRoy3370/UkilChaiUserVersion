@@ -89,7 +89,9 @@ public class AdvocateServiceImpl implements AdvocateService {
 	private static final String cacheValue = "Advocate";
 
 	@Override
-	@CacheEvict(value = cacheValue, allEntries = true)
+@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
+			@CacheEvict(value = "CenterAdmin", allEntries = true),
+            @CacheEvict(value = "Admin", allEntries = true),})
 	public Advocate addVocate(Advocate advocate, String userId, MultipartFile file) {
 
 		if (userId == null || advocate == null) {
@@ -553,7 +555,9 @@ public class AdvocateServiceImpl implements AdvocateService {
 
 	@Override
 	@Caching(evict = { @CacheEvict(value = cacheValue, allEntries = true),
-			@CacheEvict(value = "Admin", allEntries = true), @CacheEvict(value = "Advocate", allEntries = true),
+			@CacheEvict(value = "CenterAdmin", allEntries = true),
+            @CacheEvict(value = "Admin", allEntries = true),
+           @CacheEvict(value = "Advocate", allEntries = true),
 			@CacheEvict(value = "AdvocateRating", allEntries = true),
 			@CacheEvict(value = "AdvocatePost", allEntries = true),
 			@CacheEvict(value = "ClientFeedback", allEntries = true),
@@ -561,7 +565,7 @@ public class AdvocateServiceImpl implements AdvocateService {
 			@CacheEvict(value = "AppealHearing", allEntries = true),
 			@CacheEvict(value = "CaseAppeal", allEntries = true), @CacheEvict(value = "CaseClose", allEntries = true),
 			@CacheEvict(value = "CaseJudgement", allEntries = true), @CacheEvict(value = "Case", allEntries = true),
-			@CacheEvict(value = "CaseTracking", allEntries = true),
+			@CacheEvict(value = "CaseTracking", allEntries = true), @CacheEvict(value = "CaseRequest", allEntries = true),
 			@CacheEvict(value = "DocumentDraft", allEntries = true), @CacheEvict(value = "Hearing", allEntries = true),
 			@CacheEvict(value = "ReadStatus", allEntries = true), @CacheEvict(value = "Answer", allEntries = true),
 			@CacheEvict(value = "Question", allEntries = true),

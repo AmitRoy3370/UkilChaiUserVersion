@@ -659,7 +659,8 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 			@CacheEvict(value = "CaseTracking", allEntries = true),
 			@CacheEvict(value = "DocumentDraft", allEntries = true), @CacheEvict(value = "Hearing", allEntries = true),
 			@CacheEvict(value = "ReadStatus", allEntries = true), @CacheEvict(value = "Answer", allEntries = true),
-			@CacheEvict(value = "Question", allEntries = true), })
+			@CacheEvict(value = "Question", allEntries = true),
+            @CacheEvict(value = "CenterAdmin", allEntries = true) })
 	public boolean deleteAdvocate(String userId, String advocateId) {
 
 		if (userId == null || advocateId == null) {
@@ -728,6 +729,8 @@ public class AdvocateJoinRequestServiceImpl implements AdvocateJoinRequestServic
 			@CacheEvict(value = "Admin", allEntries = true), @CacheEvict(value = "Advocate", allEntries = true),
 			@CacheEvict(value = "AdvocateAdditionalInfoInJoinRequest", allEntries = true),
 			@CacheEvict(value = "AdvocateAdditionalInfo", allEntries = true),
+            @CacheEvict(value = "CenterAdmin", allEntries = true),
+            @CacheEvict(value = "Admin", allEntries = true),
 			@CacheEvict(value = "AdvocateWorkingExperienceInJoinRequest", allEntries = true),
 			@CacheEvict(value = "AdvocateWorkingExperience", allEntries = true),
 			@CacheEvict(value = "AdvocateDocumentsInJoinRequest", allEntries = true),
