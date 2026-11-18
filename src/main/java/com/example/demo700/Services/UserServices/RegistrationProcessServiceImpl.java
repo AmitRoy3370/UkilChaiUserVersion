@@ -401,7 +401,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 		try {
 
-			info.setOfficeRegistryId(null);
+			info.setOfficeRegistryId(id);
 
 			companyRepository.save(info);
 
