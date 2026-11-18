@@ -242,7 +242,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 		User user = null;
 
-		boolean isOwn = false;
+		boolean isOwn = false, isCenterAdmin = true;
 
 		try {
 
@@ -278,7 +278,8 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 			if (centerAdmin == null) {
 
-				throw new Exception();
+				//throw new Exception();
+				isCenterAdmin = false;
 
 			}
 
@@ -374,7 +375,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 		}
 
-		if(!isAdvocate && !isOwn) {
+		if(!isAdvocate && (!isOwn || !isCenterAdmin) ) {
 
                 throw new ArithmeticException("You will not be able to update this process....");
 
