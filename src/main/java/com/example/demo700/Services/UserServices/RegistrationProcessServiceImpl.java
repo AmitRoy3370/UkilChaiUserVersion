@@ -222,9 +222,11 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 		CompanyInformation info = null;
 
+		RegistrationProcess regProcess = null;
+
 		try {
 
-			RegistrationProcess regProcess = processRepository.findById(id).get();
+			regProcess = processRepository.findById(id).get();
 
 			if (regProcess == null) {
 
@@ -382,6 +384,24 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 		if(!isAdvocate && (!isOwn || !isCenterAdmin) ) {
 
                 throw new ArithmeticException("You will not be able to update this process....");
+
+		}
+
+		if(isAdvocate && !isCenterAdmin) {
+
+                if(!regProcess.getUserId().equals(process.getUserId())) {
+
+                    throw new ArithmeticException("As an advocate you can't change the centeradmins identity...");
+
+                } else if(!regProcess.getAdvocateId().equals(process.getAdvocateId())) {
+
+                    throw new ArithmeticException("You can't change the assigned advocate...");
+
+                } else if(!regProcess.getCompanyId().equals(process.getCompanyId())) {
+
+                    throw new ArithmeticException("As an advocate you can't change company information....");
+
+                }
 
 		}
 
