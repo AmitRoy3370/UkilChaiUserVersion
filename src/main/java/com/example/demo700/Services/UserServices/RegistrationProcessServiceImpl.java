@@ -405,7 +405,7 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 			companyRepository.save(info);
 
-			company.setOfficeRegistryId(process.getId());
+			company.setOfficeRegistryId(id);
 			companyRepository.save(company);
 
 		} catch (Exception e) {
