@@ -313,6 +313,8 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 		try {
 
+		  if(centerAdmin != null) {
+
 			if (centerAdmin.getAdvocates().contains(advocate.getId())) {
 
 			} else {
@@ -320,6 +322,8 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 				throw new Exception();
 
 			}
+
+		  }
 
 		} catch (Exception e) {
 
