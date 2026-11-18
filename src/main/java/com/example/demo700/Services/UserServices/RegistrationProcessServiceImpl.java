@@ -242,6 +242,8 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 		User user = null;
 
+		boolean isOwn = false;
+
 		try {
 
 			user = userRepository.findById(userId).get();
@@ -254,9 +256,11 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 			if (user.getId().equals(process.getUserId())) {
 
+                    isOwn = true;
+
 			} else {
 
-				throw new Exception();
+				//throw new Exception();
 
 			}
 
@@ -284,6 +288,8 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 
 		}
 
+		boolean isAdvocate = false;
+
 		Advocate advocate = null;
 
 		try {
@@ -295,6 +301,8 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 				throw new Exception();
 
 			}
+
+			isAdvocate = advocate.getUserId().equals(user.getId());
 
 		} catch (Exception e) {
 
@@ -363,6 +371,12 @@ public class RegistrationProcessServiceImpl implements RegistrationProcessServic
 		} catch (Exception e) {
 
 			throw new ArithmeticException("This companies registration process is already added...");
+
+		}
+
+		if(!isAdvocate && !isOwn) {
+
+                throw new ArithmeticException("You will not be able to update this process....");
 
 		}
 
