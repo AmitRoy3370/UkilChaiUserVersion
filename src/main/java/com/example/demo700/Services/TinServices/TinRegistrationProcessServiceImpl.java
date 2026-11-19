@@ -270,9 +270,13 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 
 			}
 
-			if ((isAdmin && !registrationProcess.getCenterAdminId().equals(admin.getId())) || (isAdvocate || !registrationProcess.getAdvocateId().equals(advocate.getId()))) {
+			if ((isAdmin && registrationProcess.getCenterAdminId().equals(admin.getId())) || (isAdvocate || registrationProcess.getAdvocateId().equals(advocate.getId()))) {
 
-				throw new Exception();
+				//throw new Exception();
+
+			} else {
+
+			    throw new Exception();
 
 			}
 
