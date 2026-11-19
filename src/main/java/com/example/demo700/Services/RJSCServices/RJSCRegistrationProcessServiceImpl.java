@@ -238,7 +238,7 @@ public class RJSCRegistrationProcessServiceImpl implements RJSCRegistrationProce
 
 		if(!isAdvocate && !isOwn) {
 
-            throw new ArihtmeitcException("You doesn't have permission to change this process....");
+            throw new ArithmeticException("You doesn't have permission to change this process....");
 
 		}
 
