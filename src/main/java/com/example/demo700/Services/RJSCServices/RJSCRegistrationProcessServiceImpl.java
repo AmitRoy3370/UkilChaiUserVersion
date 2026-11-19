@@ -165,6 +165,8 @@ public class RJSCRegistrationProcessServiceImpl implements RJSCRegistrationProce
 
 		User user = null;
 
+		boolean isOwn = false;
+
 		try {
 
 			user = userRepository.findById(userId).get();
@@ -177,9 +179,11 @@ public class RJSCRegistrationProcessServiceImpl implements RJSCRegistrationProce
 
 			if (process.getUserId().equals(user.getId())) {
 
+                    isOwn = true;
+
 			} else {
 
-				throw new Exception();
+				//throw new Exception();
 
 			}
 
@@ -191,6 +195,8 @@ public class RJSCRegistrationProcessServiceImpl implements RJSCRegistrationProce
 
 		Advocate advocate = null;
 
+		//boolean isAdvocate = false;
+
 		try {
 
 			advocate = advocateRepository.findById(process.getAdvocateId()).get();
@@ -201,11 +207,14 @@ public class RJSCRegistrationProcessServiceImpl implements RJSCRegistrationProce
 
 			}
 
+			//isAdvocate = advocate.getUserId().equals(user.getId());
+
 		} catch (Exception e) {
 
 			throw new NoSuchElementException("No such advocate find at here...");
 
 		}
+
 
 		CenterAdmin admin = null;
 
@@ -226,6 +235,12 @@ public class RJSCRegistrationProcessServiceImpl implements RJSCRegistrationProce
 		}
 
 		boolean isAdvocate = admin == null && advocate.getUserId().equals(userId);
+
+		if(!isAdvocate && !isOwn) {
+
+            throw new ArihtmeitcException("You doesn't have permission to change this process....");
+
+		}
 
 		RJSC rjsc = null;
 
@@ -265,7 +280,7 @@ public class RJSCRegistrationProcessServiceImpl implements RJSCRegistrationProce
 
 		try {
 
-			if (isAdvocate) {
+			if (isAdvocate && !isOwn) {
 
 				if (!oldProcess.getUserId().equals(process.getUserId())) {
 

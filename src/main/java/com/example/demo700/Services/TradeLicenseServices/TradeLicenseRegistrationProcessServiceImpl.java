@@ -48,7 +48,7 @@ public class TradeLicenseRegistrationProcessServiceImpl implements TradeLicenseR
 
 	@Autowired
 	private Cleaner cleaner;
-	
+
 	private static final String cacheValue = "TradeLicenseRegistrationProcess";
 
 	@Override
@@ -209,7 +209,7 @@ public class TradeLicenseRegistrationProcessServiceImpl implements TradeLicenseR
 		boolean isAdvocate = false;
 
 		boolean isAdmin = false;
-		
+
 		Advocate advocate = null;
 
 		try {
@@ -238,13 +238,15 @@ public class TradeLicenseRegistrationProcessServiceImpl implements TradeLicenseR
 
 			if (admin == null) {
 
-				throw new Exception();
+				//throw new Exception();
+
+				isAdmin = false;
 
 			}
 
-			isAdmin = admin.getUserId().equals(userId);
-			
-			if (!admin.getUserId().equals(user.getId())) {
+			isAdmin = admin != null && admin.getUserId().equals(userId);
+
+			if (admin != null && !admin.getUserId().equals(user.getId())) {
 
 				if (isAdvocate) {
 
@@ -259,6 +261,12 @@ public class TradeLicenseRegistrationProcessServiceImpl implements TradeLicenseR
 		} catch (Exception e) {
 
 			throw new NoSuchElementException("No such centeradmin find at here...");
+
+		}
+
+		if(!isAdmin && !isAdvocate) {
+
+            throw new ArithmeticException("You don't have permission to update process...");
 
 		}
 
