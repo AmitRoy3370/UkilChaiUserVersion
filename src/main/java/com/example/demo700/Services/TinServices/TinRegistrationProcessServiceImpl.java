@@ -224,11 +224,11 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 
 			if (admin == null) {
 
-				throw new Exception();
+				//throw new Exception();
 
 			}
 
-			if (!admin.getId().equals(process.getCenterAdminId())) {
+			if (admin == null || !admin.getId().equals(process.getCenterAdminId())) {
 
 				if (isAdvocate) {
 
@@ -251,7 +251,7 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 		}
 
 		TinRegistrationProcess registrationProcess = null;
-		
+
 		try {
 
 			registrationProcess = processRepository.findById(id).get();
@@ -315,29 +315,29 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 		}
 
 		if(isAdmin) {
-			
+
 		} else {
-			
+
 			if(isAdvocate) {
-				
+
 				if(!registrationProcess.getAdvocateId().equals(process.getAdvocateId())) {
-					
+
 					throw new ArithmeticException("Advocate can change only steps...");
-					
+
 				} else if(!registrationProcess.getCenterAdminId().equals(process.getCenterAdminId())) {
-					
+
 					throw new ArithmeticException("Advocate can change only steps...");
-					
+
 				} else if(!registrationProcess.getTinId().equals(process.getTinId())) {
-					
+
 					throw new ArithmeticException("Advocate can change only steps...");
-					
+
 				}
-				
+
 			}
-			
+
 		}
-		
+
 		Query query = new Query(Criteria.where("_id").is(id));
 
 		Update update = new Update();
