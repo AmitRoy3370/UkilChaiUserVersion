@@ -54,7 +54,7 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 			@CacheEvict(value = "Vat", allEntries = true),
 			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
 			@CacheEvict(value = "VatPayment", allEntries = true),
-			
+
 	})
 	public VatRegistrationProcess addProcess(VatRegistrationProcess process, String userId) {
 
@@ -164,7 +164,7 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 			@CacheEvict(value = "Vat", allEntries = true),
 			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
 			@CacheEvict(value = "VatPayment", allEntries = true),
-			
+
 	})
 	public VatRegistrationProcess updateProcess(VatRegistrationProcess process, String userId, String id) {
 
@@ -195,7 +195,7 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 		Advocate advocate = null;
 
 		boolean isAdvocate = false;
-		
+
 		boolean isAdmin = false;
 
 		try {
@@ -231,9 +231,9 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 				}
 
 			} else {
-				
+
 				isAdmin = true;
-				
+
 			}
 
 		} catch (Exception e) {
@@ -316,7 +316,7 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 
 			if (!isAdmin && isAdvocate) {
 
-				if (!process.getUserId().equals(registrationProcess.getAdvocateId())) {
+				if (!process.getUserId().equals(registrationProcess.getUserId())) {
 
 					throw new ArithmeticException("Advocate can change only steps and status");
 
@@ -361,31 +361,31 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	@Override
 	@Cacheable(value = "VatRegistrationProcess", key = "'findById_' + #id")
 	public VatRegistrationProcess findById(String id) {
-		
+
 		if(id == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			VatRegistrationProcess process = processRepository.findById(id).get();
-			
+
 			if(process == null) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return process;
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here...");
-			
+
 		}
-		
+
 	}
 
 	@Override
@@ -393,21 +393,21 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	public List<VatRegistrationProcess> findAll() {
 
 		try {
-			
+
 			List<VatRegistrationProcess> process = processRepository.findAll();
-			
+
 			if(process == null) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return process;
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here...");
-			
+
 		}
 	}
 
@@ -416,27 +416,27 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	public VatRegistrationProcess findByVatId(String vatId) {
 
 		if(vatId == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			VatRegistrationProcess process = processRepository.findByVatId(vatId);
-			
+
 			if(process == null) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return process;
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here...");
-			
+
 		}
 	}
 
@@ -445,27 +445,27 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	public List<VatRegistrationProcess> findByVatIdIn(List<String> vatsId) {
 
 		if(vatsId == null || vatsId.isEmpty()) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			List<VatRegistrationProcess> process = processRepository.findByVatIdIn(vatsId);
-			
+
 			if(process == null || process.isEmpty()) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return process;
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here...");
-			
+
 		}
 	}
 
@@ -474,27 +474,27 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	public List<VatRegistrationProcess> findByUserId(String userId) {
 
 		if(userId == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			List<VatRegistrationProcess> process = processRepository.findByUserId(userId);
-			
+
 			if(process == null || process.isEmpty()) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return process;
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here...");
-			
+
 		}
 	}
 
@@ -503,27 +503,27 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	public List<VatRegistrationProcess> findByAdvocateId(String advocateId) {
 
 		if(advocateId == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			List<VatRegistrationProcess> process = processRepository.findByAdvocateId(advocateId);
-			
+
 			if(process == null || process.isEmpty()) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return process;
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here...");
-			
+
 		}
 	}
 
@@ -532,21 +532,21 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	public List<VatRegistrationProcess> findByStatus(boolean status) {
 
 		try {
-			
+
 			List<VatRegistrationProcess> process = processRepository.findByStatus(status);
-			
+
 			if(process == null || process.isEmpty()) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return process;
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here...");
-			
+
 		}
 	}
 
@@ -555,27 +555,27 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 	public List<VatRegistrationProcess> findByStepsContainingIgnoreCase(String steps) {
 
 		if(steps == null) {
-			
+
 			throw new NullPointerException("False request...");
-			
+
 		}
-		
+
 		try {
-			
+
 			List<VatRegistrationProcess> process = processRepository.findByStepsContainingIgnoreCase(steps);
-			
+
 			if(process == null || process.isEmpty()) {
-				
+
 				throw new Exception();
-				
+
 			}
-			
+
 			return process;
-			
+
 		} catch(Exception e) {
-			
+
 			throw new NoSuchElementException("No such process find at here...");
-			
+
 		}
 	}
 
@@ -584,7 +584,7 @@ public class VatRegistrationProcessServiceImpl implements VatRegistrationProcess
 			@CacheEvict(value = "Vat", allEntries = true),
 			@CacheEvict(value = "VatRegistrationProcess", allEntries = true),
 			@CacheEvict(value = "VatPayment", allEntries = true),
-			
+
 	})
 	public boolean deleteProcess(String id, String userId) {
 
