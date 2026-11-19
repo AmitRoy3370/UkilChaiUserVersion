@@ -198,9 +198,11 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 
 		boolean isAdvocate = false, isAdmin = false;
 
+		Advocate advocate = null;
+
 		try {
 
-			Advocate advocate = advocateRepository.findById(process.getAdvocateId()).get();
+			advocate = advocateRepository.findById(process.getAdvocateId()).get();
 
 			if (advocate == null) {
 
@@ -250,6 +252,12 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 
 		}
 
+		if(!isAdmin && !isAdvocate) {
+
+            throw new ArithmeticException("You don't have permission to update process...");
+
+		}
+
 		TinRegistrationProcess registrationProcess = null;
 
 		try {
@@ -262,7 +270,7 @@ public class TinRegistrationProcessServiceImpl implements TinRegistrationProcess
 
 			}
 
-			if (!registrationProcess.getCenterAdminId().equals(admin.getId())) {
+			if ((isAdmin && !registrationProcess.getCenterAdminId().equals(admin.getId())) || (isAdvocate || !registrationProcess.getAdvocateId().equals(advocate.getId()))) {
 
 				throw new Exception();
 
